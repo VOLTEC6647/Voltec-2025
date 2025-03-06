@@ -26,6 +26,7 @@ import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.FieldLayout.CoralTarget;
 import com.team6647.frc2025.auto.actions.AssistModeExecutor;
 import com.team6647.frc2025.auto.modes.configuredQuals.goCenter;
+import com.team6647.frc2025.auto.modes.configuredQuals.putCoral;
 import com.team6647.frc2025.auto.modes.configuredQuals.test1;
 
 import com.team6647.frc2025.subsystems.Elevator;
@@ -75,6 +76,8 @@ public class DriverControls {
 	private Elevator mElevator = Elevator.getInstance();
 	private CoralPivot mCoralPivot = CoralPivot.getInstance();
 	private Climber mClimber = Climber.getInstance();
+
+	public boolean autoPose = true;
 
 
 
@@ -194,6 +197,18 @@ public class DriverControls {
 			mAssistedActionsExecutor.start();
 		}
 		if (mControlBoard.driver.yButton.wasReleased()) {
+			stopAssist();
+		}
+
+		if(mControlBoard.operator.startButton.wasActivated()){
+			if(mAssistedActionsExecutor == null){
+				mAssistedActionsExecutor = new AssistModeExecutor();
+			}
+			coralPlacer = new putCoral();
+			mAssistedActionsExecutor.setAutoMode(coralPlacer);
+			mAssistedActionsExecutor.start();
+		}
+		if (mControlBoard.operator.startButton.wasReleased()) {
 			stopAssist();
 		}
 		//Angle angle = Angle.ofBaseUnits(Math.toDegrees(Math.atan2(mControlBoard.operator.getRightX(), -mControlBoard.operator.getRightY())),Radians);

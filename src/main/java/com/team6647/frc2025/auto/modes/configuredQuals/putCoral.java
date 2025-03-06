@@ -38,10 +38,12 @@ public class putCoral extends AutoModeBase {
 		enterCoral = null;
 		TrajectorySet s = TrajectoryGenerator.getInstance().getTrajectorySet();
 		s.putCoral = s.getPutCoral();
+		/*
 		new LambdaRequest(() -> {
 			s.enterCoral = s.getEnterCoral();
 			enterCoral = logTrajectory(s.enterCoral);
 		});
+		 */
 		putCoral = logTrajectory(s.putCoral);
 	}
 
@@ -49,9 +51,11 @@ public class putCoral extends AutoModeBase {
 	@Override
 	protected void routine() throws AutoModeEndedException {
 		runAction(new SwerveTrajectoryAction(putCoral, false));
+		runAction(new LambdaAction(()->{s.prepareLevel(s.currentLevel);}));
+		
 		//el level
-		runAction(new WaitForEnterPathGeneratedAction());
-		runAction(new SwerveTrajectoryAction(enterCoral, false));
+		//runAction(new WaitForEnterPathGeneratedAction());
+		//runAction(new SwerveTrajectoryAction(enterCoral, false));
 		//spin thing
 
 		System.out.println("Finished auto!");

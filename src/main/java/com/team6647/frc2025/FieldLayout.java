@@ -91,18 +91,15 @@ public class FieldLayout {
 		public Pose2d algae;
 		public Pose2d coral1;
 		public Pose2d coral2;
-		public Pose2d algaePre;
-		public Pose2d coral1Pre;
-		public Pose2d coral2Pre;
 		public Pose2d[] corals;
 
 		public CoralSet(Pose2d algae, Pose2d coral1, Pose2d coral2, Pose2d algaePre, Pose2d coral1Pre, Pose2d coral2Pre, Pose2d[] corals) {
 			this.algae = algae;
 			this.coral1 = coral1;
 			this.coral2 = coral2;
-			this.algaePre = algaePre;
-			this.coral1Pre = coral1Pre;
-			this.coral2Pre = coral2Pre;
+			//this.algaePre = algaePre;
+			//this.coral1Pre = coral1Pre;
+			//this.coral2Pre = coral2Pre;
 			this.corals = corals;
 		}
 	}

@@ -30,7 +30,7 @@ public class simpleForwardC extends AutoModeBase {
 		runAction(new WaitAction(1));
 		Elevator.getInstance().setWantHome(true);
 		CoralRoller.getInstance().setState(CoralRoller.State.IDLE);
-		runAction(new ChoreoTrajectoryAction("HalfReverse",true));
+		runAction(new ChoreoTrajectoryAction("HalfReverse",false));
 		System.out.println("Finished auto!");
 	}
 	// spotless:on

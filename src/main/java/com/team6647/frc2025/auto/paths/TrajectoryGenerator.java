@@ -226,17 +226,18 @@ public class TrajectoryGenerator {
 			List<Pose2d> waypoints = new ArrayList<>();
 			List<Rotation2d> headings = new ArrayList<>();
 			waypoints.add(Drive.getInstance().getPose());
-			headings.add(Rotation2d.fromDegrees(0.0));
+			headings.add(Rotation2d.fromDegrees(Drive.getInstance().getPose().getRotation().getDegrees()));
 			if(Superstructure.getInstance().subCoralId == 1){
-				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).coral1Pre);
+				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).coral1);
 			}
 			if(Superstructure.getInstance().subCoralId == 2){
-				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).coral2Pre);
+				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).coral2);
 			}
-			headings.add(Rotation2d.fromDegrees(0.0));
+			headings.add(Rotation2d.fromDegrees(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).algae.getRotation().getDegrees()));
 			return generate(waypoints, headings, List.of(), false, 1.1, 1.0);
 		}
 
+		/*
 		public Trajectory254<TimedState<Pose2dWithMotion>> getEnterCoral() {
 			List<Pose2d> waypoints = new ArrayList<>();
 			List<Rotation2d> headings = new ArrayList<>();
@@ -253,6 +254,7 @@ public class TrajectoryGenerator {
 			headings.add(Rotation2d.fromDegrees(0.0));
 			return generate(waypoints, headings, List.of(), false, 1.1, 1.0);
 		}
+			 */
 		public Trajectory254<TimedState<Pose2dWithMotion>> getForward() {
 			List<Pose2d> waypoints = new ArrayList<>();
 			List<Rotation2d> headings = new ArrayList<>();

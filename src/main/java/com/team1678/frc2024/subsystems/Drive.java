@@ -214,7 +214,7 @@ public void choreoController(SwerveSample sample) {
 	  acceptingHeading*(sample.omega + -choreoRotation.calculate(currentPose.getRotation().getRadians(), sample.heading)),
 	  currentPose.getRotation()
 	);
-	setVelocity((speeds));
+	setVelocity(speeds);
 }
 
 public void choreoLogger(SwerveSample sample,boolean startOrEnd){

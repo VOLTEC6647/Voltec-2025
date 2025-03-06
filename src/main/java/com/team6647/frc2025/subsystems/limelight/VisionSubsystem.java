@@ -12,6 +12,7 @@ import org.littletonrobotics.junction.Logger;
 import com.team1678.frc2024.RobotState;
 import com.team1678.frc2024.RobotState.VisionUpdate;
 import com.team1678.frc2024.subsystems.Drive;
+import com.team1678.frc2024.subsystems.Subsystem;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.subsystems.limelight.LimelightHelpers.PoseEstimate;
 import com.team6647.frc2025.subsystems.limelight.LimelightHelpers.RawFiducial;
@@ -28,14 +29,10 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class VisionSubsystem extends SubsystemBase{
+public class VisionSubsystem extends Subsystem{
 
     public static final String FRONT_LIMELIGHT = "limelight-front";
     public static final String BACK_LIMELIGHT = "limelight";
-    private static final double FALLBACK_SPEAKER_DISTANCE = 1.357;
-    private static final double FALLBACK_TAG_HEIGHT = 461.37;
-    private static final double NOTE_VELOCITY = 10;
-    public static final double SHOOTER_DEGREE_OFFSET = -6; // To account for shooter curving to the left
 
     // Adjustable transform for the Limelight pose per-alliance
     private static final Transform2d LL_BLUE_TRANSFORM = new Transform2d(0, 0, new Rotation2d());
@@ -95,7 +92,7 @@ public class VisionSubsystem extends SubsystemBase{
     }
 
     @Override
-    public void periodic() {
+    public void readPeriodicInputs() {
         if (firstPeriodic) {
             for (int i = 11; i <= 16; i++) {
                 Logger.recordOutput("Trap Poses/" + i, trapPoses.get(i));
@@ -124,10 +121,6 @@ public class VisionSubsystem extends SubsystemBase{
             speakerTagHeight = null;
             Logger.recordOutput("LL Pose Valid?", false);
             Logger.recordOutput("LL Pose", nilPose);
-            Logger.recordOutput("Speaker Angle", -1);
-            Logger.recordOutput("Speaker Distance", -1);
-            Logger.recordOutput("Speaker Tag Height", -1);
-            Logger.recordOutput("Can See Speaker", false);
             return;
         }
 

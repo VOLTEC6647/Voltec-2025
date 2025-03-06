@@ -9,6 +9,11 @@ import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystem.TalonFXConstant
 import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystemWithCancoder.AbsoluteEncoderConstants;
 import com.team1678.lib.Conversions;
 import com.team254.lib.drivers.CanDeviceId;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Transform2d;
+
+import edu.wpi.first.math.util.Units;
+
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -292,6 +297,16 @@ public class Constants {
 			kHoodEncoderConstants.rotor_rotations_per_output = 1.0;
 			kHoodEncoderConstants.remote_encoder_offset = 0;
 		}
+	}
+
+	public static final class VisionConstants {
+		Transform2d robotToBottomLimelight = new com.team254.lib.geometry.Transform2d(
+				new com.team254.lib.geometry.Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(0)),
+				Rotation2d.fromDegrees(180));
+
+				Transform2d robotToTopLimelight = new com.team254.lib.geometry.Transform2d(
+					new com.team254.lib.geometry.Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(0)),
+					Rotation2d.fromDegrees(180));
 	}
 
 	
