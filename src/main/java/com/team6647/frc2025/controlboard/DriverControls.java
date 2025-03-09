@@ -17,17 +17,17 @@ import com.team1678.frc2024.subsystems.Drive.DriveControlState;
 import com.team1678.frc2024.subsystems.vision.VisionDeviceManager;
 import com.team1678.lib.requests.LambdaRequest;
 import com.team1678.lib.requests.ParallelRequest;
+import com.team1678.lib.requests.Request;
 import com.team1678.lib.requests.SequentialRequest;
 import com.team1678.lib.requests.WaitForPrereqRequest;
 import com.team1678.lib.requests.WaitRequest;
 import com.team1678.lib.util.NearestAngleFinder;
 import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.util.Util;
 import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.FieldLayout.CoralTarget;
 import com.team6647.frc2025.auto.actions.AssistModeExecutor;
-import com.team6647.frc2025.auto.modes.configuredQuals.goCenter;
 import com.team6647.frc2025.auto.modes.configuredQuals.putCoral;
-import com.team6647.frc2025.auto.modes.configuredQuals.test1;
 
 import com.team6647.frc2025.subsystems.Elevator;
 import com.team6647.frc2025.subsystems.MotorTest;
@@ -51,8 +51,6 @@ public class DriverControls {
 
 	Drive mDrive = Drive.getInstance();
 
-	private boolean top_buttons_clear = true;
-
 	/* ONE CONTROLLER */
 
 	public void oneControllerMode() {
@@ -65,8 +63,6 @@ public class DriverControls {
 
 	private boolean mClimberJog = false;
 	private AssistModeExecutor mAssistedActionsExecutor;
-	private AutoModeBase coralPlacer;
-
 	
 	
 	private MotorTest mMotorTest = MotorTest.getInstance();
@@ -77,7 +73,7 @@ public class DriverControls {
 	private CoralPivot mCoralPivot = CoralPivot.getInstance();
 	private Climber mClimber = Climber.getInstance();
 
-	public boolean autoPose = true;
+	public boolean assisting = false;
 
 
 
@@ -87,16 +83,17 @@ public class DriverControls {
 	//driver/operator
 	@SuppressWarnings("unused")
 	public void twoControllerMode() {
+		//if(assisting){
+		//	startAssist(new putCoral());
+		//}
+		if(mControlBoard.operator.leftCenterClick.wasActivated()){
+			assisting = !assisting;
+		}
 		
 		if(mControlBoard.operator.aButton.wasActivated()){
 			mSuperstructure.request(
 				new SequentialRequest(
-					mSuperstructure.prepareLevel(s.currentLevel),
-					new LambdaRequest(
-						()->{
-							//mCoralRoller.setState(CoralRoller.State.OUTAKING);
-						}
-					)
+					mSuperstructure.prepareLevel(s.currentLevel)
 				)
 			);
 		}
@@ -128,6 +125,7 @@ public class DriverControls {
 		}
 
 		if(mControlBoard.operator.aButton.wasReleased()){
+			stopAssist();
 			mSuperstructure.request(
 				mSuperstructure.softHome()
 			);
@@ -145,10 +143,15 @@ public class DriverControls {
 			mCoralRoller.setState(CoralRoller.State.IDLE);
 		}
 		if(mControlBoard.operator.bButton.wasActivated()){
-			//mElevator.setWantHome(true);
-			mSuperstructure.request(
-			mCoralPivot.setPivotRequest(CoralPivot.kIntakingAngle)
-			);
+			if(assisting){
+				startAssist(new putCoral());
+
+			}else{
+				mSuperstructure.request(
+					mCoralPivot.setPivotRequest(CoralPivot.kIntakingAngle)
+				);
+			}
+			
 		}
 		
 		if (mControlBoard.operator.yButton.wasActivated()) {
@@ -186,34 +189,15 @@ public class DriverControls {
 			mMotorTest.setState(MotorTest.State.IDLE);
 		}
 			 */
-			 
-		
-		if(mControlBoard.driver.yButton.wasActivated()){
-			if(mAssistedActionsExecutor == null){
-				mAssistedActionsExecutor = new AssistModeExecutor();
-			}
-			coralPlacer = new goCenter();
-			mAssistedActionsExecutor.setAutoMode(coralPlacer);
-			mAssistedActionsExecutor.start();
-		}
-		if (mControlBoard.driver.yButton.wasReleased()) {
-			stopAssist();
-		}
 
 		if(mControlBoard.operator.startButton.wasActivated()){
-			if(mAssistedActionsExecutor == null){
-				mAssistedActionsExecutor = new AssistModeExecutor();
-			}
-			coralPlacer = new putCoral();
-			mAssistedActionsExecutor.setAutoMode(coralPlacer);
-			mAssistedActionsExecutor.start();
+			startAssist(new putCoral());
 		}
 		if (mControlBoard.operator.startButton.wasReleased()) {
 			stopAssist();
 		}
 		//Angle angle = Angle.ofBaseUnits(Math.toDegrees(Math.atan2(mControlBoard.operator.getRightX(), -mControlBoard.operator.getRightY())),Radians);
-		double angle = Angle.ofBaseUnits(Math.atan2(mControlBoard.operator.getRightX(), -mControlBoard.operator.getRightY()),Radians).in(Degrees);
-		angle = angle;
+		double angle = Angle.ofBaseUnits(Math.atan2(mControlBoard.operator.getLeftX(), -mControlBoard.operator.getLeftY()),Radians).in(Degrees);
 		if(angle<0){
 			angle = 360+angle;
 		}
@@ -223,20 +207,16 @@ public class DriverControls {
 		////Logger.recordOutput("/Coral/angle", angle);
 		
 		//angle = angle.plus(Angle.ofBaseUnits(90, Degree));
-		if(Math.abs(mControlBoard.operator.getRightX())+Math.abs(mControlBoard.operator.getRightY())>0.5){
+		if(Math.abs(mControlBoard.operator.getLeftX())+Math.abs(mControlBoard.operator.getLeftY())>0.5){
 			for (int i = 0; i < s.angles.length; i++) {
 				if (Math.abs(s.angles[i].angle-angle) < 30) {
-					s.go6(mClimberJog);
-					////Logger.recordOutput("/Coral/Position", CoralTarget.values()[i].name());
 					s.coralId = i;
-					////Logger.recordOutput("/Coral/id", s.coralId);
 					stopAssist();
 					if(angle-s.angles[i].angle>0){
 						s.subCoralId = 1;
 					}else{
 						s.subCoralId = 0;
 					}
-					////Logger.recordOutput("/Coral/subId", s.subCoralId);
 					s.showAngle();
 					break;
 				}
@@ -286,13 +266,13 @@ public class DriverControls {
 		//}
 
 		if(mControlBoard.driver.rightTrigger.wasActivated()){
-			mDrive.stabilizeHeading(Rotation2d.fromDegrees(125));
+			mDrive.stabilizeHeading(Rotation2d.fromDegrees(55));
 		}
 		if(mControlBoard.driver.rightTrigger.wasReleased()){
 			mDrive.setControlState(DriveControlState.OPEN_LOOP);
 		}
 		if(mControlBoard.driver.leftTrigger.wasActivated()){
-			mDrive.stabilizeHeading(Rotation2d.fromDegrees(-48.4));
+			mDrive.stabilizeHeading(Rotation2d.fromDegrees(-55));
 		}
 		if(mControlBoard.driver.leftTrigger.wasReleased()){
 			mDrive.setControlState(DriveControlState.OPEN_LOOP);
@@ -300,6 +280,7 @@ public class DriverControls {
 		if(mControlBoard.driver.aButton.wasActivated()){
 			//Rotation2d coralRotation = FieldLayout.getCoralTargetPos(s.angles[s.coralId]).algae.getRotation();
 			//mDrive.stabilizeHeading(coralRotation);
+			
 
 			Rotation2d coralRotation = Rotation2d.fromDegrees(NearestAngleFinder.findNearestAngle(s.angles, mDrive.getHeading().getDegrees()));
 			mDrive.stabilizeHeading(coralRotation);
@@ -322,10 +303,10 @@ public class DriverControls {
 				new SequentialRequest(
 				new LambdaRequest(()->{mAlgaeRollers.setState(AlgaeRoller.State.INTAKINGFAST);}),
 				mAlgaeHolder.setPositionRequest(AlgaeT.kIntakingAngle),
-				new WaitRequest(1),
-				new LambdaRequest(()->{mAlgaeRollers.setState(AlgaeRoller.State.INTAKING);}),
 				new WaitForPrereqRequest(()->!mControlBoard.operator.leftTrigger.isBeingPressed()),
-				new LambdaRequest(()->{mAlgaeRollers.setState(AlgaeRoller.State.IDLE);})
+				new LambdaRequest(()->{mAlgaeRollers.setState(AlgaeRoller.State.INTAKING);})
+				//new WaitForPrereqRequest(()->!mControlBoard.operator.leftTrigger.isBeingPressed()),
+				//new LambdaRequest(()->{mAlgaeRollers.setState(AlgaeRoller.State.IDLE);})
 
 			)
 			);
@@ -339,7 +320,7 @@ public class DriverControls {
 				new LambdaRequest(()->{mAlgaeRollers.setState(AlgaeRoller.State.IDLE);}),
 
 				mAlgaeHolder.setPositionRequest(AlgaeT.kHoldingAngle),
-				new WaitRequest(0.92),
+				new WaitForPrereqRequest(()->!mControlBoard.operator.rightTrigger.isBeingPressed()),
 				//new WaitForPrereqRequest(()->mControlBoard.operator.getRightTriggerAxis()<0.5),
 
 				new LambdaRequest(()->{mAlgaeHolder.setSetpointMotionMagic(AlgaeT.kIdleAngle);}),
@@ -347,7 +328,7 @@ public class DriverControls {
 				new WaitRequest(2),
 				new LambdaRequest(()->{mAlgaeRollers.setState(AlgaeRoller.State.OUTAKING);}),
 
-				new WaitRequest(7),
+				new WaitRequest(4),
 
 				new LambdaRequest(()->{mAlgaeRollers.setState(AlgaeRoller.State.IDLE);})
 			));
@@ -383,8 +364,35 @@ public class DriverControls {
 			mAssistedActionsExecutor.stop();
 			mAssistedActionsExecutor = null;
 			mDrive.setControlState(DriveControlState.OPEN_LOOP);
-			coralPlacer = null;
+			//coralPlacer = null;
 			//coralPlacer = null;
 		}
 	}
+
+	private void startAssist(AutoModeBase mode){
+		if(mAssistedActionsExecutor == null){
+			mAssistedActionsExecutor = new AssistModeExecutor();
+		}
+		mAssistedActionsExecutor.setAutoMode(mode);
+		mAssistedActionsExecutor.start();
+	}
+
+	
+	public Request assistRequest(AutoModeBase mode) {
+		return new Request() {
+
+			@Override
+			public void act() {
+				startAssist(mode);
+			}
+
+			@Override
+			public boolean isFinished() {
+				//return Util.epsilonEquals(mDrive.getPose(), mDrive.getMotionPlanner().isDone(), 0.2);
+				return mDrive.getMotionPlanner().isDone();
+			}
+			//cleanuppp
+		};
+	}
+		 
 }

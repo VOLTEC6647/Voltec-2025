@@ -84,12 +84,8 @@ public class TrajectoryGenerator {
 
 	public class TrajectorySet {
 
-		public final Trajectory254<TimedState<Pose2dWithMotion>> center6;
 		public final Trajectory254<TimedState<Pose2dWithMotion>> testT;
 		public Trajectory254<TimedState<Pose2dWithMotion>> putCoral;
-		public Trajectory254<TimedState<Pose2dWithMotion>> enterCoral;
-		public Trajectory254<TimedState<Pose2dWithMotion>> centerLive;
-
 		public Trajectory254<TimedState<Pose2dWithMotion>> forward;
 
 
@@ -99,7 +95,6 @@ public class TrajectoryGenerator {
 		private TrajectorySet(boolean mirror) {
 			wants_mirrored = mirror;
 			// spotless:off
-			center6 = center6();
 			testT = getTestTrajectory();
 			// spotless:on
 		}
@@ -202,59 +197,18 @@ public class TrajectoryGenerator {
 			return generate(waypoints, headings, List.of(), false, 1.1, 1.0);
 		}
 
-		private Trajectory254<TimedState<Pose2dWithMotion>> center6() {
-			List<Pose2d> waypoints = new ArrayList<>();
-			List<Rotation2d> headings = new ArrayList<>();
-			waypoints.add(new Pose2d(0,0,new Rotation2d()));
-			headings.add(Rotation2d.fromDegrees(0.0));
-			waypoints.add(FieldLayout.kCoralCenter);
-			headings.add(Rotation2d.fromDegrees(0.0));
-			return generate(waypoints, headings, List.of(), false, 0.4, 1.0);
-		}
-
-		public Trajectory254<TimedState<Pose2dWithMotion>> getCenterLive() {
-			List<Pose2d> waypoints = new ArrayList<>();
-			List<Rotation2d> headings = new ArrayList<>();
-			waypoints.add(Drive.getInstance().getPose());
-			headings.add(Rotation2d.fromDegrees(0.0));
-			waypoints.add(FieldLayout.kCoralCenter);
-			headings.add(Rotation2d.fromDegrees(0.0));
-			return generate(waypoints, headings, List.of(), true, 0.4, 1.0);
-		}
 
 		public Trajectory254<TimedState<Pose2dWithMotion>> getPutCoral() {
 			List<Pose2d> waypoints = new ArrayList<>();
 			List<Rotation2d> headings = new ArrayList<>();
 			waypoints.add(Drive.getInstance().getPose());
 			headings.add(Rotation2d.fromDegrees(Drive.getInstance().getPose().getRotation().getDegrees()));
-			if(Superstructure.getInstance().subCoralId == 1){
-				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).coral1);
-			}
-			if(Superstructure.getInstance().subCoralId == 2){
-				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).coral2);
-			}
-			headings.add(Rotation2d.fromDegrees(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).algae.getRotation().getDegrees()));
+
+			waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realCorals[Superstructure.getInstance().subCoralId]);
+			headings.add(Rotation2d.fromDegrees(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realAlgae.getRotation().getDegrees()));
 			return generate(waypoints, headings, List.of(), false, 1.1, 1.0);
 		}
 
-		/*
-		public Trajectory254<TimedState<Pose2dWithMotion>> getEnterCoral() {
-			List<Pose2d> waypoints = new ArrayList<>();
-			List<Rotation2d> headings = new ArrayList<>();
-			if(Superstructure.getInstance().subCoralId == 1){
-				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).coral1Pre);
-				headings.add(Rotation2d.fromDegrees(0.0));
-				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).coral1);
-			}
-			if(Superstructure.getInstance().subCoralId == 2){
-				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).coral2Pre);
-				headings.add(Rotation2d.fromDegrees(0.0));
-				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).coral2);
-			}
-			headings.add(Rotation2d.fromDegrees(0.0));
-			return generate(waypoints, headings, List.of(), false, 1.1, 1.0);
-		}
-			 */
 		public Trajectory254<TimedState<Pose2dWithMotion>> getForward() {
 			List<Pose2d> waypoints = new ArrayList<>();
 			List<Rotation2d> headings = new ArrayList<>();

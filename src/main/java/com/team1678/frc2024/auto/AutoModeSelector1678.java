@@ -72,24 +72,7 @@ public class AutoModeSelector1678 {
 
 		SmartDashboard.putData("Auto Mode", mModeChooser);
 
-		mFirstNoteChooser.setDefaultOption("N1", TargetNote.N1);
-		mFirstNoteChooser.addOption("N2", TargetNote.N2);
-		mFirstNoteChooser.addOption("N3", TargetNote.N3);
-		mFirstNoteChooser.addOption("N4", TargetNote.N4);
-		mFirstNoteChooser.addOption("N5", TargetNote.N5);
-		SmartDashboard.putData("First Note", mFirstNoteChooser);
-
-		mSecondNoteChooser.addOption("N1", TargetNote.N1);
-		mSecondNoteChooser.setDefaultOption("N2", TargetNote.N2);
-		mSecondNoteChooser.addOption("N3", TargetNote.N3);
-		mSecondNoteChooser.addOption("N4", TargetNote.N4);
-		mSecondNoteChooser.addOption("N5", TargetNote.N5);
-		SmartDashboard.putData("Second Note", mSecondNoteChooser);
-
-		mSpikeChooser.setDefaultOption("Left", TargetSpike.LEFT);
-		mSpikeChooser.addOption("Center", TargetSpike.CENTER);
-		mSpikeChooser.addOption("Right", TargetSpike.RIGHT);
-		SmartDashboard.putData("First Spike", mSpikeChooser);
+		
 	}
 
 	public void updateModeCreator(boolean force_regen) {

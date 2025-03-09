@@ -35,6 +35,7 @@ import com.team254.lib.trajectory.TimedView;
 import com.team254.lib.trajectory.Trajectory254;
 import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
+import com.team6647.frc2025.FieldLayout;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -45,6 +46,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -473,6 +475,7 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 					Logger.recordOutput("/Drive/Override Heading", mOverrideHeading);
 					Logger.recordOutput("/Drive/Override Trajectory", mOverrideTrajectory);
 				Logger.recordOutput("/Auto/RobotPose", getLegacyPose());
+				Logger.recordOutput("/Auto/kCoralCenter", FieldLayout.kCoralCenter.toLegacy());
 
 
 

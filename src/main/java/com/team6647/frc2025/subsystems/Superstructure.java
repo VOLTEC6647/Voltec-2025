@@ -27,7 +27,6 @@ import com.team254.lib.util.TimeDelayedBoolean;
 import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.FieldLayout.CoralTarget;
-import com.team6647.frc2025.auto.modes.configuredQuals.test1;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 
 import choreo.Choreo;
@@ -223,14 +222,11 @@ public class Superstructure extends Subsystem {
 	}
 
 	/* Superstructure functions */
-	public void go6(boolean ferryShot) {
-		new test1();
-	}
 
 	public synchronized void showAngle() {
 		synchronized (Drive.getInstance()) {
-			Logger.recordOutput("CoralPose",
-					FieldLayout.getCoralTargetPos(angles[coralId]).corals[subCoralId].toLegacy());
+			Logger.recordOutput("CoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).corals[subCoralId].toLegacy());
+			Logger.recordOutput("RealCoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).realCorals[subCoralId].toLegacy());
 		}
 	}
 

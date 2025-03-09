@@ -109,6 +109,11 @@ public class Constants {
 		}
 	}
 
+	public static final class CoralRollerConstants {
+		public static double sensorThreshold;
+		public static int sensorId;
+	}
+
 	public static final class AlgaeHolderConstants {
 		public static SparkMaxConfig SparkMaxConfig() {
 			SparkMaxConfig config = new SparkMaxConfig();
@@ -204,7 +209,7 @@ public class Constants {
 			kHoodServoConstants.kHomePosition = 0; // Degrees
 			kHoodServoConstants.kTolerance = 1; // Degrees
 			kHoodServoConstants.kRotationsPerUnitDistance = (1.0 / 360.0 * 9*5*5*1.6) /* (7.16 / 1.0)*/; // Cancoder to unit distance
-			kHoodServoConstants.kKp = 3.0;
+			kHoodServoConstants.kKp = 2.0;
 			kHoodServoConstants.kKi = 0;
 			kHoodServoConstants.kKd = 0.0;
 			kHoodServoConstants.kKg = 0;
@@ -214,8 +219,8 @@ public class Constants {
 			//kHoodServoConstants.kMinUnitsLimit = 15.0;
 			//kHoodServoConstants.kMaxUnitsLimit = 62.0;
 
-			kHoodServoConstants.kCruiseVelocity = 600.0; // degrees / s
-			kHoodServoConstants.kAcceleration = 200.0; // degrees / s^2
+			kHoodServoConstants.kCruiseVelocity = 300.0; // degrees / s
+			kHoodServoConstants.kAcceleration = 50.0; // degrees / s^2
 
 			kHoodServoConstants.kEnableSupplyCurrentLimit = false ;
 			kHoodServoConstants.kSupplyCurrentLimit = 80;

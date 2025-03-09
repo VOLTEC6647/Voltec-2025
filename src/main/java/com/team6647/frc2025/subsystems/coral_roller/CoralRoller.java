@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralRoller extends Subsystem {
 	private static CoralRoller mInstance;
+    public static final double OuttakeDelay = 1.5;
 
 	public static CoralRoller getInstance() {
 		if (mInstance == null) {
@@ -32,7 +33,7 @@ public class CoralRoller extends Subsystem {
 
 	public enum State {
 		IDLE(0.0),
-		INTAKING(-1.3),
+		INTAKING(-3),//-1.3
 		OUTAKING4(1.5),
 		OUTAKING3(1.3),
 		OUTAKING2(1.3),

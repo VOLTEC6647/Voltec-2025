@@ -12,6 +12,7 @@ import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeExecutor;
 import com.team6647.frc2025.Constants.CoralPivotConstants;
 import com.team6647.frc2025.auto.AutoModeSelector;
+import com.team6647.frc2025.auto.modes.configuredQuals.CTest;
 import com.team6647.frc2025.auto.modes.configuredQuals.L1Attempt;
 import com.team6647.frc2025.auto.modes.configuredQuals.LAlgae2;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left1;
@@ -49,6 +50,7 @@ import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.Superstructure.Levels;
 import com.team6647.frc2025.subsystems.algae_roller.AlgaeRoller;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
+import com.team6647.frc2025.subsystems.limelight.VisionSubsystem;
 
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
@@ -106,6 +108,7 @@ public class Robot extends LoggedRobot {
 
 	private Elevator mElevator;
 	private com.team1678.frc2024.subsystems.Climber mClimber;
+	private VisionSubsystem mVisionLimelight;
 
 
 
@@ -141,6 +144,7 @@ public class Robot extends LoggedRobot {
 			new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
 		} else {
 			serial = "";
+			Logger.addDataReceiver(new NT4Publisher());
 			//setUseTiming(false); // Run as fast as possible
 			//String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
 			//Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
@@ -162,7 +166,8 @@ public class Robot extends LoggedRobot {
 		mCoralPivot = CoralPivot.getInstance();
 		mCoralRoller = CoralRoller.getInstance();
 		mElevator = Elevator.getInstance();
-		//mClimber = Climber.getInstance();
+		mClimber = Climber.getInstance();
+		mVisionLimelight = VisionSubsystem.getInstance();
 
 
 		autoChooser.setDefaultOption("Just Forward", new justForwardC());
@@ -171,9 +176,11 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("Left1", new Left1());
 		autoChooser.addOption("Left2", new Left2());
 		autoChooser.addOption("LAlgae2", new LAlgae2());
+		autoChooser.addOption("CTest", new CTest());
+		autoChooser.addOption("S3Right", new Righ());
 		
 		if(isReal()){
-			Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("SimpleForward").get().getInitialPose(is_red_alliance).get());
+			Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
 			mDrive.resetOdometry(startC);
 			mDrive.zeroGyro(startC.getRotation().getDegrees());
 		}
@@ -227,7 +234,9 @@ public class Robot extends LoggedRobot {
 				mCoralPivot,
 				mElevator,
 				mCoralRoller,
-				mAlgaeT
+				mAlgaeT,
+				mClimber,
+				mVisionLimelight
 
 			);
 			// spotless:on

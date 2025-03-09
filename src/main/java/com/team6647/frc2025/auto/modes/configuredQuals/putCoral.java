@@ -4,6 +4,7 @@ import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeEndedException;
 import com.team1678.frc2024.auto.actions.LambdaAction;
 import com.team1678.frc2024.auto.actions.ParallelAction;
+import com.team1678.frc2024.auto.actions.RequestAction;
 import com.team1678.frc2024.auto.actions.SeriesAction;
 import com.team1678.frc2024.auto.actions.SwerveTrajectoryAction;
 import com.team1678.frc2024.auto.actions.TurnInPlaceAction;
@@ -22,6 +23,7 @@ import com.team6647.frc2025.auto.actions.WaitForEnterPathGeneratedAction;
 import com.team6647.frc2025.auto.paths.TrajectoryGenerator;
 import com.team6647.frc2025.auto.paths.TrajectoryGenerator.TrajectorySet;
 import com.team6647.frc2025.subsystems.Superstructure;
+import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
@@ -51,7 +53,10 @@ public class putCoral extends AutoModeBase {
 	@Override
 	protected void routine() throws AutoModeEndedException {
 		runAction(new SwerveTrajectoryAction(putCoral, false));
-		runAction(new LambdaAction(()->{s.prepareLevel(s.currentLevel);}));
+		runAction(new RequestAction(s.prepareLevel(s.currentLevel)));
+		runAction(new LambdaAction(()->{
+			CoralRoller.getInstance().setState(CoralRoller.getInstance().OUTAKING);
+		}));
 		
 		//el level
 		//runAction(new WaitForEnterPathGeneratedAction());

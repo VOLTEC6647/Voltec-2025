@@ -116,7 +116,8 @@ public class RobotState {
 		if (!mLatestVisionUpdate.isPresent() || initial_field_to_odom.isEmpty()) {
 			double vision_timestamp = update.timestamp;
 			Pose2d proximate_dt_pose = odometry_to_vehicle.getInterpolated(new InterpolatingDouble(vision_timestamp));
-			Translation2d field_to_vision = update.field_to_camera.translateBy(update.getRobotToCamera()
+			Translation2d field_to_vision = update.field_to_camera
+			.translateBy(update.getRobotToCamera()
 					.rotateBy(getLatestOdomToVehicle().getValue().getRotation())
 					.inverse());
 			Translation2d odom_to_vehicle_translation = proximate_dt_pose.getTranslation();

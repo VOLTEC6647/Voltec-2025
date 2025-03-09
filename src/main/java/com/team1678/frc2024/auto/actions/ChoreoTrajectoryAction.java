@@ -45,7 +45,7 @@ public class ChoreoTrajectoryAction implements Action {
 
 	@Override
 	public void start() {
-		mDrive.acceptingHeading = 0;
+		mDrive.acceptingHeading = 1;
 		events = trajectory.get().events();
 		autoTimer.reset();
 		if (mResetGyro) {
@@ -71,7 +71,7 @@ public class ChoreoTrajectoryAction implements Action {
 		events.forEach(event -> {
 			if (event.timestamp < autoTimer.get()) {
 				if(event.event.equals("Elevate")){
-					Superstructure.getInstance().prepareLevel(Superstructure.getInstance().currentLevel);
+					//Superstructure.getInstance().prepareLevel(Superstructure.getInstance().currentLevel);
 					events.remove(event);
 				}
 			}

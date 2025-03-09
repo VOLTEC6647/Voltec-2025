@@ -65,8 +65,9 @@ public class FieldLayout {
 	}
 
 	public static double kCoralDistance = 1.6; //Please Fix
-	public static double kCoralDistanceOffset = 0.3f; // temproral
-	public static double kPreDistance = 1.0f;
+	public static double kAlgaeOffset = 1.6; //Please Fix
+	public static double kCoralDistanceOffset = 0.2f; // temproral
+	public static double kRealCoralDistanceOffset = 0.165; // temproral
 
 	public enum CoralTarget {
 		RIGHT(0.0),
@@ -89,18 +90,15 @@ public class FieldLayout {
 
 	public static class CoralSet{
 		public Pose2d algae;
-		public Pose2d coral1;
-		public Pose2d coral2;
+		public Pose2d realAlgae;
 		public Pose2d[] corals;
+		public Pose2d[] realCorals;
 
-		public CoralSet(Pose2d algae, Pose2d coral1, Pose2d coral2, Pose2d algaePre, Pose2d coral1Pre, Pose2d coral2Pre, Pose2d[] corals) {
+		public CoralSet(Pose2d algae, Pose2d realAlgae, Pose2d[] corals, Pose2d[] realCorals) {
 			this.algae = algae;
-			this.coral1 = coral1;
-			this.coral2 = coral2;
-			//this.algaePre = algaePre;
-			//this.coral1Pre = coral1Pre;
-			//this.coral2Pre = coral2Pre;
+			this.realAlgae = realAlgae;
 			this.corals = corals;
+			this.realCorals = realCorals;
 		}
 	}
 
@@ -119,25 +117,31 @@ public class FieldLayout {
 		Pose2d coral1 = center.transformBy(new Pose2d(new Translation2d(0, kCoralDistanceOffset), new Rotation2d()));
 		Pose2d coral2 = center.transformBy(new Pose2d(new Translation2d(0, -kCoralDistanceOffset), new Rotation2d()));
 		
-		Pose2d algaePre = algae.transformBy(new Pose2d(new Translation2d(kPreDistance, 0), new Rotation2d()));
-		Pose2d coral1Pre = coral1.transformBy(new Pose2d(new Translation2d(kPreDistance, 0), new Rotation2d()));
-		Pose2d coral2Pre = coral2.transformBy(new Pose2d(new Translation2d(kPreDistance, 0), new Rotation2d()));
+		double pivotOffset = Units.inchesToMeters(8.9);
+		Pose2d realAlgae = algae.transformBy(new Pose2d(new Translation2d(0, pivotOffset), new Rotation2d()));
+		Pose2d realCoral1 = center.transformBy(new Pose2d(new Translation2d(-0.27, kRealCoralDistanceOffset+pivotOffset), new Rotation2d()));
+		Pose2d realCoral2 = center.transformBy(new Pose2d(new Translation2d(-0.27, -kRealCoralDistanceOffset+pivotOffset), new Rotation2d()));
 		
 		algae = rotatePoseFromPivot(algae, rot);
 		coral1 = rotatePoseFromPivot(coral1, rot);
 		coral2 = rotatePoseFromPivot(coral2, rot);
 
+		realAlgae = rotatePoseFromPivot(realAlgae, rot);
+		realCoral1 = rotatePoseFromPivot(realCoral1, rot);
+		realCoral2 = rotatePoseFromPivot(realCoral2, rot);
+
 		algae = handleCoralFlip(algae.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
 		coral1 = handleCoralFlip(coral1.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
 		coral2 = handleCoralFlip(coral2.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
 
-		algaePre = new Pose2d();//rotatePoseFromPivot(algaePre, rot);
-		coral1Pre = new Pose2d();//rotatePoseFromPivot(coral1Pre, rot);
-		coral2Pre = new Pose2d();//rotatePoseFromPivot(coral2Pre, rot);
+		realAlgae = handleCoralFlip(realAlgae.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
+		realCoral1 = handleCoralFlip(realCoral1.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
+		realCoral2 = handleCoralFlip(realCoral2.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
 
 		Pose2d[] corals = {coral1, coral2};
+		Pose2d[] realCorals = {realCoral1, realCoral2};
 
-		return (new CoralSet(algae, coral1, coral2, algaePre, coral1Pre, coral2Pre, corals));
+		return (new CoralSet(algae, realAlgae, corals, realCorals));
 	}
 
 	public static Pose2d rotatePoseFromPivot(Pose2d coral, Rotation2d rot) {

@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.team1678.frc2024.RobotState;
 import com.team1678.frc2024.RobotState.VisionUpdate;
+import com.team1678.frc2024.subsystems.Climber;
 import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.frc2024.subsystems.Subsystem;
 import com.team6647.frc2025.Robot;
@@ -59,7 +60,6 @@ public class VisionSubsystem extends Subsystem{
     private Double speakerTagHeight = 0.0;
     private Double tagHeightOverride = null;
     private PoseEstimate lastPoseEstimate = null;
-    private Double stageAngle = null;
     private Pose2d currentTrapPose = null;
     public Double stageTX = null;
     public Double stageTY = null;
@@ -68,18 +68,27 @@ public class VisionSubsystem extends Subsystem{
 
     private final RawFiducial[] emptyFiducials = new RawFiducial[0];
     public RawFiducial[] rawFiducials = emptyFiducials;
-
-    private boolean firstPeriodic = true;
-    private final Transform2d speakerOffset = new Transform2d(.1524, 0, new Rotation2d());
-    private final Transform2d trapPoseTransform = new Transform2d(1.132, 0.32, Rotation2d.fromRadians(-0.005));
     private final Pose2d nilPose = new Pose2d(-1, -1, new Rotation2d());
 
-    final int[] autoTagFilter = new int[] { 3, 4, 7, 8 };
-    final int[] teleopTagFilter = new int[] { 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 16 };
+    final int[] autoTagFilter = new int[] {1,2,6,7,8,9,10,11,12,13,17,18,19,20,21,22};
+    final int[] teleopTagFilter = new int[] {1,2,6,7,8,9,10,11,12,13,17,18,19,20,21,22};
+
+    PoseEstimate bestPose;
+    PoseEstimate backPose;
+    double newHeartbeat;
+
+
+    private static VisionSubsystem mInstance;
     
+    public static VisionSubsystem getInstance() {
+		if (mInstance == null) {
+			mInstance = new VisionSubsystem();//, CoralPivotConstants.kHoodEncoderConstants
+		}
+		return mInstance;
+	}
     public VisionSubsystem() {
         try {
-            aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
+            aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
         } catch (Exception e) {
             aprilTagFieldLayout = null;
         }
@@ -92,18 +101,11 @@ public class VisionSubsystem extends Subsystem{
     }
 
     @Override
-    public void readPeriodicInputs() {
-        if (firstPeriodic) {
-            for (int i = 11; i <= 16; i++) {
-                Logger.recordOutput("Trap Poses/" + i, trapPoses.get(i));
-            }
-            //RobotContainer.instance.drivetrain.addVisionMeasurement(new Pose2d(), Timer.getFPGATimestamp());
-            firstPeriodic = false;
-        }
+    public synchronized void readPeriodicInputs() {
 
-        Logger.recordOutput("Odometry Enabled", odometryEnabled);
+        //Logger.recordOutput("Odometry Enabled", odometryEnabled);
         
-        double newHeartbeat = LimelightHelpers.getLimelightNTDouble("limelight", "hb");
+        newHeartbeat = LimelightHelpers.getLimelightNTDouble("limelight", "hb");
         if (newHeartbeat > limelightHeartbeat) {
             limelightConnected = true;
             limelightHeartbeat = newHeartbeat;
@@ -112,21 +114,20 @@ public class VisionSubsystem extends Subsystem{
             limelightConnected = false;
         }
         if (Robot.isSimulation()) limelightConnected = true;
-        Logger.recordOutput("LL Connected", limelightConnected);
 
         if (!limelightConnected) {
             rawFiducials = emptyFiducials;
             speakerAngle = null;
             speakerDistance = null;
             speakerTagHeight = null;
-            Logger.recordOutput("LL Pose Valid?", false);
-            Logger.recordOutput("LL Pose", nilPose);
+            //Logger.recordOutput("LL Pose Valid?", false);
+            //Logger.recordOutput("LL Pose", nilPose);
             return;
         }
 
 
-        PoseEstimate bestPose;
-        PoseEstimate backPose;
+        bestPose = null;
+        backPose = null;
         PoseEstimate megaTag2Pose = null;
 
         
@@ -138,6 +139,8 @@ public class VisionSubsystem extends Subsystem{
         } else {
             backPose = LimelightHelpers.getBotPoseEstimate_wpiBlue(BACK_LIMELIGHT);
         }
+        //Logger.recordOutput("Backpose", backPose.pose);
+
 
         if (backPose != null)  {
             rawFiducials = backPose.rawFiducials;
@@ -146,8 +149,8 @@ public class VisionSubsystem extends Subsystem{
         }
 
         double deltaSeconds = Timer.getFPGATimestamp() - lastOdometryTime;
-        Logger.recordOutput("LL Pose Pre-Validation", backPose == null ? nilPose : backPose.pose);
-        Logger.recordOutput("LL MegaTag2", megaTag2Pose == null ? nilPose : megaTag2Pose.pose);
+        //Logger.recordOutput("LL Pose Pre-Validation", backPose == null ? nilPose : backPose.pose);
+        //Logger.recordOutput("LL MegaTag2", megaTag2Pose == null ? nilPose : megaTag2Pose.pose);
         backPose = validatePoseEstimate(backPose, deltaSeconds);
         PoseEstimate frontPose = validatePoseEstimate(null, 0);//disabled
         
@@ -170,22 +173,22 @@ public class VisionSubsystem extends Subsystem{
                     new VisionUpdate(
                             bestPose.timestampSeconds,
                             new com.team254.lib.geometry.Translation2d(bestPose.pose.getTranslation()),
-                            new com.team254.lib.geometry.Translation2d(),//mConstants.kRobotToCamera.getTranslation(), // Use the correct camera offset
+                            new com.team254.lib.geometry.Translation2d(0,0),//mConstants.kRobotToCamera.getTranslation(), // Use the correct camera offset
                             0.02
                     )
                 );
             }
-        }
+        }//-0.16342
 
-        Logger.recordOutput("LL Pose Valid?", bestPose != null);
-        Logger.recordOutput("LL Pose", bestPose == null ? nilPose : bestPose.pose);
-        Logger.recordOutput("LL Pose Avg Tag Dist", bestPose == null ? -1 : bestPose.avgTagDist);
-        Logger.recordOutput("LL Pose Avg Tag Area", bestPose == null ? -1 : bestPose.avgTagArea);
+        //Logger.recordOutput("LL Pose Valid?", bestPose != null);
+        //Logger.recordOutput("LL Pose", bestPose == null ? nilPose : bestPose.pose);
+        //Logger.recordOutput("LL Pose Avg Tag Dist", bestPose == null ? -1 : bestPose.avgTagDist);
+        //Logger.recordOutput("LL Pose Avg Tag Area", bestPose == null ? -1 : bestPose.avgTagArea);
 
         Pose2d robotPose = Drive.getInstance().getPose().toLegacy();
 
         double targetId = LimelightHelpers.getFiducialID(BACK_LIMELIGHT);
-        Logger.recordOutput("AprilTag ID", targetId);
+        //Logger.recordOutput("AprilTag ID", targetId);
 
         
     }
@@ -234,13 +237,6 @@ public class VisionSubsystem extends Subsystem{
 
     public boolean isLimelightConnected() {
         return limelightConnected;
-    }
-
-    public Pose2d calculateTrapPose(int tagID) {
-        Optional<Pose3d> pose3d = aprilTagFieldLayout.getTagPose(tagID);
-        if (pose3d.isEmpty()) return null;
-
-        return pose3d.get().toPose2d().transformBy(trapPoseTransform);
     }
 
     public Pose2d getCurrentTrapPose() {
@@ -298,6 +294,14 @@ public class VisionSubsystem extends Subsystem{
     public Command megatag2Enabled(boolean enabled) {
         return Commands.runOnce(() -> setMegatag2Enabled(enabled));
     }
+    
+    /*
+    @Override
+    public synchronized void outputTelemetry(){
+        Logger.recordOutput("Limelight/LL Connected", limelightConnected);
+        Logger.recordOutput("Limelight/BackPose", backPose.pose);
+
+    } */
 
     public PoseEstimate validatePoseEstimate(PoseEstimate poseEstimate, double deltaSeconds) {
         if (poseEstimate == null) return null;
