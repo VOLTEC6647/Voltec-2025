@@ -17,6 +17,7 @@ import com.team6647.frc2025.auto.modes.configuredQuals.L1Attempt;
 import com.team6647.frc2025.auto.modes.configuredQuals.LAlgae2;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left1;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left2;
+import com.team6647.frc2025.auto.modes.configuredQuals.S3Right;
 import com.team6647.frc2025.auto.modes.configuredQuals.simpleForwardC;
 import com.team6647.frc2025.auto.modes.configuredQuals.justForwardC;
 import com.team6647.frc2025.auto.paths.TrajectoryGenerator;
@@ -177,7 +178,7 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("Left2", new Left2());
 		autoChooser.addOption("LAlgae2", new LAlgae2());
 		autoChooser.addOption("CTest", new CTest());
-		autoChooser.addOption("S3Right", new Righ());
+		autoChooser.addOption("S3Right", new S3Right());
 		
 		if(isReal()){
 			Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
