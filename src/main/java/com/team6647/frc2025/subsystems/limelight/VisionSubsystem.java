@@ -47,7 +47,7 @@ public class VisionSubsystem extends Subsystem{
     private double frontLimelightHeartbeat = 0;
     private double lastHeartbeatTime = 0;
     private double frontLastHeartbeatTime = 0;
-    private boolean limelightConnected = false;
+    public boolean limelightConnected = false;
     private boolean frontLimelightConnected = false;
 
     private boolean canSeeSpeaker = false;
@@ -72,6 +72,8 @@ public class VisionSubsystem extends Subsystem{
 
     final int[] autoTagFilter = new int[] {1,2,6,7,8,9,10,11,12,13,17,18,19,20,21,22};
     final int[] teleopTagFilter = new int[] {1,2,6,7,8,9,10,11,12,13,17,18,19,20,21,22};
+
+    public PoseEstimate lastPose;
 
     PoseEstimate bestPose;
     PoseEstimate backPose;
@@ -101,7 +103,7 @@ public class VisionSubsystem extends Subsystem{
     }
 
     @Override
-    public synchronized void readPeriodicInputs() {
+    public void readPeriodicInputs() {
 
         //Logger.recordOutput("Odometry Enabled", odometryEnabled);
         
@@ -162,6 +164,8 @@ public class VisionSubsystem extends Subsystem{
             bestPose = backPose;
         }
 
+        lastPose = bestPose;
+
         
         
         if (bestPose != null) {
@@ -190,6 +194,7 @@ public class VisionSubsystem extends Subsystem{
         double targetId = LimelightHelpers.getFiducialID(BACK_LIMELIGHT);
         //Logger.recordOutput("AprilTag ID", targetId);
 
+        //Logger.recordOutput("Limelight/BackPose", backPose.pose);
         
     }
 
@@ -295,13 +300,13 @@ public class VisionSubsystem extends Subsystem{
         return Commands.runOnce(() -> setMegatag2Enabled(enabled));
     }
     
-    /*
-    @Override
-    public synchronized void outputTelemetry(){
-        Logger.recordOutput("Limelight/LL Connected", limelightConnected);
-        Logger.recordOutput("Limelight/BackPose", backPose.pose);
+    
+    //@Override
+    //public void outputTelemetry(){
+    //    Logger.recordOutput("Limelight/LL Connected", limelightConnected);
+    //    Logger.recordOutput("Limelight/BackPose", bestPose.pose);
 
-    } */
+    //} 
 
     public PoseEstimate validatePoseEstimate(PoseEstimate poseEstimate, double deltaSeconds) {
         if (poseEstimate == null) return null;

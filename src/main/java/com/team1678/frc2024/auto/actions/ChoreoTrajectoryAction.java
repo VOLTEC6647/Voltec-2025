@@ -81,7 +81,7 @@ public class ChoreoTrajectoryAction implements Action {
 
 	@Override
 	public boolean isFinished() {
-		return trajectory.get().getTotalTime()+0.7 < autoTimer.get();
+		return trajectory.get().getTotalTime()+1.7 < autoTimer.get();
 	}
 
 	@Override

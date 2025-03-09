@@ -36,6 +36,7 @@ import com.team254.lib.trajectory.Trajectory254;
 import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
 import com.team6647.frc2025.FieldLayout;
+import com.team6647.frc2025.subsystems.limelight.VisionSubsystem;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -193,11 +194,12 @@ public class Drive extends Subsystem {
 		), curPose.getRotation());
   this.driveRobotRelative(speeds);
   */
-	kPathFollowDriveP = 5;
-	kPathFollowTurnP = 3;
+	kPathFollowDriveP = 1.5;
+	kPathFollowTurnP = 1.5;
 	choreoX = new PIDController(kPathFollowDriveP, 0, 0);
 	choreoY = new PIDController(kPathFollowDriveP, 0, 0);
 	choreoRotation = new PIDController(kPathFollowTurnP, 0, 0);
+	choreoRotation.enableContinuousInput(-Math.PI, Math.PI);
 
 }
 
@@ -207,7 +209,9 @@ public class Drive extends Subsystem {
 
 public int acceptingHeading = 0;
 
+public edu.wpi.first.math.geometry.Pose2d lastSample;
 public void choreoController(SwerveSample sample) {
+	lastSample = sample.getPose();
 
 	Pose2d currentPose = Util.to254Pose(getLegacyPose());
 	var speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -477,7 +481,10 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 				Logger.recordOutput("/Auto/RobotPose", getLegacyPose());
 				Logger.recordOutput("/Auto/kCoralCenter", FieldLayout.kCoralCenter.toLegacy());
 
+		Logger.recordOutput("/Auto/ChoreoPose", lastSample);
 
+		Logger.recordOutput("Limelight/LL Connected", VisionSubsystem.getInstance().limelightConnected);
+        Logger.recordOutput("Limelight/BackPose", VisionSubsystem.getInstance().lastPose.pose);
 
 			
 	}
