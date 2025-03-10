@@ -70,6 +70,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -116,7 +117,7 @@ public class Robot extends LoggedRobot {
 
 
 	// vision
-	private final VisionDeviceManager mVisionDevices = VisionDeviceManager.getInstance();
+	//private final VisionDeviceManager mVisionDevices = VisionDeviceManager.getInstance();
 
 	// limelight
 	//private final Limelight mLimelight = Limelight.getInstance();
@@ -236,8 +237,7 @@ public class Robot extends LoggedRobot {
 				mElevator,
 				mCoralRoller,
 				mAlgaeT,
-				mClimber,
-				mVisionLimelight
+				mClimber
 
 			);
 			// spotless:on
@@ -261,12 +261,14 @@ public class Robot extends LoggedRobot {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
 		}
+		//CommandScheduler.getInstance().enable();
 	}
 
 	@Override
 	public void robotPeriodic() {
 		mEnabledLooper.outputToSmartDashboard();
 		mSubsystemManager.outputLoopTimes();
+		CommandScheduler.getInstance().run();
 	}
 
 	private final SendableChooser<AutoModeBase> autoChooser = new SendableChooser<AutoModeBase>();
@@ -317,7 +319,7 @@ public class Robot extends LoggedRobot {
 		try {
 			RobotState.getInstance().setIsInAuto(false);
 			mDrive.feedTeleopSetpoint(new ChassisSpeeds(0.0,  0.0, 0.0));
-			VisionDeviceManager.setDisableVision(false);
+			//VisionDeviceManager.setDisableVision(false);
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 
@@ -367,7 +369,7 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void disabledInit() {
 		try {
-			VisionDeviceManager.setDisableVision(false);
+			//VisionDeviceManager.setDisableVision(false);
 			CrashTracker.logDisabledInit();
 			mEnabledLooper.stop();
 			mDisabledLooper.start();

@@ -194,8 +194,8 @@ public class Drive extends Subsystem {
 		), curPose.getRotation());
   this.driveRobotRelative(speeds);
   */
-	kPathFollowDriveP = 1.5;
-	kPathFollowTurnP = 1.5;
+	kPathFollowDriveP = 2;
+	kPathFollowTurnP = 1.8;
 	choreoX = new PIDController(kPathFollowDriveP, 0, 0);
 	choreoY = new PIDController(kPathFollowDriveP, 0, 0);
 	choreoRotation = new PIDController(kPathFollowTurnP, 0, 0);
@@ -481,10 +481,9 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 				Logger.recordOutput("/Auto/RobotPose", getLegacyPose());
 				Logger.recordOutput("/Auto/kCoralCenter", FieldLayout.kCoralCenter.toLegacy());
 
-		Logger.recordOutput("/Auto/ChoreoPose", lastSample);
+		//Logger.recordOutput("/Auto/ChoreoPose", lastSample);
 
-		Logger.recordOutput("Limelight/LL Connected", VisionSubsystem.getInstance().limelightConnected);
-        Logger.recordOutput("Limelight/BackPose", VisionSubsystem.getInstance().lastPose.pose);
+		
 
 			
 	}

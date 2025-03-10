@@ -30,7 +30,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class VisionSubsystem extends Subsystem{
+public class VisionSubsystem extends SubsystemBase{
 
     public static final String FRONT_LIMELIGHT = "limelight-front";
     public static final String BACK_LIMELIGHT = "limelight";
@@ -103,7 +103,7 @@ public class VisionSubsystem extends Subsystem{
     }
 
     @Override
-    public void readPeriodicInputs() {
+    public void periodic() {
 
         //Logger.recordOutput("Odometry Enabled", odometryEnabled);
         
@@ -115,6 +115,7 @@ public class VisionSubsystem extends Subsystem{
         } else if (Timer.getFPGATimestamp() - lastHeartbeatTime >= 1) {
             limelightConnected = false;
         }
+        Logger.recordOutput("Limelight/LL Connected", limelightConnected);
         if (Robot.isSimulation()) limelightConnected = true;
 
         if (!limelightConnected) {
@@ -141,7 +142,6 @@ public class VisionSubsystem extends Subsystem{
         } else {
             backPose = LimelightHelpers.getBotPoseEstimate_wpiBlue(BACK_LIMELIGHT);
         }
-        //Logger.recordOutput("Backpose", backPose.pose);
 
 
         if (backPose != null)  {
@@ -169,6 +169,7 @@ public class VisionSubsystem extends Subsystem{
         
         
         if (bestPose != null) {
+            //Logger.recordOutput("Backpose", bestPose.pose);
             lastOdometryTime = Timer.getFPGATimestamp();
             lastPoseEstimate = bestPose;
             if (odometryEnabled) {

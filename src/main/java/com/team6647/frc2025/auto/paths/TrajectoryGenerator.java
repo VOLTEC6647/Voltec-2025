@@ -206,7 +206,7 @@ public class TrajectoryGenerator {
 
 			waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realCorals[Superstructure.getInstance().subCoralId]);
 			headings.add(Rotation2d.fromDegrees(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realAlgae.getRotation().getDegrees()));
-			return generate(waypoints, headings, List.of(), false, 1.1, 1.0);
+			return generate(waypoints, headings, List.of(), false, 0.4, 1.0);
 		}
 
 		public Trajectory254<TimedState<Pose2dWithMotion>> getForward() {

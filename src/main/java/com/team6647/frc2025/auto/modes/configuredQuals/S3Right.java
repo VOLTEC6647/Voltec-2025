@@ -3,7 +3,9 @@ package com.team6647.frc2025.auto.modes.configuredQuals;
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeEndedException;
 import com.team1678.frc2024.auto.actions.ChoreoTrajectoryAction;
+import com.team1678.frc2024.auto.actions.LambdaAction;
 import com.team1678.frc2024.auto.actions.WaitAction;
+import com.team1678.frc2024.subsystems.CoralPivot;
 import com.team1678.frc2024.subsystems.Drive;
 import com.team6647.frc2025.subsystems.Elevator;
 import com.team6647.frc2025.subsystems.Superstructure;
@@ -29,7 +31,20 @@ public class S3Right extends AutoModeBase {
 		CoralRoller.getInstance().setState(CoralRoller.getInstance().OUTAKING);
 		runAction(new WaitAction(1));
 		//Elevator.getInstance().setWantHome(true);
+
+		runAction(new ChoreoTrajectoryAction("S3Right2"));
+		s.request(s.prepareLevel(Levels.ALGAEING2));
+		runAction(new WaitAction(2));
+		
 		CoralRoller.getInstance().setState(CoralRoller.State.IDLE);
+		Elevator.getInstance().setSetpointMotionMagic(Elevator.kL2Height);
+		CoralPivot.getInstance().setSetpointMotionMagic(CoralPivot.kIntakingAngle);
+
+		runAction(new ChoreoTrajectoryAction("S3Right3"));
+
+
+
+
 		System.out.println("Finished auto!");
 	}
 	// spotless:on
