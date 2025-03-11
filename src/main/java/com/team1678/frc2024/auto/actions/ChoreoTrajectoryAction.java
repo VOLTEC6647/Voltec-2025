@@ -71,7 +71,7 @@ public class ChoreoTrajectoryAction implements Action {
 		events.forEach(event -> {
 			if (event.timestamp < autoTimer.get()) {
 				if(event.event.equals("Elevate")){
-					//Superstructure.getInstance().prepareLevel(Superstructure.getInstance().currentLevel);
+					Superstructure.getInstance().prepareLevel(Superstructure.getInstance().currentLevel);
 					events.remove(event);
 				}
 			}
@@ -81,7 +81,7 @@ public class ChoreoTrajectoryAction implements Action {
 
 	@Override
 	public boolean isFinished() {
-		return trajectory.get().getTotalTime()+1.7 < autoTimer.get();
+		return trajectory.get().getTotalTime()+1 < autoTimer.get();
 	}
 
 	@Override

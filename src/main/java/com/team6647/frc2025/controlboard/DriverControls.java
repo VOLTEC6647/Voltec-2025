@@ -155,7 +155,18 @@ public class DriverControls {
 		}
 		
 		if (mControlBoard.operator.yButton.wasActivated()) {
-			mCoralRoller.setState(CoralRoller.State.INTAKING);
+			s.request(
+				new SequentialRequest(
+					new LambdaRequest(
+						()->{mCoralRoller.setState(CoralRoller.State.INTAKING);}
+					),
+					new WaitRequest(0.2),
+					new WaitForPrereqRequest(()->mCoralRoller.getBeamBreak()),
+					new LambdaRequest(
+						()->{mCoralRoller.setState(CoralRoller.State.IDLE);}
+					)
+				)
+				);
 		}
 		if (mControlBoard.operator.yButton.wasReleased()) {
 			mCoralRoller.setState(CoralRoller.State.IDLE);
@@ -164,13 +175,13 @@ public class DriverControls {
 			mCoralRoller.setState(mCoralRoller.OUTAKING);
 		}
 		if (mControlBoard.driver.bButton.wasActivated()) {
-			mCoralPivot.setSetpointMotionMagic(CoralPivot.kLevel4Angle+15);
+			mCoralPivot.setSetpointMotionMagic(CoralPivot.kLevel4Angle+30);
 		}
 		if (mControlBoard.driver.xButton.wasReleased()) {
 			mCoralRoller.setState(CoralRoller.State.IDLE);
 		}
 		if (mControlBoard.operator.xButton.wasActivated()) {
-			mCoralRoller.setState(mCoralRoller.OUTAKING);
+			//mCoralRoller.setState(mCoralRoller.OUTAKING);
 		}
 		if (mControlBoard.operator.xButton.wasReleased()) {
 			mCoralRoller.setState(CoralRoller.State.IDLE);

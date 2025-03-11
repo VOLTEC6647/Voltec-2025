@@ -36,7 +36,7 @@ import com.team254.lib.trajectory.Trajectory254;
 import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
 import com.team6647.frc2025.FieldLayout;
-import com.team6647.frc2025.subsystems.limelight.VisionSubsystem;
+import com.team6647.frc2025.subsystems.vision.VisionLimelightSubsystem;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -195,7 +195,7 @@ public class Drive extends Subsystem {
   this.driveRobotRelative(speeds);
   */
 	kPathFollowDriveP = 2;
-	kPathFollowTurnP = 1.8;
+	kPathFollowTurnP = 2.3;//1.8
 	choreoX = new PIDController(kPathFollowDriveP, 0, 0);
 	choreoY = new PIDController(kPathFollowDriveP, 0, 0);
 	choreoRotation = new PIDController(kPathFollowTurnP, 0, 0);

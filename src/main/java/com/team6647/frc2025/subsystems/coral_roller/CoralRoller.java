@@ -131,7 +131,11 @@ public class CoralRoller extends Subsystem {
 
 	@Override
 	public synchronized void outputTelemetry() {
-		Logger.recordOutput("subsystems/CoralRoller/State", mState.toString());
-		Logger.processInputs("subsystems/CoralRoller/IO", inputs);
+		Logger.recordOutput("CoralRoller/State", mState.toString());
+		Logger.processInputs("CoralRoller/IO", inputs);
+	}
+
+	public boolean getBeamBreak(){
+		return inputs.hasCoral;
 	}
 }

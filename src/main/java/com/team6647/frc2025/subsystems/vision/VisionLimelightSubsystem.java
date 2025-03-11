@@ -1,5 +1,5 @@
 
-package com.team6647.frc2025.subsystems.limelight;
+package com.team6647.frc2025.subsystems.vision;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,8 +15,8 @@ import com.team1678.frc2024.subsystems.Climber;
 import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.frc2024.subsystems.Subsystem;
 import com.team6647.frc2025.Robot;
-import com.team6647.frc2025.subsystems.limelight.LimelightHelpers.PoseEstimate;
-import com.team6647.frc2025.subsystems.limelight.LimelightHelpers.RawFiducial;
+import com.team6647.frc2025.subsystems.vision.LimelightHelpers.PoseEstimate;
+import com.team6647.frc2025.subsystems.vision.LimelightHelpers.RawFiducial;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -30,7 +30,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class VisionSubsystem extends SubsystemBase{
+public class VisionLimelightSubsystem extends SubsystemBase{
 
     public static final String FRONT_LIMELIGHT = "limelight-source";
     public static final String BACK_LIMELIGHT = "limelight-coral";
@@ -81,15 +81,15 @@ public class VisionSubsystem extends SubsystemBase{
     double newHeartbeat;
 
 
-    private static VisionSubsystem mInstance;
+    private static VisionLimelightSubsystem mInstance;
     
-    public static VisionSubsystem getInstance() {
+    public static VisionLimelightSubsystem getInstance() {
 		if (mInstance == null) {
-			mInstance = new VisionSubsystem();//, CoralPivotConstants.kHoodEncoderConstants
+			mInstance = new VisionLimelightSubsystem();//, CoralPivotConstants.kHoodEncoderConstants
 		}
 		return mInstance;
 	}
-    public VisionSubsystem() {
+    public VisionLimelightSubsystem() {
         try {
             aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
         } catch (Exception e) {
@@ -108,7 +108,7 @@ public class VisionSubsystem extends SubsystemBase{
 
         //Logger.recordOutput("Odometry Enabled", odometryEnabled);
         
-        newHeartbeat = LimelightHelpers.getLimelightNTDouble("limelight", "hb");
+        newHeartbeat = LimelightHelpers.getLimelightNTDouble(BACK_LIMELIGHT, "hb");
         if (newHeartbeat > limelightHeartbeat) {
             limelightConnected = true;
             limelightHeartbeat = newHeartbeat;
@@ -172,6 +172,7 @@ public class VisionSubsystem extends SubsystemBase{
         lastPose = bestPose;
 
         if (bestPose != null) {
+            //sSmartDashboard.put
             //Logger.recordOutput("Backpose", bestPose.pose);
             lastOdometryTime = Timer.getFPGATimestamp();
             lastPoseEstimate = bestPose;
@@ -344,4 +345,3 @@ public class VisionSubsystem extends SubsystemBase{
         }
     }
 }
-

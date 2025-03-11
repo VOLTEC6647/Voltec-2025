@@ -60,8 +60,8 @@ public class Constants {
 			kElevatorServoConstants.kKg = 0;
 			kElevatorServoConstants.kDeadband = 0; // rots
 
-			kElevatorServoConstants.kCruiseVelocity = 2;//12.0; // m / s
-			kElevatorServoConstants.kAcceleration = 0.4; // m / s^2
+			kElevatorServoConstants.kCruiseVelocity = 4;//12.0; // m / s
+			kElevatorServoConstants.kAcceleration = 2; // m / s^2
 			kElevatorServoConstants.kRampRate = 0.0; // s
 
 			kElevatorServoConstants.kMaxForwardOutput = 12.0;
@@ -83,6 +83,7 @@ public class Constants {
 		public static double kHomingTimeout = 0.1; // seconds
 		public static double kHomingVelocityWindow = 0.1; // "units" / second
 		public static double kHomingOutput = -2.0; // volts
+		public static double kMaxHomingOutput = -3.5; // volts
 
 		//public static double kHomingZone = 0; // meters
 		//public static double kHomingTimeout = 0.5; // seconds
@@ -110,7 +111,7 @@ public class Constants {
 	}
 
 	public static final class CoralRollerConstants {
-		public static double sensorThreshold;
+		public static double sensorThreshold = 130;
 		public static int sensorId;
 	}
 
