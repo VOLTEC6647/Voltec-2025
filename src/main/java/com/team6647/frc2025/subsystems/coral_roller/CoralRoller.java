@@ -32,7 +32,8 @@ public class CoralRoller extends Subsystem {
 	public State OUTAKING = State.OUTAKING3;
 
 	public enum State {
-		IDLE(0.0),
+		IDLE(-0),
+		CONSTANT(-0.35),
 		INTAKING(-3),//-1.3
 		OUTAKING4(1.5),
 		OUTAKING3(1.3),

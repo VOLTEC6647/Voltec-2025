@@ -16,6 +16,7 @@ import com.team6647.frc2025.auto.modes.configuredQuals.LAlgae2;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left1;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left2;
 import com.team6647.frc2025.auto.modes.configuredQuals.S3Right;
+import com.team6647.frc2025.auto.modes.configuredQuals.S3RightA;
 import com.team6647.frc2025.auto.modes.configuredQuals.simpleForwardC;
 import com.team6647.frc2025.auto.modes.configuredQuals.justForwardC;
 import com.team6647.frc2025.auto.paths.TrajectoryGenerator;
@@ -40,6 +41,7 @@ import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.algae_roller.AlgaeRoller;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 import com.team6647.frc2025.subsystems.vision.VisionLimelightSubsystem;
+import com.team6647.frc2025.subsystems.vision.VisionPhotonSubsystem;
 
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
@@ -96,6 +98,7 @@ public class Robot extends LoggedRobot {
 	private Elevator mElevator;
 	private com.team1678.frc2024.subsystems.Climber mClimber;
 	private VisionLimelightSubsystem mVisionLimelight;
+	private VisionPhotonSubsystem mVisionPhoton;
 
 
 
@@ -155,10 +158,11 @@ public class Robot extends LoggedRobot {
 		mElevator = Elevator.getInstance();
 		mClimber = Climber.getInstance();
 		mVisionLimelight = VisionLimelightSubsystem.getInstance();
+		mVisionPhoton = VisionPhotonSubsystem.getInstance();
 
 
 		autoChooser.addOption("Just Forward", new justForwardC());
-		autoChooser.setDefaultOption("S3RightD", new S3Right());
+		autoChooser.setDefaultOption("S3RightA", new S3RightA());
 		autoChooser.addOption("SimpleForwardC", new simpleForwardC());
 		autoChooser.addOption("L1Attempt", new L1Attempt());
 		autoChooser.addOption("Left1", new Left1());
