@@ -78,7 +78,7 @@ public class Robot extends LoggedRobot {
 
 	// util instances
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
-	//private final List<SubsystemV> mSubsystems;
+	private List<SubsystemV> mSubsystems;
 	private final ControlBoard mControlBoard = ControlBoard.getInstance();
 	private final DriverControls mDriverControls = new DriverControls();
 
@@ -219,23 +219,22 @@ public class Robot extends LoggedRobot {
 			mDrive.resetModulesToAbsolute();
 
 
-			//mSubsystems.add(
-			//	
-			//)
+			mSubsystems.add(
+				mDrive
+			);
 			// spotless:off
 			mSubsystemManager.setSubsystems(
-				mDrive, 
+				 
 				mSuperstructure,
 				mAlgaeRoller,
 				mCoralPivot,
 				mElevator,
 				mCoralRoller,
-				mAlgaeT,
-				mClimber
+				mAlgaeT
+				//mClimber
 
 			);
 			// spotless:on
-
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
@@ -275,6 +274,9 @@ public class Robot extends LoggedRobot {
 		//	mDrive.zeroGyro(mVisionDevices.getMovingAverageRead());
 		//}
 		RobotState.getInstance().setIsInAuto(true);
+		for (SubsystemV s:mSubsystems){
+			s.onStart(Timer.getFPGATimestamp());
+		}
 		mDisabledLooper.stop();
 		mEnabledLooper.start();
 		mAutoModeExecutor.setAutoMode(autoChooser.getSelected());//autoChooser.getSelected());
@@ -314,6 +316,9 @@ public class Robot extends LoggedRobot {
 			RobotState.getInstance().setIsInAuto(false);
 			mDrive.feedTeleopSetpoint(new ChassisSpeeds(0.0,  0.0, 0.0));
 			//VisionDeviceManager.setDisableVision(false);
+			for (SubsystemV s:mSubsystems){
+				s.onStart(Timer.getFPGATimestamp());
+			}
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 
@@ -367,6 +372,9 @@ public class Robot extends LoggedRobot {
 			CrashTracker.logDisabledInit();
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
+			for (SubsystemV s:mSubsystems){
+				s.onStop(Timer.getFPGATimestamp());
+			}
 			//mCoralPivot.setOpenLoop(0);
 			disable_enter_time = Timer.getFPGATimestamp();
 		} catch (Throwable t) {
@@ -397,6 +405,7 @@ public class Robot extends LoggedRobot {
 				alliance_changed = true;
 			}
 
+			//Timer.getFPGATimestamp()
 			if (Timer.getFPGATimestamp() - disable_enter_time > 5.0) {
 				disable_enter_time = Double.POSITIVE_INFINITY;
 			}
@@ -433,8 +442,14 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void testInit() {
 		try {
+			for (SubsystemV s:mSubsystems){
+				s.onStop(Timer.getFPGATimestamp());
+			}
 			mDisabledLooper.stop();
 			mEnabledLooper.stop();
+			for (SubsystemV s:mSubsystems){
+				s.onStop(Timer.getFPGATimestamp());
+			}
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;

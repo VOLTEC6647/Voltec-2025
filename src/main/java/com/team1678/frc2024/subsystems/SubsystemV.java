@@ -8,7 +8,7 @@ public abstract class SubsystemV extends SubsystemBase {
   public SubsystemV() {
 
   }
-  public void onStart(){}
+  public void onStart(double timestamp){}
   public void onLoop(double timestamp) {}
   public void onStop(double timestamp) {}
   
