@@ -44,6 +44,9 @@ public class CoralRollerIOTalonFX implements CoralRollerIO {
     }
 
     public boolean getBeamBreak() {
+        if(distanceSensor.getRange()==0){
+            return false;
+        }
         return distanceSensor.getRange()<CoralRollerConstants.sensorThreshold;
     }
 }//0.16342
