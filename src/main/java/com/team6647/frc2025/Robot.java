@@ -41,6 +41,7 @@ import com.team6647.frc2025.subsystems.MotorTest;
 import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.algae_roller.AlgaeRoller;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
+import com.team6647.frc2025.subsystems.leds.LEDSubsystem;
 import com.team6647.frc2025.subsystems.vision.VisionLimelightSubsystem;
 import com.team6647.frc2025.subsystems.vision.VisionPhotonSubsystem;
 
@@ -88,6 +89,7 @@ public class Robot extends LoggedRobot {
 
 	// subsystem instances
 	private Drive mDrive;
+	private LEDSubsystem leds;
 	private Cancoders mCancoders;
 
 	private MotorTest mMotorTest;
@@ -150,6 +152,7 @@ public class Robot extends LoggedRobot {
 		CrashTracker.logRobotConstruction();
 
 		mDrive = Drive.getInstance();
+		leds = LEDSubsystem.getInstance();
 
 		//mMotorTest = MotorTest.getInstance();
 		mAlgaeRoller = AlgaeRoller.getInstance();
@@ -247,6 +250,9 @@ public class Robot extends LoggedRobot {
 
 			mSuperstructure.showLevel();
 			mSuperstructure.showAngle();
+
+			leds.solidBlue();
+			//leds.escuderia_effect();
 
 
 		} catch (Throwable t) {
