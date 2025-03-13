@@ -17,6 +17,7 @@ import com.team6647.frc2025.auto.modes.configuredQuals.Left1;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left2;
 import com.team6647.frc2025.auto.modes.configuredQuals.S3Right;
 import com.team6647.frc2025.auto.modes.configuredQuals.S3RightA;
+import com.team6647.frc2025.auto.modes.configuredQuals.S3RightPP;
 import com.team6647.frc2025.auto.modes.configuredQuals.simpleForwardC;
 import com.team6647.frc2025.auto.modes.configuredQuals.justForwardC;
 import com.team6647.frc2025.auto.paths.TrajectoryGenerator;
@@ -78,7 +79,7 @@ public class Robot extends LoggedRobot {
 
 	// util instances
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
-	private List<SubsystemV> mSubsystems;
+	private SubsystemV[] mSubsystems;
 	private final ControlBoard mControlBoard = ControlBoard.getInstance();
 	private final DriverControls mDriverControls = new DriverControls();
 
@@ -158,7 +159,7 @@ public class Robot extends LoggedRobot {
 		mElevator = Elevator.getInstance();
 		mClimber = Climber.getInstance();
 		mVisionLimelight = VisionLimelightSubsystem.getInstance();
-		mVisionPhoton = VisionPhotonSubsystem.getInstance();
+		//mVisionPhoton = VisionPhotonSubsystem.getInstance();
 
 
 		autoChooser.addOption("Just Forward", new justForwardC());
@@ -170,6 +171,7 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("LAlgae2", new LAlgae2());
 		autoChooser.addOption("CTest", new CTest());
 		autoChooser.addOption("S3Right", new S3Right());
+		autoChooser.addOption("S3RightPP", new S3RightPP());
 		
 		if(isReal()){
 			Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
@@ -218,21 +220,18 @@ public class Robot extends LoggedRobot {
 
 			mDrive.resetModulesToAbsolute();
 
-
-			mSubsystems.add(
+			mSubsystems = new SubsystemV[]{
 				mDrive
-			);
+			};
 			// spotless:off
 			mSubsystemManager.setSubsystems(
-				 
 				mSuperstructure,
 				mAlgaeRoller,
 				mCoralPivot,
 				mElevator,
 				mCoralRoller,
-				mAlgaeT
-				//mClimber
-
+				mAlgaeT,
+				mClimber
 			);
 			// spotless:on
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);

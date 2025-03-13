@@ -63,10 +63,9 @@ public class Constants {
 			kElevatorServoConstants.kKg = 0;
 			kElevatorServoConstants.kDeadband = 0; // rots
 
-			kElevatorServoConstants.kCruiseVelocity = 4;//12.0; // m / s
-			kElevatorServoConstants.kAcceleration = 2; // m / s^2
+			kElevatorServoConstants.kCruiseVelocity = 2;//4  //12.0; // m / s
+			kElevatorServoConstants.kAcceleration = 1.7;//2 // m / s^2
 			kElevatorServoConstants.kRampRate = 0.0; // s
-
 			kElevatorServoConstants.kMaxForwardOutput = 12.0;
 			kElevatorServoConstants.kMaxReverseOutput = -12.0;
 

@@ -5,6 +5,10 @@ import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.team1678.frc2024.Constants1678;
 import com.team1678.frc2024.Constants1678.SwerveConstants;
 import com.team1678.frc2024.Constants1678.SwerveConstants.Mod0;
@@ -123,9 +127,10 @@ public class Drive extends SubsystemV {
 		*/
 
 
-	/*
-	// Configure AutoBuilder last
-	AutoBuilder.configure(
+	RobotConfig config;
+    try{
+      config = RobotConfig.fromGUISettings();
+	  AutoBuilder.configure(
 			this::getLegacyPose, // Robot pose supplier
 			this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
 			this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
@@ -148,9 +153,14 @@ public class Drive extends SubsystemV {
 			},
 			this // Reference to this subsystem to set requirements
 	);
-	}
-	*/
-
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+	
+	// Configure AutoBuilder last
+	
+	
 	//Wierd
 	
 	/* 
