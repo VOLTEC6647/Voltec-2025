@@ -204,7 +204,7 @@ public class Drive extends SubsystemV {
 		), curPose.getRotation());
   this.driveRobotRelative(speeds);
   */
-	kPathFollowDriveP = 1.5;
+	kPathFollowDriveP = 1.8;
 	kPathFollowTurnP = 1.8;//1.8
 	choreoX = new PIDController(kPathFollowDriveP, 0, 0);
 	choreoY = new PIDController(kPathFollowDriveP, 0, 0);
