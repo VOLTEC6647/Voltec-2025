@@ -43,6 +43,9 @@ import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 import com.team6647.frc2025.subsystems.vision.VisionLimelightSubsystem;
 import com.team6647.frc2025.subsystems.vision.VisionPhotonSubsystem;
 
+import com.team6647.frc2025.subsystems.Leds.LEDSubsystem;
+
+
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -99,6 +102,9 @@ public class Robot extends LoggedRobot {
 	private com.team1678.frc2024.subsystems.Climber mClimber;
 	private VisionLimelightSubsystem mVisionLimelight;
 	private VisionPhotonSubsystem mVisionPhoton;
+
+	private static final LEDSubsystem leds = LEDSubsystem.getInstance();
+
 
 
 
@@ -187,6 +193,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void robotInit() {
+		leds.strobRed(2);
 		try {
 			mDrive = Drive.getInstance();
 			mCancoders = Cancoders.getInstance();
