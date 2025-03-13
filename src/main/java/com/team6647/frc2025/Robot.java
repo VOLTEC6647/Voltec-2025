@@ -194,7 +194,7 @@ public class Robot extends LoggedRobot {
 	public void robotInit() {
 		try {
 
-			leds.strobeGreen(0.2);
+			leds.strobRed(0.2);
 			mDrive = Drive.getInstance();
 			mCancoders = Cancoders.getInstance();
 			CrashTracker.logRobotInit();
