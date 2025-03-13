@@ -50,6 +50,7 @@ import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.Superstructure.Levels;
 import com.team6647.frc2025.subsystems.algae_roller.AlgaeRoller;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
+import com.team6647.frc2025.subsystems.Leds.LEDSubsystem;
 
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
@@ -91,6 +92,8 @@ public class Robot extends LoggedRobot {
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
 	private final ControlBoard mControlBoard = ControlBoard.getInstance();
 	private final DriverControls mDriverControls = new DriverControls();
+
+	private static final LEDSubsystem leds = LEDSubsystem.getInstance();
 
 	// the boss
 	private final Superstructure mSuperstructure = Superstructure.getInstance();
@@ -190,6 +193,8 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void robotInit() {
 		try {
+
+			leds.strobeGreen(0.2);
 			mDrive = Drive.getInstance();
 			mCancoders = Cancoders.getInstance();
 			CrashTracker.logRobotInit();
