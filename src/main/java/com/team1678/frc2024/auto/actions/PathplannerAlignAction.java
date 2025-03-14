@@ -37,18 +37,13 @@ public class PathplannerAlignAction implements Action {
 
 	private Drive mDrive = null;
 
-	String trajectory;
-
 	private Timer autoTimer = new Timer();
 	private double correctionDelay = 1.5;
 	private Command pathPlannerCommand;
 
 	public PathplannerAlignAction() {
 		mDrive = Drive.getInstance();
-	}
 
-	@Override
-	public void start() {
 		Pose2d endpose = FieldLayout
 		.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure
 				.getInstance().coralId]).realCorals[Superstructure.getInstance().subCoralId]
@@ -59,12 +54,7 @@ public class PathplannerAlignAction implements Action {
 				endpose);
 
 		PathConstraints constraints = new PathConstraints(1.5, 1.5, 2 * Math.PI, 4 * Math.PI); // The constraints for
-																								// this path.
-		// PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); //
-		// You can also use unlimited constraints, only limited by motor torque and
-		// nominal battery voltage
-
-		// Create the path using the waypoints created above
+				
 		PathPlannerPath path = new PathPlannerPath(
 				waypoints,
 				constraints,
@@ -72,10 +62,13 @@ public class PathplannerAlignAction implements Action {
 						// be null for on-the-fly paths.
 				new GoalEndState(0.0, endpose.getRotation()) // Goal end state. You can set a holonomic rotation
 		);
-
 		path.preventFlipping = true;
 		pathPlannerCommand = AutoBuilder.followPath(path);
-		CommandScheduler.getInstance().schedule();
+	}
+
+	@Override
+	public void start() {
+		pathPlannerCommand.schedule();
 	}
 
 	@Override

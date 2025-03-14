@@ -74,7 +74,7 @@ public class DriverControls {
 	private CoralPivot mCoralPivot = CoralPivot.getInstance();
 	private Climber mClimber = Climber.getInstance();
 
-	public boolean assisting = true;
+	public boolean assisting = false;
 
 
 
@@ -87,7 +87,7 @@ public class DriverControls {
 		//if(assisting){
 		//	startAssist(new putCoral());
 		//}
-		if(mControlBoard.operator.leftCenterClick.wasActivated()){
+		if(mControlBoard.operator.startButton.wasActivated()){
 			assisting = !assisting;
 		}
 		
@@ -300,12 +300,18 @@ public class DriverControls {
 		if(mControlBoard.driver.aButton.wasActivated()){
 			//Rotation2d coralRotation = FieldLayout.getCoralTargetPos(s.angles[s.coralId]).algae.getRotation();
 			//mDrive.stabilizeHeading(coralRotation);
+			if(assisting){
+				//new PathplannerAlignAction(null);
+				startAssist(new putCoralPP());
+
+			}
 			
 
-			Rotation2d coralRotation = Rotation2d.fromDegrees(NearestAngleFinder.findNearestAngle(s.angles, mDrive.getHeading().getDegrees()));
-			mDrive.stabilizeHeading(coralRotation);
+			//Rotation2d coralRotation = Rotation2d.fromDegrees(NearestAngleFinder.findNearestAngle(s.angles, mDrive.getHeading().getDegrees()));
+			//mDrive.stabilizeHeading(coralRotation);
 		}
 		if(mControlBoard.driver.aButton.wasReleased()){
+			stopAssist();
 			mDrive.setControlState(DriveControlState.OPEN_LOOP);
 		}
 		/*

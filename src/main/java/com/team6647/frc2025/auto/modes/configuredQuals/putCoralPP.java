@@ -15,6 +15,7 @@ import com.team1678.frc2024.auto.actions.WaitToPassXCoordinateAction;
 import com.team1678.frc2024.auto.actions.WaitToPassYCoordinateAction;
 import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.lib.requests.LambdaRequest;
+import com.team1678.lib.requests.SequentialRequest;
 import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.trajectory.Trajectory254;
@@ -48,6 +49,10 @@ public class putCoralPP extends AutoModeBase {
 		LEDSubsystem.getInstance().solidYellow();
 		runAction(new PathplannerAlignAction());
 		LEDSubsystem.getInstance().solidBlue();
+		s.request(
+		new SequentialRequest(
+			s.prepareLevel(s.currentLevel)
+		));
 		
 		System.out.println("Finished auto!");
 	}
