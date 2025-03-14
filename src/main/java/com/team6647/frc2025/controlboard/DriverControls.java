@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeExecutor;
+import com.team1678.frc2024.auto.actions.PathplannerAlignAction;
 import com.team1678.frc2024.controlboard.ControlBoard;
 import com.team1678.frc2024.subsystems.AlgaeT;
 import com.team1678.frc2024.subsystems.Climber;
@@ -28,7 +29,7 @@ import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.FieldLayout.CoralTarget;
 import com.team6647.frc2025.auto.actions.AssistModeExecutor;
 import com.team6647.frc2025.auto.modes.configuredQuals.putCoral;
-
+import com.team6647.frc2025.auto.modes.configuredQuals.putCoralPP;
 import com.team6647.frc2025.subsystems.Elevator;
 import com.team6647.frc2025.subsystems.MotorTest;
 import com.team6647.frc2025.subsystems.Superstructure;
@@ -73,7 +74,7 @@ public class DriverControls {
 	private CoralPivot mCoralPivot = CoralPivot.getInstance();
 	private Climber mClimber = Climber.getInstance();
 
-	public boolean assisting = false;
+	public boolean assisting = true;
 
 
 
@@ -91,11 +92,18 @@ public class DriverControls {
 		}
 		
 		if(mControlBoard.operator.aButton.wasActivated()){
-			mSuperstructure.request(
+			if(assisting){
+				//new PathplannerAlignAction(null);
+				startAssist(new putCoralPP());
+
+			}else{
+				mSuperstructure.request(
 				new SequentialRequest(
 					mSuperstructure.prepareLevel(s.currentLevel)
 				)
 			);
+			}
+			
 		}
 
 		if(mControlBoard.operator.leftBumper.wasActivated()){
@@ -143,8 +151,9 @@ public class DriverControls {
 			mCoralRoller.setState(CoralRoller.State.IDLE);
 		}
 		if(mControlBoard.operator.bButton.wasActivated()){
-			if(assisting){
-				startAssist(new putCoral());
+			if(assisting&&false){
+				//new PathplannerAlignAction(null);
+				startAssist(new putCoralPP());
 
 			}else{
 				mSuperstructure.request(
