@@ -4,6 +4,7 @@
 
 package com.team6647.frc2025;
 
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.team1678.frc2024.Constants1678;
 import com.team1678.frc2024.RobotState;
 import com.team1678.frc2024.SubsystemManager;
@@ -188,8 +189,6 @@ public class Robot extends LoggedRobot {
 		SmartDashboard.putData("Auto Chosen", autoChooser);
 	}
 
-		
-
 	@Override
 	public void robotInit() {
 		try {
@@ -253,7 +252,7 @@ public class Robot extends LoggedRobot {
 
 			leds.solidBlue();
 			//leds.escuderia_effect();
-
+			PathfindingCommand.warmupCommand().schedule();
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);

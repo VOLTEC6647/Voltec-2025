@@ -81,8 +81,11 @@ public class FieldLayout {
 
 		public double angle;
 
+		public double angleId;
+
 		CoralTarget(double angle) {
 			this.angle = angle;
+			//this.angleId = Cora
 		}
 	}
 
@@ -93,12 +96,14 @@ public class FieldLayout {
 		public Pose2d realAlgae;
 		public Pose2d[] corals;
 		public Pose2d[] realCorals;
+		public Pose2d[] corals4;
 
-		public CoralSet(Pose2d algae, Pose2d realAlgae, Pose2d[] corals, Pose2d[] realCorals) {
+		public CoralSet(Pose2d algae, Pose2d realAlgae, Pose2d[] corals, Pose2d[] realCorals, Pose2d[] corals4) {
 			this.algae = algae;
 			this.realAlgae = realAlgae;
 			this.corals = corals;
 			this.realCorals = realCorals;
+			this.corals4 = corals4;
 		}
 	}
 
@@ -122,6 +127,9 @@ public class FieldLayout {
 		Pose2d realCoral1 = center.transformBy(new Pose2d(new Translation2d(-0.27, kRealCoralDistanceOffset+pivotOffset), Rotation2d.fromDegrees(180)));
 		Pose2d realCoral2 = center.transformBy(new Pose2d(new Translation2d(-0.27, -kRealCoralDistanceOffset+pivotOffset), Rotation2d.fromDegrees(180)));
 		
+		Pose2d realCoral41 = realCoral1.transformBy(new Pose2d(0,0,new Rotation2d()));
+		Pose2d realCoral42 = realCoral2.transformBy(new Pose2d(0,0,new Rotation2d()));
+
 		algae = rotatePoseFromPivot(algae, rot);
 		coral1 = rotatePoseFromPivot(coral1, rot);
 		coral2 = rotatePoseFromPivot(coral2, rot);
@@ -129,6 +137,9 @@ public class FieldLayout {
 		realAlgae = rotatePoseFromPivot(realAlgae, rot);
 		realCoral1 = rotatePoseFromPivot(realCoral1, rot);
 		realCoral2 = rotatePoseFromPivot(realCoral2, rot);
+
+		realCoral41 = rotatePoseFromPivot(realCoral41, rot);
+		realCoral42 = rotatePoseFromPivot(realCoral42, rot);
 
 		algae = handleCoralFlip(algae.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
 		coral1 = handleCoralFlip(coral1.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
@@ -138,10 +149,14 @@ public class FieldLayout {
 		realCoral1 = handleCoralFlip(realCoral1.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
 		realCoral2 = handleCoralFlip(realCoral2.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
 
+		realCoral41 = handleCoralFlip(realCoral41.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
+		realCoral42 = handleCoralFlip(realCoral42.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
+
 		Pose2d[] corals = {coral1, coral2};
 		Pose2d[] realCorals = {realCoral1, realCoral2};
+		Pose2d[] corals4 = {realCoral41, realCoral42};
 
-		return (new CoralSet(algae, realAlgae, corals, realCorals));
+		return (new CoralSet(algae, realAlgae, corals, realCorals, corals4));
 	}
 
 	public static Pose2d rotatePoseFromPivot(Pose2d coral, Rotation2d rot) {
@@ -163,6 +178,7 @@ public class FieldLayout {
 	public static Pose2d handleCoralFlip(Pose2d blue_pose, boolean is_red_alliance) {
 		if (is_red_alliance) {
 			blue_pose = blue_pose.mirrorAboutX(kFieldLength / 2.0).mirrorAboutY(kFieldWidth / 2.0);
+			blue_pose = blue_pose.rotateBy(Rotation2d.fromDegrees(180));
 		}
 
 		return blue_pose;

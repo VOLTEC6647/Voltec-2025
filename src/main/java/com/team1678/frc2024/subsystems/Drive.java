@@ -99,6 +99,8 @@ public class Drive extends SubsystemV {
 		return mInstance;
 	}
 
+	public RobotConfig config = null;
+
 	private Drive() {
 		mModules = new SwerveModule[] {
 			new SwerveModule(
@@ -117,6 +119,8 @@ public class Drive extends SubsystemV {
 		mPigeon.setYaw(0.0);
 		mWheelTracker = new WheelTracker(mModules);
 
+		setUsePIDControl(true);
+
 		/* 
 		kPathFollowDriveP = 5;
 		kPathFollowTurnP = 3;
@@ -127,7 +131,7 @@ public class Drive extends SubsystemV {
 		*/
 
 
-	RobotConfig config;
+	
     try{
       config = RobotConfig.fromGUISettings();
 	  AutoBuilder.configure(
@@ -141,10 +145,6 @@ public class Drive extends SubsystemV {
 			),
 			config, // The robot configuration
 			() -> {
-			  // Boolean supplier that controls when the path will be mirrored for the red alliance
-			  // This will flip the path being followed to the red side of the field.
-			  // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
 			  var alliance = DriverStation.getAlliance();
 			  if (alliance.isPresent()) {
 				return alliance.get() == DriverStation.Alliance.Red;
@@ -316,6 +316,8 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 				mPeriodicIO.des_chassis_speeds = new ChassisSpeeds(x, y, omega);
 				return;
 			}
+		}else if (mControlState == DriveControlState.VELOCITY) {
+			return;
 		} else if (mControlState != DriveControlState.OPEN_LOOP) {
 			mControlState = DriveControlState.OPEN_LOOP;
 		}
@@ -331,6 +333,7 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 	}
 
 	public void setVelocity(ChassisSpeeds speeds) {
+		System.out.println("Velocity Set");
 		mPeriodicIO.des_chassis_speeds = speeds;
 		if (mControlState != DriveControlState.VELOCITY) {
 			mControlState = DriveControlState.VELOCITY;

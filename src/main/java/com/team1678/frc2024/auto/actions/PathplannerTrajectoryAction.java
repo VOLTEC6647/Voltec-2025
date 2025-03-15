@@ -29,15 +29,16 @@ public class PathplannerTrajectoryAction implements Action {
 
 	private Drive mDrive = null;
 
-	String trajectory;
+	private final String trajectory;
 
 	private Timer autoTimer = new Timer();
 	private double correctionDelay = 1.5;
 	private Command pathPlannerCommand;
-				
+
 
 	public PathplannerTrajectoryAction(String trajectory) {
 		mDrive = Drive.getInstance();
+		this.trajectory = trajectory;
 	}
 
 	@Override

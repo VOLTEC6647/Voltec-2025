@@ -289,8 +289,8 @@ public class DriveMotionPlanner implements CSVWritable {
 	protected ChassisSpeeds updatePIDChassis(ChassisSpeeds chassisSpeeds) {
 		// Feedback on longitudinal error (distance).
 		final double kPathk =
-				2.4; // 2.4;/* * Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond)*/;//0.15;
-		final double kPathKTheta = 3.0;
+				-2.4; // 2.4;/* * Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond)*/;//0.15;
+		final double kPathKTheta = -3.0;
 
 		Twist2d pid_error = Pose2d.log(mError);
 
