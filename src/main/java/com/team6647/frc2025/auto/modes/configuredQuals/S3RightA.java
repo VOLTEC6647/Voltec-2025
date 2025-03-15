@@ -50,8 +50,8 @@ public class S3RightA extends AutoModeBase {
 			)
 		);
 		
-		runAction(new ChoreoTrajectoryAction("S3Right3_1"));
-		runAction(new WaitAction(1));
+		runAction(new ChoreoTrajectoryAction("S3Right3_1",false,0.5));
+		//runAction(new WaitAction(1));
 		
 		runAction(new ChoreoTrajectoryAction("S3Right4_1"));
 

@@ -23,11 +23,13 @@ import com.team1678.lib.requests.SequentialRequest;
 import com.team1678.lib.requests.WaitForPrereqRequest;
 import com.team1678.lib.requests.WaitRequest;
 import com.team1678.lib.util.NearestAngleFinder;
+import com.team1678.lib.util.NearestCoralFinder;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.Util;
 import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.FieldLayout.CoralTarget;
 import com.team6647.frc2025.auto.actions.AssistModeExecutor;
+import com.team6647.frc2025.auto.modes.configuredQuals.intakePP;
 import com.team6647.frc2025.auto.modes.configuredQuals.putCoral;
 import com.team6647.frc2025.auto.modes.configuredQuals.putCoralPP;
 import com.team6647.frc2025.subsystems.Elevator;
@@ -36,6 +38,7 @@ import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.Superstructure.Levels;
 import com.team6647.frc2025.subsystems.algae_roller.AlgaeRoller;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
+import com.team6647.frc2025.subsystems.leds.LEDSubsystem;
 
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.measure.Angle;
@@ -51,15 +54,18 @@ public class DriverControls {
 	Superstructure s = mSuperstructure;
 
 	Drive mDrive = Drive.getInstance();
+	LEDSubsystem mleds = LEDSubsystem.getInstance();
 
 	/* ONE CONTROLLER */
 
 	public void oneControllerMode() {
+		/*
 		if (mControlBoard.driver.rightTrigger.isBeingPressed()) {
 			mDrive.overrideHeading(true);
 		} else {
 			mDrive.overrideHeading(false);
 		}
+			 */
 	}
 
 	private boolean mClimberJog = false;
@@ -156,8 +162,14 @@ public class DriverControls {
 				startAssist(new putCoralPP());
 
 			}else{
+				
 				mSuperstructure.request(
-					mCoralPivot.setPivotRequest(CoralPivot.kIntakingAngle)
+					new SequentialRequest(
+						mCoralPivot.setPivotRequest(CoralPivot.kIntakingAngle),
+						new LambdaRequest(()->{
+							mleds.solidGreen();
+						})
+					)	
 				);
 			}
 			
@@ -173,7 +185,10 @@ public class DriverControls {
 					new WaitForPrereqRequest(()->mCoralRoller.getBeamBreak()),
 					new LambdaRequest(
 						()->{mCoralRoller.setState(CoralRoller.State.IDLE);}
-					)
+					),
+					new LambdaRequest(()->{
+						mleds.solidBlue();
+					})
 				)
 				);
 		}
@@ -190,7 +205,7 @@ public class DriverControls {
 			mCoralRoller.setState(CoralRoller.State.IDLE);
 		}
 		if (mControlBoard.operator.xButton.wasActivated()) {
-			//mCoralRoller.setState(mCoralRoller.OUTAKING);
+			mCoralRoller.setState(mCoralRoller.OUTAKING);
 		}
 		if (mControlBoard.operator.xButton.wasReleased()) {
 			mCoralRoller.setState(CoralRoller.State.IDLE);
@@ -260,7 +275,7 @@ public class DriverControls {
 			s.showLevel();
 		}
 		if(mControlBoard.operator.POV90.wasActivated()){
-			s.coralStationPosition++;
+			//s.coralStationPosition++;
 			if (s.coralStationPosition>1){
 				s.coralStationPosition = 1;
 			}
@@ -268,7 +283,7 @@ public class DriverControls {
 			s.showSource();
 		}
 		if(mControlBoard.operator.POV270.wasActivated()){
-			s.coralStationPosition--;
+			//s.coralStationPosition--;
 			if (s.coralStationPosition<0){
 				s.coralStationPosition = 0;
 			}
@@ -285,12 +300,63 @@ public class DriverControls {
 		//	mAlgaeRollers.setState(AlgaeRollers.State.IDLE);
 		//}
 
-		if(mControlBoard.driver.rightTrigger.wasActivated()){
-			mDrive.stabilizeHeading(Rotation2d.fromDegrees(55));
+		if(mControlBoard.driver.startButton.wasActivated()){
+			s.subCoralId = 1;
+			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(180)).getDegrees()));
+			s.showAngle();
+			startAssist(new putCoralPP());
+			//mDrive.stabilizeHeading(Rotation2d.fromDegrees(55));
 		}
-		if(mControlBoard.driver.rightTrigger.wasReleased()){
+		if(mControlBoard.driver.startButton.wasReleased()){
 			mDrive.setControlState(DriveControlState.OPEN_LOOP);
+			stopAssist();
 		}
+
+		if(mControlBoard.driver.POV270.wasActivated()){
+			s.subCoralId = 1;
+			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(180)).getDegrees()));
+			s.showAngle();
+			startAssist(new putCoralPP());
+		}
+		if(mControlBoard.driver.POV270.wasReleased()){
+			mDrive.setControlState(DriveControlState.OPEN_LOOP);
+			stopAssist();
+		}
+
+		if(mControlBoard.driver.POV90.wasActivated()){
+			s.subCoralId = 2;
+			s.coralId = NearestCoralFinder.getCoralIdFromTarget(NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(180)).getDegrees()));
+			s.showAngle();
+			startAssist(new putCoralPP());
+		}
+		if(mControlBoard.driver.POV90.wasReleased()){
+			mDrive.setControlState(DriveControlState.OPEN_LOOP);
+			stopAssist();
+		}
+
+		/*
+		if(mControlBoard.driver.POV0.wasActivated()){
+			s.sourcePose = s.sourcePose1;
+			s.showSource();
+			startAssist(new intakePP());
+		}
+		if(mControlBoard.driver.POV0.wasReleased()){
+			mDrive.setControlState(DriveControlState.OPEN_LOOP);
+			stopAssist();
+		}
+
+		if(mControlBoard.driver.POV180.wasActivated()){
+			s.sourcePose = s.sourcePose2;
+			s.showSource();
+			startAssist(new intakePP());
+		}
+		if(mControlBoard.driver.POV180.wasReleased()){
+			mDrive.setControlState(DriveControlState.OPEN_LOOP);
+			stopAssist();
+		}
+
+		*/
+
 		if(mControlBoard.driver.leftTrigger.wasActivated()){
 			mDrive.stabilizeHeading(Rotation2d.fromDegrees(-55));
 		}

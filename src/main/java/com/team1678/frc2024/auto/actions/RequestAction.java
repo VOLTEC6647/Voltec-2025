@@ -13,7 +13,7 @@ public class RequestAction implements Action {
 	@Override
 	public void start() {
 		Superstructure s = Superstructure.getInstance();
-		s.request(request);
+		s.addRequestToQueue(request);//.request();
 	}
 
 	@Override
@@ -21,7 +21,7 @@ public class RequestAction implements Action {
 
 	@Override
 	public boolean isFinished() {
-		return Superstructure.getInstance().requestsCompleted();
+		return request.isFinished();//Superstructure.getInstance().requestsCompleted();
 	}
 
 	@Override

@@ -11,7 +11,9 @@ import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.team1678.frc2024.subsystems.Drive;
+import com.team1678.frc2024.subsystems.Drive.DriveControlState;
 import com.team1678.lib.swerve.ChassisSpeeds;
 import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.trajectory.TimedView;
@@ -42,19 +44,18 @@ public class PathplannerAlignAction implements Action {
 	private Command pathPlannerCommand;
 
 	public PathplannerAlignAction() {
-		mDrive = Drive.getInstance();
+		
 
-		Pose2d endpose = FieldLayout
-		.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure
-				.getInstance().coralId]).realCorals[Superstructure.getInstance().subCoralId]
-		.toLegacy();
-
+		/*
 		List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
 				mDrive.getPose().toLegacy(),
-				endpose);
+				//new Pose2d(3.0, 1.0, Rotation2d.fromDegrees(0)),
+				endpose
+				);
 
-		PathConstraints constraints = new PathConstraints(1.5, 1.5, 2 * Math.PI, 4 * Math.PI); // The constraints for
-				
+				 */
+
+				/*
 		PathPlannerPath path = new PathPlannerPath(
 				waypoints,
 				constraints,
@@ -63,17 +64,32 @@ public class PathplannerAlignAction implements Action {
 				new GoalEndState(0.0, endpose.getRotation()) // Goal end state. You can set a holonomic rotation
 		);
 		path.preventFlipping = true;
-		pathPlannerCommand = AutoBuilder.followPath(path);
+		PathPlannerTrajectory traj = path.generateTrajectory(new edu.wpi.first.math.kinematics.ChassisSpeeds(), mDrive.getPose().getRotation().toLegacy(), mDrive.config);
+		*/
+		
 	}
 
 	@Override
 	public void start() {
+		mDrive = Drive.getInstance();
+		Superstructure s = Superstructure.getInstance();
+		Pose2d endpose;
+		if(s.level<4){
+			endpose = FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[s.coralId]).realCorals[s.subCoralId].toLegacy();
+		}else{
+			endpose = FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[s.coralId]).corals4[s.subCoralId].toLegacy();
+		}
+
+		PathConstraints constraints = new PathConstraints(1.5, 1.5, 2 * Math.PI, 4 * Math.PI); // The constraints for
+
+		pathPlannerCommand = AutoBuilder.pathfindToPose(endpose, constraints,0.0);
 		pathPlannerCommand.schedule();
+		mDrive.setControlState(DriveControlState.VELOCITY);
 	}
 
 	@Override
 	public void update() {
-		System.out.println("Trajectory set");
+		//System.out.println("Trajectory set");
 	}
 
 	@Override

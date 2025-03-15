@@ -20,6 +20,7 @@ import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.trajectory.Trajectory254;
 import com.team254.lib.trajectory.timing.TimedState;
+import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.auto.actions.GenAction;
 import com.team6647.frc2025.auto.actions.WaitForEnterPathGeneratedAction;
 import com.team6647.frc2025.auto.paths.TrajectoryGenerator;
@@ -47,13 +48,15 @@ public class putCoralPP extends AutoModeBase {
 	@Override
 	protected void routine() throws AutoModeEndedException {
 		LEDSubsystem.getInstance().solidYellow();
+		runAction(new TurnInPlaceAction(
+			FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realCorals[Superstructure.getInstance().subCoralId].getRotation(),0.3
+		));
 		runAction(new PathplannerAlignAction());
 		LEDSubsystem.getInstance().solidBlue();
 		s.request(
 		new SequentialRequest(
 			s.prepareLevel(s.currentLevel)
 		));
-		
 		System.out.println("Finished auto!");
 	}
 	// spotless:on

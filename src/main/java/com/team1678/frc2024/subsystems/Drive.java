@@ -99,6 +99,8 @@ public class Drive extends SubsystemV {
 		return mInstance;
 	}
 
+	public RobotConfig config = null;
+
 	private Drive() {
 		mModules = new SwerveModule[] {
 			new SwerveModule(
@@ -117,6 +119,8 @@ public class Drive extends SubsystemV {
 		mPigeon.setYaw(0.0);
 		mWheelTracker = new WheelTracker(mModules);
 
+		setUsePIDControl(true);
+
 		/* 
 		kPathFollowDriveP = 5;
 		kPathFollowTurnP = 3;
@@ -127,7 +131,7 @@ public class Drive extends SubsystemV {
 		*/
 
 
-	RobotConfig config;
+	
     try{
       config = RobotConfig.fromGUISettings();
 	  AutoBuilder.configure(
@@ -200,7 +204,7 @@ public class Drive extends SubsystemV {
 		), curPose.getRotation());
   this.driveRobotRelative(speeds);
   */
-	kPathFollowDriveP = 1.75;
+	kPathFollowDriveP = 1.8;
 	kPathFollowTurnP = 1.8;//1.8
 	choreoX = new PIDController(kPathFollowDriveP, 0, 0);
 	choreoY = new PIDController(kPathFollowDriveP, 0, 0);
@@ -312,6 +316,8 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 				mPeriodicIO.des_chassis_speeds = new ChassisSpeeds(x, y, omega);
 				return;
 			}
+		}else if (mControlState == DriveControlState.VELOCITY) {
+			return;
 		} else if (mControlState != DriveControlState.OPEN_LOOP) {
 			mControlState = DriveControlState.OPEN_LOOP;
 		}
@@ -327,6 +333,7 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 	}
 
 	public void setVelocity(ChassisSpeeds speeds) {
+		System.out.println("Velocity Set");
 		mPeriodicIO.des_chassis_speeds = speeds;
 		if (mControlState != DriveControlState.VELOCITY) {
 			mControlState = DriveControlState.VELOCITY;

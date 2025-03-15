@@ -137,6 +137,25 @@ public class TrajectoryGenerator {
 					kMaxVoltage);
 		}
 
+		private Trajectory254<TimedState<Pose2dWithMotion>> generateD(
+				List<Pose2d> waypoints,
+				List<Rotation2d> headings,
+				List<TimingConstraint<Pose2dWithMotion>> constraints,
+				boolean reversed,
+				double percentSpeed,
+				double percentAccel) {
+
+			//handleAllianceFlip(waypoints, headings);
+			return generateTrajectory(
+					reversed,
+					waypoints,
+					headings,
+					constraints,
+					percentSpeed * Constants1678.SwerveConstants.maxAutoSpeed,
+					percentAccel * kMaxAccel,
+					kMaxVoltage);
+		}
+
 		private Trajectory254<TimedState<Pose2dWithMotion>> generate(
 				List<Pose2d> waypoints,
 				List<Rotation2d> headings,
@@ -206,7 +225,7 @@ public class TrajectoryGenerator {
 
 			waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realCorals[Superstructure.getInstance().subCoralId]);
 			headings.add(Rotation2d.fromDegrees(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realAlgae.getRotation().getDegrees()));
-			return generate(waypoints, headings, List.of(), false, 0.4, 1.0);
+			return generateD(waypoints, headings, List.of(), false, 0.4, 1.0);
 		}
 
 		public Trajectory254<TimedState<Pose2dWithMotion>> getForward() {

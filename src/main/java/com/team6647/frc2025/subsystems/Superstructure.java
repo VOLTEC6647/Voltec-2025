@@ -122,6 +122,18 @@ public class Superstructure extends Subsystem {
 		}
 	}
 
+	public Pose2d sourcePose1 = new Pose2d(1.284004807472229,7.1496405601501465,Rotation2d.fromDegrees(305));
+	
+	public Pose2d sourcePose2 = new Pose2d(1.2310409545898438,0.873404324054718,Rotation2d.fromDegrees(55));
+
+	public Pose2d sourcePose = sourcePose2;
+
+	public void setSource(int id) {
+		if(id == 1){
+
+		}
+	}
+
 	public boolean requestsCompleted() {
 		return allRequestsComplete;
 	}
@@ -153,7 +165,7 @@ public class Superstructure extends Subsystem {
 		setRequestQueue(requests);
 	}
 
-	private void addRequestToQueue(Request req) {
+	public void addRequestToQueue(Request req) {
 		queuedRequests.add(req);
 	}
 
@@ -227,6 +239,7 @@ public class Superstructure extends Subsystem {
 		synchronized (Drive.getInstance()) {
 			Logger.recordOutput("CoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).corals[subCoralId].toLegacy());
 			Logger.recordOutput("RealCoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).realCorals[subCoralId].toLegacy());
+			Logger.recordOutput("SourcePose", sourcePose.toLegacy());
 		}
 	}
 
