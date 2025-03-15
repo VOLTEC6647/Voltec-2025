@@ -1,6 +1,6 @@
 //LimelightHelpers v1.5.0 (March 27, 2024)
 
-package com.team6647.frc2025.subsystems.limelight;
+package com.team6647.frc2025.subsystems.vision;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;

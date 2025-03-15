@@ -12,6 +12,9 @@ import com.team254.lib.drivers.CanDeviceId;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Transform2d;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -60,10 +63,9 @@ public class Constants {
 			kElevatorServoConstants.kKg = 0;
 			kElevatorServoConstants.kDeadband = 0; // rots
 
-			kElevatorServoConstants.kCruiseVelocity = 2;//12.0; // m / s
-			kElevatorServoConstants.kAcceleration = 0.4; // m / s^2
+			kElevatorServoConstants.kCruiseVelocity = 2;//4  //12.0; // m / s
+			kElevatorServoConstants.kAcceleration = 1.7;//2 // m / s^2
 			kElevatorServoConstants.kRampRate = 0.0; // s
-
 			kElevatorServoConstants.kMaxForwardOutput = 12.0;
 			kElevatorServoConstants.kMaxReverseOutput = -12.0;
 
@@ -83,6 +85,7 @@ public class Constants {
 		public static double kHomingTimeout = 0.1; // seconds
 		public static double kHomingVelocityWindow = 0.1; // "units" / second
 		public static double kHomingOutput = -2.0; // volts
+		public static double kMaxHomingOutput = -3.5; // volts
 
 		//public static double kHomingZone = 0; // meters
 		//public static double kHomingTimeout = 0.5; // seconds
@@ -110,7 +113,7 @@ public class Constants {
 	}
 
 	public static final class CoralRollerConstants {
-		public static double sensorThreshold;
+		public static double sensorThreshold = 130;
 		public static int sensorId;
 	}
 
@@ -313,6 +316,20 @@ public class Constants {
 					new com.team254.lib.geometry.Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(0)),
 					Rotation2d.fromDegrees(180));
 	}
+
+	public static class VisionPhotonConstants{
+
+        /**
+         * Standard deviation of the limelight measurements
+         */
+        public static final double STANDARD_DEV_TRANSLATION = 0.5;
+        public static final double STANDARD_DEV_ROTATION = 1.5;
+        public static final double AMBIGUITY_THRESHOLD = 0.17;
+        public static final double TAG_AREA_THRESHOLD = 0.06; //0.1;
+
+        public static final Transform3d CAMERA_SOURCE_TRANSFORM = new Transform3d(new Translation3d(0, 0.025845, 0.827809), new Rotation3d(0,Math.toRadians(40),Math.toRadians(180)));//Units.inchesToMeters(0)
+        //public static final String LAYOUT_FILE_NAME = "2024-crescendo";
+    }
 
 	
     

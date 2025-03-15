@@ -4,13 +4,12 @@
 
 package com.team6647.frc2025;
 
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.team1678.frc2024.Constants1678;
 import com.team1678.frc2024.RobotState;
 import com.team1678.frc2024.SubsystemManager;
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeExecutor;
-import com.team6647.frc2025.Constants.CoralPivotConstants;
 import com.team6647.frc2025.auto.AutoModeSelector;
 import com.team6647.frc2025.auto.modes.configuredQuals.CTest;
 import com.team6647.frc2025.auto.modes.configuredQuals.L1Attempt;
@@ -18,6 +17,8 @@ import com.team6647.frc2025.auto.modes.configuredQuals.LAlgae2;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left1;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left2;
 import com.team6647.frc2025.auto.modes.configuredQuals.S3Right;
+import com.team6647.frc2025.auto.modes.configuredQuals.S3RightA;
+import com.team6647.frc2025.auto.modes.configuredQuals.S3RightPP;
 import com.team6647.frc2025.auto.modes.configuredQuals.simpleForwardC;
 import com.team6647.frc2025.auto.modes.configuredQuals.justForwardC;
 import com.team6647.frc2025.auto.paths.TrajectoryGenerator;
@@ -31,32 +32,22 @@ import com.team1678.frc2024.subsystems.Cancoders;
 import com.team1678.frc2024.subsystems.Climber;
 import com.team1678.frc2024.subsystems.CoralPivot;
 import com.team1678.frc2024.subsystems.Drive;
-import com.team1678.frc2024.subsystems.vision.VisionDeviceManager;
+import com.team1678.frc2024.subsystems.SubsystemV;
 import com.team1678.lib.Util;
-import com.team1678.lib.logger.LogUtil;
-import com.team1678.lib.requests.LambdaRequest;
-import com.team1678.lib.requests.ParallelRequest;
-import com.team1678.lib.requests.SequentialRequest;
-import com.team1678.lib.requests.WaitRequest;
 import com.team1678.lib.swerve.ChassisSpeeds;
-import com.team1678.lib.wpi.TimedRobot;
 import com.team254.lib.geometry.Pose2d;
-import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.trajectory.Trajectory254;
-import com.team254.lib.trajectory.timing.TimedState;
 import com.team6647.frc2025.subsystems.Elevator;
 import com.team6647.frc2025.subsystems.MotorTest;
 import com.team6647.frc2025.subsystems.Superstructure;
-import com.team6647.frc2025.subsystems.Superstructure.Levels;
 import com.team6647.frc2025.subsystems.algae_roller.AlgaeRoller;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
-import com.team6647.frc2025.subsystems.limelight.VisionSubsystem;
+import com.team6647.frc2025.subsystems.leds.LEDSubsystem;
+import com.team6647.frc2025.subsystems.vision.VisionLimelightSubsystem;
+import com.team6647.frc2025.subsystems.vision.VisionPhotonSubsystem;
 
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
-import choreo.trajectory.SwerveSample;
-import choreo.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -88,10 +79,9 @@ import java.util.Optional;
 
 public class Robot extends LoggedRobot {
 
-	
-
 	// util instances
 	private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
+	private SubsystemV[] mSubsystems;
 	private final ControlBoard mControlBoard = ControlBoard.getInstance();
 	private final DriverControls mDriverControls = new DriverControls();
 
@@ -100,6 +90,7 @@ public class Robot extends LoggedRobot {
 
 	// subsystem instances
 	private Drive mDrive;
+	private LEDSubsystem leds;
 	private Cancoders mCancoders;
 
 	private MotorTest mMotorTest;
@@ -110,7 +101,8 @@ public class Robot extends LoggedRobot {
 
 	private Elevator mElevator;
 	private com.team1678.frc2024.subsystems.Climber mClimber;
-	private VisionSubsystem mVisionLimelight;
+	private VisionLimelightSubsystem mVisionLimelight;
+	private VisionPhotonSubsystem mVisionPhoton;
 
 
 
@@ -161,6 +153,7 @@ public class Robot extends LoggedRobot {
 		CrashTracker.logRobotConstruction();
 
 		mDrive = Drive.getInstance();
+		leds = LEDSubsystem.getInstance();
 
 		//mMotorTest = MotorTest.getInstance();
 		mAlgaeRoller = AlgaeRoller.getInstance();
@@ -169,10 +162,12 @@ public class Robot extends LoggedRobot {
 		mCoralRoller = CoralRoller.getInstance();
 		mElevator = Elevator.getInstance();
 		mClimber = Climber.getInstance();
-		mVisionLimelight = VisionSubsystem.getInstance();
+		mVisionLimelight = VisionLimelightSubsystem.getInstance();
+		//mVisionPhoton = VisionPhotonSubsystem.getInstance();
 
 
-		autoChooser.setDefaultOption("Just Forward", new justForwardC());
+		autoChooser.addOption("Just Forward", new justForwardC());
+		autoChooser.setDefaultOption("S3RightA", new S3RightA());
 		autoChooser.addOption("SimpleForwardC", new simpleForwardC());
 		autoChooser.addOption("L1Attempt", new L1Attempt());
 		autoChooser.addOption("Left1", new Left1());
@@ -180,6 +175,7 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("LAlgae2", new LAlgae2());
 		autoChooser.addOption("CTest", new CTest());
 		autoChooser.addOption("S3Right", new S3Right());
+		autoChooser.addOption("S3RightPP", new S3RightPP());
 		
 		if(isReal()){
 			Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
@@ -192,8 +188,6 @@ public class Robot extends LoggedRobot {
 
 		SmartDashboard.putData("Auto Chosen", autoChooser);
 	}
-
-		
 
 	@Override
 	public void robotInit() {
@@ -228,9 +222,11 @@ public class Robot extends LoggedRobot {
 
 			mDrive.resetModulesToAbsolute();
 
+			mSubsystems = new SubsystemV[]{
+				mDrive
+			};
 			// spotless:off
 			mSubsystemManager.setSubsystems(
-				mDrive, 
 				mSuperstructure,
 				mAlgaeRoller,
 				mCoralPivot,
@@ -238,10 +234,8 @@ public class Robot extends LoggedRobot {
 				mCoralRoller,
 				mAlgaeT,
 				mClimber
-
 			);
 			// spotless:on
-
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
@@ -256,6 +250,9 @@ public class Robot extends LoggedRobot {
 			mSuperstructure.showLevel();
 			mSuperstructure.showAngle();
 
+			leds.solidBlue();
+			//leds.escuderia_effect();
+			PathfindingCommand.warmupCommand().schedule();
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -281,6 +278,9 @@ public class Robot extends LoggedRobot {
 		//	mDrive.zeroGyro(mVisionDevices.getMovingAverageRead());
 		//}
 		RobotState.getInstance().setIsInAuto(true);
+		for (SubsystemV s:mSubsystems){
+			s.onStart(Timer.getFPGATimestamp());
+		}
 		mDisabledLooper.stop();
 		mEnabledLooper.start();
 		mAutoModeExecutor.setAutoMode(autoChooser.getSelected());//autoChooser.getSelected());
@@ -320,6 +320,9 @@ public class Robot extends LoggedRobot {
 			RobotState.getInstance().setIsInAuto(false);
 			mDrive.feedTeleopSetpoint(new ChassisSpeeds(0.0,  0.0, 0.0));
 			//VisionDeviceManager.setDisableVision(false);
+			for (SubsystemV s:mSubsystems){
+				s.onStart(Timer.getFPGATimestamp());
+			}
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 
@@ -373,6 +376,9 @@ public class Robot extends LoggedRobot {
 			CrashTracker.logDisabledInit();
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
+			for (SubsystemV s:mSubsystems){
+				s.onStop(Timer.getFPGATimestamp());
+			}
 			//mCoralPivot.setOpenLoop(0);
 			disable_enter_time = Timer.getFPGATimestamp();
 		} catch (Throwable t) {
@@ -403,6 +409,7 @@ public class Robot extends LoggedRobot {
 				alliance_changed = true;
 			}
 
+			//Timer.getFPGATimestamp()
 			if (Timer.getFPGATimestamp() - disable_enter_time > 5.0) {
 				disable_enter_time = Double.POSITIVE_INFINITY;
 			}
@@ -439,8 +446,14 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void testInit() {
 		try {
+			for (SubsystemV s:mSubsystems){
+				s.onStop(Timer.getFPGATimestamp());
+			}
 			mDisabledLooper.stop();
 			mEnabledLooper.stop();
+			for (SubsystemV s:mSubsystems){
+				s.onStop(Timer.getFPGATimestamp());
+			}
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;

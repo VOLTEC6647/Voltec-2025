@@ -1,5 +1,5 @@
 
-package com.team6647.frc2025.subsystems.limelight;
+package com.team6647.frc2025.subsystems.vision;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,8 +15,8 @@ import com.team1678.frc2024.subsystems.Climber;
 import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.frc2024.subsystems.Subsystem;
 import com.team6647.frc2025.Robot;
-import com.team6647.frc2025.subsystems.limelight.LimelightHelpers.PoseEstimate;
-import com.team6647.frc2025.subsystems.limelight.LimelightHelpers.RawFiducial;
+import com.team6647.frc2025.subsystems.vision.LimelightHelpers.PoseEstimate;
+import com.team6647.frc2025.subsystems.vision.LimelightHelpers.RawFiducial;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -30,10 +30,10 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class VisionSubsystem extends SubsystemBase{
+public class VisionLimelightSubsystem extends SubsystemBase{
 
-    public static final String FRONT_LIMELIGHT = "limelight-front";
-    public static final String BACK_LIMELIGHT = "limelight";
+    public static final String FRONT_LIMELIGHT = "limelight-source";
+    public static final String BACK_LIMELIGHT = "limelight-coral";
 
     // Adjustable transform for the Limelight pose per-alliance
     private static final Transform2d LL_BLUE_TRANSFORM = new Transform2d(0, 0, new Rotation2d());
@@ -76,19 +76,20 @@ public class VisionSubsystem extends SubsystemBase{
     public PoseEstimate lastPose;
 
     PoseEstimate bestPose;
-    PoseEstimate backPose;
+    PoseEstimate coralPose;
+    PoseEstimate sourcePose;
     double newHeartbeat;
 
 
-    private static VisionSubsystem mInstance;
+    private static VisionLimelightSubsystem mInstance;
     
-    public static VisionSubsystem getInstance() {
+    public static VisionLimelightSubsystem getInstance() {
 		if (mInstance == null) {
-			mInstance = new VisionSubsystem();//, CoralPivotConstants.kHoodEncoderConstants
+			mInstance = new VisionLimelightSubsystem();//, CoralPivotConstants.kHoodEncoderConstants
 		}
 		return mInstance;
 	}
-    public VisionSubsystem() {
+    public VisionLimelightSubsystem() {
         try {
             aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
         } catch (Exception e) {
@@ -107,7 +108,7 @@ public class VisionSubsystem extends SubsystemBase{
 
         //Logger.recordOutput("Odometry Enabled", odometryEnabled);
         
-        newHeartbeat = LimelightHelpers.getLimelightNTDouble("limelight", "hb");
+        newHeartbeat = LimelightHelpers.getLimelightNTDouble(BACK_LIMELIGHT, "hb");
         if (newHeartbeat > limelightHeartbeat) {
             limelightConnected = true;
             limelightHeartbeat = newHeartbeat;
@@ -115,7 +116,7 @@ public class VisionSubsystem extends SubsystemBase{
         } else if (Timer.getFPGATimestamp() - lastHeartbeatTime >= 1) {
             limelightConnected = false;
         }
-        Logger.recordOutput("Limelight/LL Connected", limelightConnected);
+        //Logger.recordOutput("Limelight/LL Connected", limelightConnected);
         if (Robot.isSimulation()) limelightConnected = true;
 
         if (!limelightConnected) {
@@ -130,7 +131,8 @@ public class VisionSubsystem extends SubsystemBase{
 
 
         bestPose = null;
-        backPose = null;
+        coralPose = null;
+        sourcePose = null;
         PoseEstimate megaTag2Pose = null;
 
         
@@ -138,37 +140,39 @@ public class VisionSubsystem extends SubsystemBase{
             double megatagDegrees = Drive.getInstance().getHeading().getDegrees();
             if (Robot.is_red_alliance) megatagDegrees = MathUtil.inputModulus(megatagDegrees + 180, -180, 180);
             LimelightHelpers.SetRobotOrientation(BACK_LIMELIGHT, megatagDegrees, 0, 0, 0, 0, 0);
-            backPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(BACK_LIMELIGHT);
+            coralPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(BACK_LIMELIGHT);
         } else {
-            backPose = LimelightHelpers.getBotPoseEstimate_wpiBlue(BACK_LIMELIGHT);
+            coralPose = LimelightHelpers.getBotPoseEstimate_wpiBlue(BACK_LIMELIGHT);
+            sourcePose = LimelightHelpers.getBotPoseEstimate_wpiBlue(FRONT_LIMELIGHT);
         }
 
 
-        if (backPose != null)  {
-            rawFiducials = backPose.rawFiducials;
-        } else {
+        if (coralPose != null)  {
+            rawFiducials = coralPose.rawFiducials;
+        } else if (sourcePose != null){
+            rawFiducials = sourcePose.rawFiducials;
+        }else {
             rawFiducials = emptyFiducials;
         }
 
         double deltaSeconds = Timer.getFPGATimestamp() - lastOdometryTime;
         //Logger.recordOutput("LL Pose Pre-Validation", backPose == null ? nilPose : backPose.pose);
         //Logger.recordOutput("LL MegaTag2", megaTag2Pose == null ? nilPose : megaTag2Pose.pose);
-        backPose = validatePoseEstimate(backPose, deltaSeconds);
-        PoseEstimate frontPose = validatePoseEstimate(null, 0);//disabled
+        coralPose = validatePoseEstimate(coralPose, deltaSeconds);
+        sourcePose = validatePoseEstimate(sourcePose, deltaSeconds);
         
-        if (frontPose != null && backPose != null) {
-            bestPose = (frontPose.avgTagArea >= backPose.avgTagArea) ? frontPose : backPose;
-        } else if (frontPose != null) {
-            bestPose = frontPose;
+        if (sourcePose != null && coralPose != null) {
+            bestPose = (coralPose.avgTagArea >= sourcePose.avgTagArea) ? coralPose : sourcePose;
+        } else if (coralPose != null) {
+            bestPose = coralPose;
         } else {
-            bestPose = backPose;
+            bestPose = sourcePose;
         }
 
         lastPose = bestPose;
 
-        
-        
         if (bestPose != null) {
+            //sSmartDashboard.put
             //Logger.recordOutput("Backpose", bestPose.pose);
             lastOdometryTime = Timer.getFPGATimestamp();
             lastPoseEstimate = bestPose;
@@ -190,9 +194,9 @@ public class VisionSubsystem extends SubsystemBase{
         //Logger.recordOutput("LL Pose Avg Tag Dist", bestPose == null ? -1 : bestPose.avgTagDist);
         //Logger.recordOutput("LL Pose Avg Tag Area", bestPose == null ? -1 : bestPose.avgTagArea);
 
-        Pose2d robotPose = Drive.getInstance().getPose().toLegacy();
+        //Pose2d robotPose = Drive.getInstance().getPose().toLegacy();
 
-        double targetId = LimelightHelpers.getFiducialID(BACK_LIMELIGHT);
+        //double targetId = LimelightHelpers.getFiducialID(BACK_LIMELIGHT);
         //Logger.recordOutput("AprilTag ID", targetId);
 
         //Logger.recordOutput("Limelight/BackPose", backPose.pose);
@@ -341,4 +345,3 @@ public class VisionSubsystem extends SubsystemBase{
         }
     }
 }
-

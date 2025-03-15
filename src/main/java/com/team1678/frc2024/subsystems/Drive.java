@@ -5,6 +5,10 @@ import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.team1678.frc2024.Constants1678;
 import com.team1678.frc2024.Constants1678.SwerveConstants;
 import com.team1678.frc2024.Constants1678.SwerveConstants.Mod0;
@@ -36,7 +40,7 @@ import com.team254.lib.trajectory.Trajectory254;
 import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
 import com.team6647.frc2025.FieldLayout;
-import com.team6647.frc2025.subsystems.limelight.VisionSubsystem;
+import com.team6647.frc2025.subsystems.vision.VisionLimelightSubsystem;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -55,7 +59,7 @@ import java.util.function.Function;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Drive extends Subsystem {
+public class Drive extends SubsystemV {
 
 	public enum DriveControlState {
 		FORCE_ORIENT,
@@ -95,6 +99,8 @@ public class Drive extends Subsystem {
 		return mInstance;
 	}
 
+	public RobotConfig config = null;
+
 	private Drive() {
 		mModules = new SwerveModule[] {
 			new SwerveModule(
@@ -113,6 +119,8 @@ public class Drive extends Subsystem {
 		mPigeon.setYaw(0.0);
 		mWheelTracker = new WheelTracker(mModules);
 
+		setUsePIDControl(true);
+
 		/* 
 		kPathFollowDriveP = 5;
 		kPathFollowTurnP = 3;
@@ -123,9 +131,10 @@ public class Drive extends Subsystem {
 		*/
 
 
-	/*
-	// Configure AutoBuilder last
-	AutoBuilder.configure(
+	
+    try{
+      config = RobotConfig.fromGUISettings();
+	  AutoBuilder.configure(
 			this::getLegacyPose, // Robot pose supplier
 			this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
 			this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
@@ -136,10 +145,6 @@ public class Drive extends Subsystem {
 			),
 			config, // The robot configuration
 			() -> {
-			  // Boolean supplier that controls when the path will be mirrored for the red alliance
-			  // This will flip the path being followed to the red side of the field.
-			  // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
 			  var alliance = DriverStation.getAlliance();
 			  if (alliance.isPresent()) {
 				return alliance.get() == DriverStation.Alliance.Red;
@@ -148,9 +153,14 @@ public class Drive extends Subsystem {
 			},
 			this // Reference to this subsystem to set requirements
 	);
-	}
-	*/
-
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+	
+	// Configure AutoBuilder last
+	
+	
 	//Wierd
 	
 	/* 
@@ -194,8 +204,8 @@ public class Drive extends Subsystem {
 		), curPose.getRotation());
   this.driveRobotRelative(speeds);
   */
-	kPathFollowDriveP = 2;
-	kPathFollowTurnP = 1.8;
+	kPathFollowDriveP = 1.8;
+	kPathFollowTurnP = 1.8;//1.8
 	choreoX = new PIDController(kPathFollowDriveP, 0, 0);
 	choreoY = new PIDController(kPathFollowDriveP, 0, 0);
 	choreoRotation = new PIDController(kPathFollowTurnP, 0, 0);
@@ -306,6 +316,8 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 				mPeriodicIO.des_chassis_speeds = new ChassisSpeeds(x, y, omega);
 				return;
 			}
+		}else if (mControlState == DriveControlState.VELOCITY) {
+			return;
 		} else if (mControlState != DriveControlState.OPEN_LOOP) {
 			mControlState = DriveControlState.OPEN_LOOP;
 		}
@@ -321,6 +333,7 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 	}
 
 	public void setVelocity(ChassisSpeeds speeds) {
+		System.out.println("Velocity Set");
 		mPeriodicIO.des_chassis_speeds = speeds;
 		if (mControlState != DriveControlState.VELOCITY) {
 			mControlState = DriveControlState.VELOCITY;
@@ -396,57 +409,25 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 	}
 
 	@Override
-	public void registerEnabledLoops(ILooper enabledLooper) {
-		enabledLooper.register(new Loop() {
-			@Override
-			public void onStart(double timestamp) {
-				mPeriodicIO.des_chassis_speeds = new ChassisSpeeds();
-				mControlState = DriveControlState.OPEN_LOOP;
-				mWheelTracker.start();
-			}
-
-			@Override
-			public void onLoop(double timestamp) {
-				synchronized (Drive.this) {
-					switch (mControlState) {
-						case PATH_FOLLOWING:
-							updatePathFollower();
-							break;
-						case HEADING_CONTROL:
-							break;
-						case OPEN_LOOP:
-						case VELOCITY:
-						case FORCE_ORIENT:
-							break;
-						default:
-							stop();
-							break;
-					}
-					updateSetpoint();
-
-					RobotState.getInstance()
-							.addOdometryUpdate(
-									timestamp,
-									mWheelTracker.getRobotPose(),
-									mPeriodicIO.measured_velocity,
-									mPeriodicIO.predicted_velocity);
-
-					
-				}
-			}
-
-			@Override
-			public void onStop(double timestamp) {
-				mPeriodicIO.des_chassis_speeds = new ChassisSpeeds();
-				mControlState = DriveControlState.OPEN_LOOP;
-				mWheelTracker.stop();
-				enableFieldToOdom = null;
-			}
-		});
+	public void onStart(double timestamp) {
+		mPeriodicIO.des_chassis_speeds = new ChassisSpeeds();
+		mControlState = DriveControlState.OPEN_LOOP;
+		mWheelTracker.start();
+	}
+	
+	@Override
+	public void onStop(double timestamp) {
+		mPeriodicIO.des_chassis_speeds = new ChassisSpeeds();
+		mControlState = DriveControlState.OPEN_LOOP;
+		mWheelTracker.stop();
+		enableFieldToOdom = null;
+		stop();
 	}
 
+
 	@Override
-	public synchronized void readPeriodicInputs() {
+	public synchronized void periodic() {
+		//Read
 		for (SwerveModule swerveModule : mModules) {
 			swerveModule.readPeriodicInputs();
 		}
@@ -483,8 +464,86 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 
 		//Logger.recordOutput("/Auto/ChoreoPose", lastSample);
 
-		
+		//Loop
+		synchronized (Drive.this) {
+			switch (mControlState) {
+				case PATH_FOLLOWING:
+					updatePathFollower();
+					break;
+				case HEADING_CONTROL:
+					break;
+				case OPEN_LOOP:
+				case VELOCITY:
+				case FORCE_ORIENT:
+					break;
+				default:
+					stop();
+					break;
+			}
+			updateSetpoint();
 
+			RobotState.getInstance()
+					.addOdometryUpdate(
+							Timer.getFPGATimestamp(),
+							mWheelTracker.getRobotPose(),
+							mPeriodicIO.measured_velocity,
+							mPeriodicIO.predicted_velocity);
+
+			
+		}
+
+		
+		//Write
+		for (int i = 0; i < mModules.length; i++) {
+			if (mControlState == DriveControlState.OPEN_LOOP || mControlState == DriveControlState.HEADING_CONTROL) {
+				mModules[i].setOpenLoop(mPeriodicIO.des_module_states[i]);
+			} else if (mControlState == DriveControlState.PATH_FOLLOWING
+					|| mControlState == DriveControlState.VELOCITY
+					|| mControlState == DriveControlState.FORCE_ORIENT) {
+				mModules[i].setVelocity(mPeriodicIO.des_module_states[i]);
+			}
+		}
+
+		for (SwerveModule swerveModule : mModules) {
+			swerveModule.writePeriodicOutputs();
+		}
+
+		//Telemetry
+		if (Constants1678.disableExtraTelemetry) {
+			return;
+		}
+
+		if (enableFieldToOdom == null && RobotState.getInstance().getHasRecievedVisionUpdate()) {
+			enableFieldToOdom = RobotState.getInstance().getLatestFieldToOdom();
+		}
+
+		if (enableFieldToOdom != null) {
+			Pose2d latestOdomToVehicle =
+					RobotState.getInstance().getLatestOdomToVehicle().getValue();
+			latestOdomToVehicle = Pose2d.fromTranslation(enableFieldToOdom).transformBy(latestOdomToVehicle);
+			LogUtil.recordPose2d("Odometry Pose", latestOdomToVehicle);
+		}
+
+		for (SwerveModule module : mModules) {
+			module.outputTelemetry();
+		}
+		SmartDashboard.putString("Drive Control State", mControlState.toString());
+		SmartDashboard.putBoolean("Is done with trajectory", isDoneWithTrajectory());
+
+		SmartDashboard.putNumber("Target omega", mPeriodicIO.des_chassis_speeds.omegaRadiansPerSecond);
+		SmartDashboard.putNumber(
+				"Real omega",
+				Constants1678.SwerveConstants.kKinematics.toChassisSpeeds(getModuleStates()).omegaRadiansPerSecond);
+		LogUtil.recordPose2d("Drive Pose", mWheelTracker.getRobotPose());
+		LogUtil.recordPose2d("Fused Pose", RobotState.getInstance().getLatestFieldToVehicle());
+
+		SmartDashboard.putBoolean("Target tracking", mOverrideHeading);
+
+		SmartDashboard.putNumber(
+				"Drive Velo",
+				Math.hypot(
+						Constants1678.SwerveConstants.kKinematics.toChassisSpeeds(getModuleStates()).vxMetersPerSecond,
+						Constants1678.SwerveConstants.kKinematics.toChassisSpeeds(getModuleStates()).vyMetersPerSecond));
 			
 	}
 
@@ -736,23 +795,6 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 		}
 	}
 
-	@Override
-	public void writePeriodicOutputs() {
-		for (int i = 0; i < mModules.length; i++) {
-			if (mControlState == DriveControlState.OPEN_LOOP || mControlState == DriveControlState.HEADING_CONTROL) {
-				mModules[i].setOpenLoop(mPeriodicIO.des_module_states[i]);
-			} else if (mControlState == DriveControlState.PATH_FOLLOWING
-					|| mControlState == DriveControlState.VELOCITY
-					|| mControlState == DriveControlState.FORCE_ORIENT) {
-				mModules[i].setVelocity(mPeriodicIO.des_module_states[i]);
-			}
-		}
-
-		for (SwerveModule swerveModule : mModules) {
-			swerveModule.writePeriodicOutputs();
-		}
-	}
-
 	public SwerveModuleState[] getModuleStates() {
 		SwerveModuleState[] states = new SwerveModuleState[4];
 		for (SwerveModule mod : mModules) {
@@ -833,58 +875,13 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 		Rotation2d heading_setpoint = new Rotation2d();
 	}
 
-	@Override
-	public void outputTelemetry() {
-		if (Constants1678.disableExtraTelemetry) {
-			return;
-		}
-
-		if (enableFieldToOdom == null && RobotState.getInstance().getHasRecievedVisionUpdate()) {
-			enableFieldToOdom = RobotState.getInstance().getLatestFieldToOdom();
-		}
-
-		if (enableFieldToOdom != null) {
-			Pose2d latestOdomToVehicle =
-					RobotState.getInstance().getLatestOdomToVehicle().getValue();
-			latestOdomToVehicle = Pose2d.fromTranslation(enableFieldToOdom).transformBy(latestOdomToVehicle);
-			LogUtil.recordPose2d("Odometry Pose", latestOdomToVehicle);
-		}
-
-		for (SwerveModule module : mModules) {
-			module.outputTelemetry();
-		}
-		SmartDashboard.putString("Drive Control State", mControlState.toString());
-		SmartDashboard.putBoolean("Is done with trajectory", isDoneWithTrajectory());
-
-		SmartDashboard.putNumber("Target omega", mPeriodicIO.des_chassis_speeds.omegaRadiansPerSecond);
-		SmartDashboard.putNumber(
-				"Real omega",
-				Constants1678.SwerveConstants.kKinematics.toChassisSpeeds(getModuleStates()).omegaRadiansPerSecond);
-		LogUtil.recordPose2d("Drive Pose", mWheelTracker.getRobotPose());
-		LogUtil.recordPose2d("Fused Pose", RobotState.getInstance().getLatestFieldToVehicle());
-
-		SmartDashboard.putBoolean("Target tracking", mOverrideHeading);
-
-		SmartDashboard.putNumber(
-				"Drive Velo",
-				Math.hypot(
-						Constants1678.SwerveConstants.kKinematics.toChassisSpeeds(getModuleStates()).vxMetersPerSecond,
-						Constants1678.SwerveConstants.kKinematics.toChassisSpeeds(getModuleStates()).vyMetersPerSecond));
-	}
-
 	public DriveControlState getControlState() {
 		return mControlState;
 	}
 
-	@Override
 	public void stop() {
 		mPeriodicIO.des_chassis_speeds = new ChassisSpeeds();
 		mControlState = DriveControlState.OPEN_LOOP;
-	}
-
-	@Override
-	public boolean checkSystem() {
-		return false;
 	}
 
 	public static class KinematicLimits {

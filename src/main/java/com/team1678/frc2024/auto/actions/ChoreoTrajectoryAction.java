@@ -31,6 +31,7 @@ public class ChoreoTrajectoryAction implements Action {
 
 	private Timer autoTimer = new Timer();
 	private List<EventMarker> events;
+	private double correctionDelay = 1.5;
 				
 
 	public ChoreoTrajectoryAction(String trajectory) {
@@ -41,6 +42,13 @@ public class ChoreoTrajectoryAction implements Action {
 		trajectory = Choreo.loadTrajectory(trajectoryName);
 		mDrive = Drive.getInstance();
 		mResetGyro = resetPose;
+	}
+
+	public ChoreoTrajectoryAction(String trajectoryName, boolean resetPose, double correctionTime) {
+		trajectory = Choreo.loadTrajectory(trajectoryName);
+		mDrive = Drive.getInstance();
+		mResetGyro = resetPose;
+		this.correctionDelay = correctionTime;
 	}
 
 	@Override
@@ -71,7 +79,7 @@ public class ChoreoTrajectoryAction implements Action {
 		events.forEach(event -> {
 			if (event.timestamp < autoTimer.get()) {
 				if(event.event.equals("Elevate")){
-					//Superstructure.getInstance().prepareLevel(Superstructure.getInstance().currentLevel);
+					Superstructure.getInstance().prepareLevel(Superstructure.getInstance().currentLevel);
 					events.remove(event);
 				}
 			}
@@ -81,7 +89,7 @@ public class ChoreoTrajectoryAction implements Action {
 
 	@Override
 	public boolean isFinished() {
-		return trajectory.get().getTotalTime()+1.7 < autoTimer.get();
+		return trajectory.get().getTotalTime()+correctionDelay < autoTimer.get();
 	}
 
 	@Override
