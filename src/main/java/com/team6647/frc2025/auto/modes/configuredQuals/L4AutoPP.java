@@ -5,6 +5,7 @@ import com.team1678.frc2024.auto.AutoModeEndedException;
 import com.team1678.frc2024.auto.actions.LambdaAction;
 import com.team1678.frc2024.auto.actions.ParallelAction;
 import com.team1678.frc2024.auto.actions.PathplannerAlignAction;
+import com.team1678.frc2024.auto.actions.PathplannerTrajectoryAction;
 import com.team1678.frc2024.auto.actions.RequestAction;
 import com.team1678.frc2024.auto.actions.SeriesAction;
 import com.team1678.frc2024.auto.actions.SwerveTrajectoryAction;
@@ -33,14 +34,14 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 import java.util.List;
 
-public class putCoralPP extends AutoModeBase {
+public class L4AutoPP extends AutoModeBase {
 	private Drive d = Drive.getInstance();
 	private Superstructure s = Superstructure.getInstance();
 
 	Trajectory254<TimedState<Pose2dWithMotion>> putCoral;
 	public static Trajectory254<TimedState<Pose2dWithMotion>> enterCoral;
 
-	public putCoralPP() {
+	public L4AutoPP() {
 		
 	}
 
@@ -48,7 +49,8 @@ public class putCoralPP extends AutoModeBase {
 	@Override
 	protected void routine() throws AutoModeEndedException {
 		LEDSubsystem.getInstance().solidYellow();
-		runAction(new PathplannerAlignAction());
+		runAction(new PathplannerTrajectoryAction("L4"));
+		s.currentLevel = Superstructure.Levels.LEVEL3;
 		LEDSubsystem.getInstance().solidBlue();
 		s.request(
 		new SequentialRequest(

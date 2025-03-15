@@ -13,6 +13,7 @@ import com.team1678.frc2024.auto.AutoModeExecutor;
 import com.team6647.frc2025.auto.AutoModeSelector;
 import com.team6647.frc2025.auto.modes.configuredQuals.CTest;
 import com.team6647.frc2025.auto.modes.configuredQuals.L1Attempt;
+import com.team6647.frc2025.auto.modes.configuredQuals.L4AutoPP;
 import com.team6647.frc2025.auto.modes.configuredQuals.LAlgae2;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left1;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left2;
@@ -176,6 +177,7 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("CTest", new CTest());
 		autoChooser.addOption("S3Right", new S3Right());
 		autoChooser.addOption("S3RightPP", new S3RightPP());
+		autoChooser.addOption("L4", new L4AutoPP());
 		
 		if(isReal()){
 			Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
