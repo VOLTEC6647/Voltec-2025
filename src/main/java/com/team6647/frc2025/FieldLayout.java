@@ -178,6 +178,7 @@ public class FieldLayout {
 	public static Pose2d handleCoralFlip(Pose2d blue_pose, boolean is_red_alliance) {
 		if (is_red_alliance) {
 			blue_pose = blue_pose.mirrorAboutX(kFieldLength / 2.0).mirrorAboutY(kFieldWidth / 2.0);
+			blue_pose = blue_pose.rotateBy(Rotation2d.fromDegrees(180));
 		}
 
 		return blue_pose;
