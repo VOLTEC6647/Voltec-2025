@@ -17,6 +17,7 @@ import com.team6647.frc2025.auto.modes.configuredQuals.L4AutoPP;
 import com.team6647.frc2025.auto.modes.configuredQuals.LAlgae2;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left1;
 import com.team6647.frc2025.auto.modes.configuredQuals.Left2;
+import com.team6647.frc2025.auto.modes.configuredQuals.Panteras;
 import com.team6647.frc2025.auto.modes.configuredQuals.S3Right;
 import com.team6647.frc2025.auto.modes.configuredQuals.S3RightA;
 import com.team6647.frc2025.auto.modes.configuredQuals.S3RightPP;
@@ -168,7 +169,7 @@ public class Robot extends LoggedRobot {
 
 
 		autoChooser.addOption("Just Forward", new justForwardC());
-		autoChooser.setDefaultOption("S3RightA", new S3RightA());
+		autoChooser.addOption("S3RightA", new S3RightA());
 		autoChooser.addOption("SimpleForwardC", new simpleForwardC());
 		autoChooser.addOption("L1Attempt", new L1Attempt());
 		autoChooser.addOption("Left1", new Left1());
@@ -178,6 +179,7 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("S3Right", new S3Right());
 		autoChooser.addOption("S3RightPP", new S3RightPP());
 		autoChooser.addOption("L4", new L4AutoPP());
+		autoChooser.setDefaultOption("Panteras", new Panteras());
 		
 		if(isReal()){
 			Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
@@ -245,7 +247,7 @@ public class Robot extends LoggedRobot {
 			RobotState.getInstance().resetKalman();
 			mDrive.setNeutralBrake(true);
 
-			RobotController.setBrownoutVoltage(5.5);
+			RobotController.setBrownoutVoltage(6.0);
 
 			DataLogManager.start();
 

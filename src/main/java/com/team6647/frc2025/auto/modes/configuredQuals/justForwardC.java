@@ -21,7 +21,7 @@ public class justForwardC extends AutoModeBase {
 	@Override
 	protected void routine() throws AutoModeEndedException {
 		runAction(new ChoreoTrajectoryAction("SimpleForward",true));
-		runAction(new ChoreoTrajectoryAction("HalfReverse",true));
+		//runAction(new ChoreoTrajectoryAction("HalfReverse",true));
 
 		System.out.println("Finished auto!");
 	}

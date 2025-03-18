@@ -54,7 +54,7 @@ public class ChoreoTrajectoryAction implements Action {
 	@Override
 	public void start() {
 		mDrive.acceptingHeading = 1;
-		events = trajectory.get().events();
+		//events = trajectory.get().events();
 		autoTimer.reset();
 		if (mResetGyro) {
 			mDrive.resetOdometry(trajectory.get().getInitialPose(Robot.is_red_alliance).get());
@@ -76,6 +76,7 @@ public class ChoreoTrajectoryAction implements Action {
 		if(trajectory.get().getTotalTime() < autoTimer.get()){
 			mDrive.acceptingHeading = 1;
 		}
+		/*
 		events.forEach(event -> {
 			if (event.timestamp < autoTimer.get()) {
 				if(event.event.equals("Elevate")){
@@ -84,6 +85,7 @@ public class ChoreoTrajectoryAction implements Action {
 				}
 			}
 		});
+		*/
 		System.out.println("Trajectory set");
 	}
 

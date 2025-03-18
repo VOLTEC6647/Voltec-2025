@@ -29,7 +29,7 @@ import com.team1678.lib.swerve.SwerveHeadingController;
 import com.team1678.lib.swerve.SwerveModule;
 import com.team1678.lib.swerve.SwerveModulePosition;
 import com.team1678.lib.swerve.SwerveModuleState;
-
+import com.team1678.lib.util.NearestCoralFinder;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.geometry.Rotation2d;
@@ -40,6 +40,7 @@ import com.team254.lib.trajectory.Trajectory254;
 import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
 import com.team6647.frc2025.FieldLayout;
+import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.vision.VisionLimelightSubsystem;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -460,7 +461,9 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 					Logger.recordOutput("/Drive/Override Heading", mOverrideHeading);
 					Logger.recordOutput("/Drive/Override Trajectory", mOverrideTrajectory);
 				Logger.recordOutput("/Auto/RobotPose", getLegacyPose());
+				
 				Logger.recordOutput("/Auto/kCoralCenter", FieldLayout.kCoralCenter.toLegacy());
+
 
 		//Logger.recordOutput("/Auto/ChoreoPose", lastSample);
 

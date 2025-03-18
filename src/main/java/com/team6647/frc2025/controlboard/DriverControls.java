@@ -27,6 +27,7 @@ import com.team1678.lib.util.NearestCoralFinder;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.Util;
 import com.team6647.frc2025.FieldLayout;
+import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.FieldLayout.CoralTarget;
 import com.team6647.frc2025.auto.actions.AssistModeExecutor;
 import com.team6647.frc2025.auto.modes.configuredQuals.intakePP;
@@ -80,7 +81,7 @@ public class DriverControls {
 	private CoralPivot mCoralPivot = CoralPivot.getInstance();
 	private Climber mClimber = Climber.getInstance();
 
-	public boolean assisting = false;
+	public boolean assisting = true;
 
 
 
@@ -100,7 +101,7 @@ public class DriverControls {
 		if(mControlBoard.operator.aButton.wasActivated()){
 			if(assisting){
 				//new PathplannerAlignAction(null);
-				startAssist(new putCoralPP());
+				startAssist(new putCoral());
 
 			}else{
 				mSuperstructure.request(
@@ -312,11 +313,16 @@ public class DriverControls {
 			stopAssist();
 		}
 
+		/*
 		if(mControlBoard.driver.POV270.wasActivated()){
 			s.subCoralId = 1;
-			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(180)).getDegrees()));
+			double joystickDifference = 0;
+			if(Robot.is_red_alliance){
+				joystickDifference = 180;
+			}
+			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(joystickDifference)).getDegrees()));
 			s.showAngle();
-			startAssist(new putCoralPP());
+			startAssist(new putCoral());
 		}
 		if(mControlBoard.driver.POV270.wasReleased()){
 			mDrive.setControlState(DriveControlState.OPEN_LOOP);
@@ -324,15 +330,20 @@ public class DriverControls {
 		}
 
 		if(mControlBoard.driver.POV90.wasActivated()){
-			s.subCoralId = 2;
-			s.coralId = NearestCoralFinder.getCoralIdFromTarget(NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(180)).getDegrees()));
+			s.subCoralId = 0;
+			double joystickDifference = 0;
+			if(Robot.is_red_alliance){
+				joystickDifference = 180;
+			}
+			s.coralId = NearestCoralFinder.getCoralIdFromTarget(NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(joystickDifference)).getDegrees()));
 			s.showAngle();
-			startAssist(new putCoralPP());
+			startAssist(new putCoral());
 		}
 		if(mControlBoard.driver.POV90.wasReleased()){
 			mDrive.setControlState(DriveControlState.OPEN_LOOP);
 			stopAssist();
 		}
+			 */
 
 		/*
 		if(mControlBoard.driver.POV0.wasActivated()){
