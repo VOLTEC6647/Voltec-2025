@@ -63,7 +63,7 @@ public class VisionLimelightSubsystem extends SubsystemBase{
     private Pose2d currentTrapPose = null;
     public Double stageTX = null;
     public Double stageTY = null;
-    private boolean megatag2Enabled = false;
+    private boolean megatag2Enabled = true;
     public HashMap<Integer, Pose2d> trapPoses = new HashMap<>();
 
     private final RawFiducial[] emptyFiducials = new RawFiducial[0];
@@ -140,7 +140,9 @@ public class VisionLimelightSubsystem extends SubsystemBase{
             double megatagDegrees = Drive.getInstance().getHeading().getDegrees();
             if (Robot.is_red_alliance) megatagDegrees = MathUtil.inputModulus(megatagDegrees + 180, -180, 180);
             LimelightHelpers.SetRobotOrientation(BACK_LIMELIGHT, megatagDegrees, 0, 0, 0, 0, 0);
+            LimelightHelpers.SetRobotOrientation(FRONT_LIMELIGHT, megatagDegrees, 0, 0, 0, 0, 0);
             coralPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(BACK_LIMELIGHT);
+            sourcePose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(FRONT_LIMELIGHT);
         } else {
             coralPose = LimelightHelpers.getBotPoseEstimate_wpiBlue(BACK_LIMELIGHT);
             sourcePose = LimelightHelpers.getBotPoseEstimate_wpiBlue(FRONT_LIMELIGHT);
