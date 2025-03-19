@@ -127,8 +127,8 @@ public class FieldLayout {
 		Pose2d realCoral1 = center.transformBy(new Pose2d(new Translation2d(-0.27, kRealCoralDistanceOffset+pivotOffset), Rotation2d.fromDegrees(180)));
 		Pose2d realCoral2 = center.transformBy(new Pose2d(new Translation2d(-0.27, -kRealCoralDistanceOffset+pivotOffset), Rotation2d.fromDegrees(180)));
 		
-		Pose2d realCoral41 = realCoral1.transformBy(new Pose2d(0,0,new Rotation2d()));
-		Pose2d realCoral42 = realCoral2.transformBy(new Pose2d(0,0,new Rotation2d()));
+		Pose2d realCoral41 = realCoral1.transformBy(new Pose2d(-0.2,0,new Rotation2d()));
+		Pose2d realCoral42 = realCoral2.transformBy(new Pose2d(-0.2,0,new Rotation2d()));
 
 		algae = rotatePoseFromPivot(algae, rot);
 		coral1 = rotatePoseFromPivot(coral1, rot);
@@ -176,9 +176,10 @@ public class FieldLayout {
     }
 
 	public static Pose2d handleCoralFlip(Pose2d blue_pose, boolean is_red_alliance) {
+		blue_pose = blue_pose.rotateBy(Rotation2d.fromDegrees(180));
+		
 		if (is_red_alliance) {
 			blue_pose = blue_pose.mirrorAboutX(kFieldLength / 2.0).mirrorAboutY(kFieldWidth / 2.0);
-			blue_pose = blue_pose.rotateBy(Rotation2d.fromDegrees(180));
 		}
 
 		return blue_pose;

@@ -296,7 +296,7 @@ public class DriveMotionPlanner implements CSVWritable {
 
 		chassisSpeeds.vxMetersPerSecond = chassisSpeeds.vxMetersPerSecond + kPathk * pid_error.dx;
 		chassisSpeeds.vyMetersPerSecond = chassisSpeeds.vyMetersPerSecond + kPathk * pid_error.dy;
-		chassisSpeeds.omegaRadiansPerSecond = chassisSpeeds.omegaRadiansPerSecond + kPathKTheta * pid_error.dtheta;
+		chassisSpeeds.omegaRadiansPerSecond = -chassisSpeeds.omegaRadiansPerSecond + kPathKTheta * pid_error.dtheta;
 		return chassisSpeeds;
 	}
 
@@ -478,7 +478,30 @@ public class DriveMotionPlanner implements CSVWritable {
 				mOutput = updatePurePursuit(current_state, 0.0);
 			}
 		} else {
-			if (mCurrentTrajectory.trajectory().getLastPoint().state().velocity() == 0.0) {
+			if (mFollowerType == FollowerType.PID) {
+				mError = current_state.inverse().transformBy(mSetpoint.state().getPose());
+				Twist2d pid_error = Pose2d.log(mError);
+
+				final double kP = 2.0;         // Translation gain (m/s per meter error)
+				final double kThetaP = -2.5;    // Rotation gain (rad/s per radian error)
+
+				// Calculate P-only outputs
+				double vx = kP * mError.getTranslation().x();
+				double vy = kP * mError.getTranslation().y();
+				double omega = kThetaP * mError.getRotation().getRadians();
+
+				final double kTranslationTolerance = 0.02; // 2 cm
+				final double kRotationTolerance = Math.toRadians(1.0); // 1 degree
+
+				// Check position tolerance
+				if (mError.getTranslation().norm() < kTranslationTolerance && 
+					Math.abs(mError.getRotation().getRadians()) < kRotationTolerance) {
+					mOutput = new ChassisSpeeds(); // Stop when within tolerance
+				} else {
+					mOutput = new ChassisSpeeds(vx, vy, omega);
+				}
+
+			}else if (mCurrentTrajectory.trajectory().getLastPoint().state().velocity() == 0.0) {
 				mOutput = new ChassisSpeeds();
 			}
 		}

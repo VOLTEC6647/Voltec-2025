@@ -81,9 +81,9 @@ public class PathplannerAlignAction implements Action {
 		}
 		//endpose = endpose.rotateBy(Rotation2d.fromDegrees(180));
 
-		if(Robot.is_red_alliance){
-			endpose = endpose.rotateBy(Rotation2d.fromDegrees(180));
-		}
+		//if(Robot.is_red_alliance){
+		//	endpose = endpose.rotateBy(Rotation2d.fromDegrees(180));
+		//}
 
 
 		PathConstraints constraints = new PathConstraints(1.5, 1.5, 2 * Math.PI, 4 * Math.PI); // The constraints for

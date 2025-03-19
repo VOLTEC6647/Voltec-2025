@@ -223,8 +223,14 @@ public class TrajectoryGenerator {
 			waypoints.add(Drive.getInstance().getPose());
 			headings.add(Rotation2d.fromDegrees(Drive.getInstance().getPose().getRotation().getDegrees()));
 
-			waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realCorals[Superstructure.getInstance().subCoralId]);
-			headings.add(Rotation2d.fromDegrees(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realAlgae.getRotation().getDegrees()));
+			if(Superstructure.getInstance().level<4){
+				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realCorals[Superstructure.getInstance().subCoralId]);
+				headings.add(Rotation2d.fromDegrees(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realAlgae.getRotation().getDegrees()));
+			}else{
+				waypoints.add(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).corals4[Superstructure.getInstance().subCoralId]);
+				headings.add(Rotation2d.fromDegrees(FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realAlgae.getRotation().getDegrees()));	
+			}
+			
 			return generateD(waypoints, headings, List.of(), false, 0.4, 1.0);
 		}
 

@@ -181,7 +181,7 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("L4", new L4AutoPP());
 		autoChooser.setDefaultOption("Panteras", new Panteras());
 		
-		if(isReal()){
+		if(isReal()&&false){
 			Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
 			mDrive.resetOdometry(startC);
 			mDrive.zeroGyro(startC.getRotation().getDegrees());

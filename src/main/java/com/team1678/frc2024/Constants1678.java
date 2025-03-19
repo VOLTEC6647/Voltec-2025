@@ -113,7 +113,7 @@ public class Constants1678 {
 		/* Heading Controller */
 
 		// Stabilize Heading PID Values
-		public static final double kStabilizeSwerveHeadingKp = 6.0;
+		public static final double kStabilizeSwerveHeadingKp = -1.4;
 		public static final double kStabilizeSwerveHeadingKi = 0.0;
 		public static final double kStabilizeSwerveHeadingKd = 0.3;
 		public static final double kStabilizeSwerveHeadingKf = 2.0;

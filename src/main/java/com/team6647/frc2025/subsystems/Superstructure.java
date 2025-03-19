@@ -382,8 +382,8 @@ public class Superstructure extends Subsystem {
 
 	public Request prepareLevel(Levels levelPos) {
 		return new ParallelRequest(
-				mElevator.LRequest(levelPos),
-				mCoralPivot.LRequest(levelPos));
+				mElevator.setPositionRequest(levelPos.elevatorHeight),
+				mCoralPivot.setPositionRequest(levelPos.coralAngle));
 	}
 
 	public Request softHome() {
@@ -410,6 +410,10 @@ public class Superstructure extends Subsystem {
 
 	public void preGen() {
 
+	}
+
+	public Pose2d getActiveCoral(){
+		return FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realCorals[Superstructure.getInstance().subCoralId];
 	}
 
 	// spotless:on

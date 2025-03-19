@@ -379,7 +379,7 @@ public class DriverControls {
 			//mDrive.stabilizeHeading(coralRotation);
 			if(assisting){
 				//new PathplannerAlignAction(null);
-				startAssist(new putCoralPP());
+				startAssist(new putCoral());
 
 			}
 			
