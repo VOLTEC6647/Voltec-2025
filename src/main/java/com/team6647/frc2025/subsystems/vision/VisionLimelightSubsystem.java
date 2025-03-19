@@ -63,7 +63,7 @@ public class VisionLimelightSubsystem extends SubsystemBase{
     private Pose2d currentTrapPose = null;
     public Double stageTX = null;
     public Double stageTY = null;
-    private boolean megatag2Enabled = true;
+    private boolean megatag2Enabled = false;
     public HashMap<Integer, Pose2d> trapPoses = new HashMap<>();
 
     private final RawFiducial[] emptyFiducials = new RawFiducial[0];

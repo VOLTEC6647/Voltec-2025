@@ -67,7 +67,8 @@ public class Drive extends SubsystemV {
 		OPEN_LOOP,
 		HEADING_CONTROL,
 		VELOCITY,
-		PATH_FOLLOWING
+		PATH_FOLLOWING,
+		PID
 	}
 
 	private WheelTracker mWheelTracker;
@@ -218,9 +219,17 @@ public class Drive extends SubsystemV {
   private final double kPathFollowTurnP;
   private PIDController choreoX, choreoY, choreoRotation;
 
-public int acceptingHeading = 0;
+	public int acceptingHeading = 0;
 
-public edu.wpi.first.math.geometry.Pose2d lastSample;
+	public edu.wpi.first.math.geometry.Pose2d lastSample;
+
+	private Pose2d mPIDSetpoint = new Pose2d();
+	private final double kP = 3.0;
+	private final double kThetaP = -2.5;
+	private final double kTranslationTolerance = 0.02;
+	private final double kRotationTolerance = Math.toRadians(1.0);
+
+
 public void choreoController(SwerveSample sample) {
 	lastSample = sample.getPose();
 
@@ -317,7 +326,7 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 				mPeriodicIO.des_chassis_speeds = new ChassisSpeeds(x, y, omega);
 				return;
 			}
-		}else if (mControlState == DriveControlState.VELOCITY) {
+		}else if (mControlState == DriveControlState.VELOCITY || mControlState == DriveControlState.PID) {
 			return;
 		} else if (mControlState != DriveControlState.OPEN_LOOP) {
 			mControlState = DriveControlState.OPEN_LOOP;
@@ -479,6 +488,9 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 				case VELOCITY:
 				case FORCE_ORIENT:
 					break;
+				case PID:
+					updatePIDController();
+					break;
 				default:
 					stop();
 					break;
@@ -502,7 +514,9 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 				mModules[i].setOpenLoop(mPeriodicIO.des_module_states[i]);
 			} else if (mControlState == DriveControlState.PATH_FOLLOWING
 					|| mControlState == DriveControlState.VELOCITY
-					|| mControlState == DriveControlState.FORCE_ORIENT) {
+					|| mControlState == DriveControlState.FORCE_ORIENT
+					|| mControlState == DriveControlState.PID
+					) {
 				mModules[i].setVelocity(mPeriodicIO.des_module_states[i]);
 			}
 		}
@@ -896,5 +910,49 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 
 	public void setControlState(DriveControlState controlState){
 		mControlState = controlState;
+	}
+
+	public synchronized void setPIDSetpoint(Pose2d setpoint) {
+		mPIDSetpoint = setpoint;
+		mControlState = DriveControlState.PID;
+		System.out.println("PID SET");
+	}
+	
+	private void updatePIDController() {
+		Pose2d currentPose = getPose();
+		Pose2d errorPose = currentPose.inverse().transformBy(mPIDSetpoint);
+		Twist2d pidError = Pose2d.log(errorPose);
+	
+		double vx = kP * pidError.dx;
+		double vy = kP * pidError.dy;
+		double omega = kThetaP * pidError.dtheta;
+	
+		double translationError = Math.hypot(pidError.dx, pidError.dy);
+		double rotationError = Math.abs(pidError.dtheta);
+	
+		if (translationError < kTranslationTolerance && rotationError < kRotationTolerance) {
+			mPeriodicIO.des_chassis_speeds = new ChassisSpeeds();
+		} else {
+			mPeriodicIO.des_chassis_speeds = new ChassisSpeeds(vx, vy, omega);
+		}
+	}
+
+	public boolean isAtPIDSetpoint() {
+		Pose2d currentPose = getPose();
+		
+		Pose2d errorPose = currentPose.inverse().transformBy(mPIDSetpoint);
+		Twist2d errorTwist = Pose2d.log(errorPose);
+		
+		double translationError = Math.hypot(errorTwist.dx, errorTwist.dy);
+		double rotationError = Math.abs(errorTwist.dtheta);
+		
+		boolean atTranslation = translationError < kTranslationTolerance;
+		boolean atRotation = rotationError < kRotationTolerance;
+		
+		//Logger.recordOutput("Drive/PID/TranslationError", translationError);
+		//Logger.recordOutput("Drive/PID/RotationError", Math.toDegrees(rotationError));
+		//Logger.recordOutput("Drive/PID/AtSetpoint", atTranslation && atRotation);
+		
+		return atTranslation && atRotation;
 	}
 }

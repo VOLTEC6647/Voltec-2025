@@ -6,6 +6,7 @@ import com.team1678.frc2024.auto.actions.LambdaAction;
 import com.team1678.frc2024.auto.actions.ParallelAction;
 import com.team1678.frc2024.auto.actions.RequestAction;
 import com.team1678.frc2024.auto.actions.SeriesAction;
+import com.team1678.frc2024.auto.actions.SwervePIDAction;
 import com.team1678.frc2024.auto.actions.SwerveTrajectoryAction;
 import com.team1678.frc2024.auto.actions.TurnInPlaceAction;
 import com.team1678.frc2024.auto.actions.WaitAction;
@@ -44,15 +45,15 @@ public class putCoral extends AutoModeBase {
 
 	public putCoral() {
 		enterCoral = null;
-		TrajectorySet s = TrajectoryGenerator.getInstance().getTrajectorySet();
-		s.putCoral = s.getPutCoral();
+		//TrajectorySet s = TrajectoryGenerator.getInstance().getTrajectorySet();
+		//s.putCoral = s.getPutCoral();
 		/*
 		new LambdaRequest(() -> {
 			s.enterCoral = s.getEnterCoral();
 			enterCoral = logTrajectory(s.enterCoral);
 		});
 		 */
-		putCoral = logTrajectory(s.putCoral);
+		//putCoral = logTrajectory(s.putCoral);
 	}
 
 	// spotless:off
@@ -62,8 +63,10 @@ public class putCoral extends AutoModeBase {
 		CoralPivot.getInstance().setSetpointMotionMagic(s.currentLevel.coralAngle);
 		//Drive.getInstance().setControlState(DriveControlState.HEADING_CONTROL);
 		//runAction(new TurnInPlaceAction(Superstructure.getInstance().getActiveCoral().getRotation(), 0.6));
-		runAction(new SwerveTrajectoryAction(putCoral, false));
-		runAction(new WaitAction(1));
+		//runAction(new SwerveTrajectoryAction(putCoral, false));
+		runAction(new SwervePIDAction(s.getActiveCoral().toLegacy()));
+
+		//runAction(new WaitAction(1));
 		if(Superstructure.getInstance().level<4){
 			s.request(
 			new SequentialRequest(
@@ -78,7 +81,7 @@ public class putCoral extends AutoModeBase {
 			runAction(new RequestAction(Elevator.getInstance().setPositionRequest(Elevator.kL4Height)));
 		}
 		
-
+ 
 		
 		
 		/*
