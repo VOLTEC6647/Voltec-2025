@@ -45,7 +45,7 @@ public class VisionPhotonSubsystem extends SubsystemBase{
 		return mInstance;
 	}
     public VisionPhotonSubsystem() {
-        sourceCamera = new PhotonCamera("arducam-source");
+        sourceCamera = new PhotonCamera("corall");
         cameraPoseEstimatorSource = new PhotonPoseEstimator(AprilTagFields.k2025Reefscape.loadAprilTagLayoutField(), sourceCamera, VisionPhotonConstants.CAMERA_SOURCE_TRANSFORM, VisionPhotonConstants.AMBIGUITY_THRESHOLD, VisionPhotonConstants.TAG_AREA_THRESHOLD);
     }
 
@@ -55,16 +55,17 @@ public class VisionPhotonSubsystem extends SubsystemBase{
         SmartDashboard.putBoolean("hasPresentPhoton", estimatedCameraSourcePose.isPresent());
             if (estimatedCameraSourcePose.isPresent()) {
                 // update pose estimator using front limelight
+                Logger.recordOutput("/Auto/PhotonPoseOffset", estimatedCameraSourcePose.get().estimatedPose.toPose2d());
+                
                 RobotState.getInstance().addVisionUpdate(
                 new VisionUpdate(
                     estimatedCameraSourcePose.get().timestampSeconds,
                     new com.team254.lib.geometry.Translation2d(estimatedCameraSourcePose.get().estimatedPose.getTranslation().toTranslation2d()),
                     new com.team254.lib.geometry.Translation2d(0,0),//mConstants.kRobotToCamera.getTranslation(), // Use the correct camera offset
                     0.02
-                )
-        );
+                )   
+            );
+            
             }
-
-        
     }
 }

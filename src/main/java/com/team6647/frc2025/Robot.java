@@ -11,6 +11,7 @@ import com.team1678.frc2024.SubsystemManager;
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeExecutor;
 import com.team6647.frc2025.auto.AutoModeSelector;
+import com.team6647.frc2025.auto.modes.configuredQuals.A5R2PP;
 import com.team6647.frc2025.auto.modes.configuredQuals.CTest;
 import com.team6647.frc2025.auto.modes.configuredQuals.L1Attempt;
 import com.team6647.frc2025.auto.modes.configuredQuals.L4AutoPP;
@@ -165,7 +166,7 @@ public class Robot extends LoggedRobot {
 		mElevator = Elevator.getInstance();
 		mClimber = Climber.getInstance();
 		mVisionLimelight = VisionLimelightSubsystem.getInstance();
-		//mVisionPhoton = VisionPhotonSubsystem.getInstance();
+		mVisionPhoton = VisionPhotonSubsystem.getInstance();
 
 
 		autoChooser.addOption("Just Forward", new justForwardC());
@@ -179,7 +180,8 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("S3Right", new S3Right());
 		autoChooser.addOption("S3RightPP", new S3RightPP());
 		autoChooser.addOption("L4", new L4AutoPP());
-		autoChooser.setDefaultOption("Panteras", new Panteras());
+		autoChooser.addOption("Panteras", new Panteras());
+		autoChooser.setDefaultOption("A5RPP", new A5R2PP());
 		
 		if(isReal()&&false){
 			Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
@@ -366,6 +368,7 @@ public class Robot extends LoggedRobot {
 			//coralTab.add("Position", 3);
 			//coralTab.add("Level", 3);
 			//coralTab.add("Slot", 3);
+			mSuperstructure.showAngle();
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);

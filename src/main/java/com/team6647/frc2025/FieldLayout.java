@@ -127,8 +127,8 @@ public class FieldLayout {
 		Pose2d realCoral1 = center.transformBy(new Pose2d(new Translation2d(-0.27, kRealCoralDistanceOffset+pivotOffset), Rotation2d.fromDegrees(180)));
 		Pose2d realCoral2 = center.transformBy(new Pose2d(new Translation2d(-0.27, -kRealCoralDistanceOffset+pivotOffset), Rotation2d.fromDegrees(180)));
 		
-		Pose2d realCoral41 = realCoral1.transformBy(new Pose2d(-0.2,0,new Rotation2d()));
-		Pose2d realCoral42 = realCoral2.transformBy(new Pose2d(-0.2,0,new Rotation2d()));
+		Pose2d realCoral41 = realCoral1.transformBy(new Pose2d(-0.07,0,new Rotation2d()));
+		Pose2d realCoral42 = realCoral2.transformBy(new Pose2d(-0.07,0,new Rotation2d()));
 
 		algae = rotatePoseFromPivot(algae, rot);
 		coral1 = rotatePoseFromPivot(coral1, rot);

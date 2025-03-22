@@ -30,6 +30,7 @@ import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.FieldLayout.CoralTarget;
 import com.team6647.frc2025.auto.actions.AssistModeExecutor;
+import com.team6647.frc2025.auto.modes.configuredQuals.intakeAuto;
 import com.team6647.frc2025.auto.modes.configuredQuals.intakePP;
 import com.team6647.frc2025.auto.modes.configuredQuals.putCoral;
 import com.team6647.frc2025.auto.modes.configuredQuals.putCoralPP;
@@ -82,6 +83,7 @@ public class DriverControls {
 	private Climber mClimber = Climber.getInstance();
 
 	public boolean assisting = true;
+	
 
 
 
@@ -158,9 +160,8 @@ public class DriverControls {
 			mCoralRoller.setState(CoralRoller.State.IDLE);
 		}
 		if(mControlBoard.operator.bButton.wasActivated()){
-			if(assisting&&false){
-				//new PathplannerAlignAction(null);
-				startAssist(new putCoralPP());
+			if(assisting){
+				startAssist(new intakeAuto());
 
 			}else{
 				
@@ -174,6 +175,11 @@ public class DriverControls {
 				);
 			}
 			
+		}
+
+		if(mControlBoard.operator.bButton.wasReleased()){
+			stopAssist();
+			mDrive.setControlState(DriveControlState.OPEN_LOOP);
 		}
 		
 		if (mControlBoard.operator.yButton.wasActivated()) {
@@ -206,10 +212,16 @@ public class DriverControls {
 			mCoralRoller.setState(CoralRoller.State.IDLE);
 		}
 		if (mControlBoard.operator.xButton.wasActivated()) {
-			mCoralRoller.setState(mCoralRoller.OUTAKING);
+			//mCoralRoller.setState(mCoralRoller.OUTAKING);
+			s.addRequestToQueue(s.prepareLevel(s.currentLevel));
+			
 		}
 		if (mControlBoard.operator.xButton.wasReleased()) {
-			mCoralRoller.setState(CoralRoller.State.IDLE);
+			if(!s.placing_coral){
+				mSuperstructure.request(
+				mSuperstructure.softHome()
+			);
+			}
 		}
 		
 		
@@ -249,14 +261,23 @@ public class DriverControls {
 					s.coralId = i;
 					stopAssist();
 					if(angle-s.angles[i].angle>0){
-						s.subCoralId = 1;
+						//s.subCoralId = 1;
 					}else{
-						s.subCoralId = 0;
+						//s.subCoralId = 0;
 					}
-					s.showAngle();
+					//s.showAngle();
 					break;
 				}
 			}
+		}
+
+		if(mControlBoard.operator.getRightX()>0.5){
+			s.subCoralId = 0;
+			//s.showAngle();
+		}
+		if(mControlBoard.operator.getRightX()<-0.5){
+			s.subCoralId = 1;
+			//s.showAngle();
 		}
 		
 		if(mControlBoard.operator.POV0.wasActivated()){
@@ -379,8 +400,8 @@ public class DriverControls {
 			//mDrive.stabilizeHeading(coralRotation);
 			if(assisting){
 				//new PathplannerAlignAction(null);
+				//placing_coral = true;
 				startAssist(new putCoral());
-
 			}
 			
 
@@ -390,6 +411,7 @@ public class DriverControls {
 		if(mControlBoard.driver.aButton.wasReleased()){
 			stopAssist();
 			mDrive.setControlState(DriveControlState.OPEN_LOOP);
+			s.placing_coral = false;
 		}
 		/*
 		if(mControlBoard.operator.leftTrigger.wasActivated()){

@@ -327,7 +327,7 @@ public class Constants {
         public static final double AMBIGUITY_THRESHOLD = 0.17;
         public static final double TAG_AREA_THRESHOLD = 0.06; //0.1;
 
-        public static final Transform3d CAMERA_SOURCE_TRANSFORM = new Transform3d(new Translation3d(0, 0.025845, 0.827809), new Rotation3d(0,Math.toRadians(40),Math.toRadians(180)));//Units.inchesToMeters(0)
+        public static final Transform3d CAMERA_SOURCE_TRANSFORM = new Transform3d(new Translation3d(Units.inchesToMeters(-6.76877), Units.inchesToMeters(-2.469746), Units.inchesToMeters(11.425)), new Rotation3d(0,0,Math.toRadians(200)));//Units.inchesToMeters(0)
         //public static final String LAYOUT_FILE_NAME = "2024-crescendo";
     }
 

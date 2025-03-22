@@ -102,6 +102,8 @@ public class Superstructure extends Subsystem {
 	public int coralStationPosition = 0;
 	private CoralRoller mCoralRoller = CoralRoller.getInstance();
 
+	public boolean placing_coral = true;
+
 	public void setLevel(int level) {
 		this.level = level;
 		if (level == 1) {
@@ -126,7 +128,7 @@ public class Superstructure extends Subsystem {
 	
 	public Pose2d sourcePose2 = new Pose2d(1.2310409545898438,0.873404324054718,Rotation2d.fromDegrees(55));
 
-	public Pose2d sourcePose = sourcePose2;
+	public Pose2d sourcePose = sourcePose1;
 
 	public void setSource(int id) {
 		if(id == 1){
@@ -240,6 +242,8 @@ public class Superstructure extends Subsystem {
 			Logger.recordOutput("CoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).corals[subCoralId].toLegacy());
 			Logger.recordOutput("RealCoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).realCorals[subCoralId].toLegacy());
 			Logger.recordOutput("SourcePose", sourcePose.toLegacy());
+			Logger.recordOutput("Coral/CoralId", coralId);
+			Logger.recordOutput("Coral/SubCoralId", subCoralId);
 		}
 	}
 

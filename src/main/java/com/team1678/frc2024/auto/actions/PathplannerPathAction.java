@@ -51,7 +51,7 @@ public class PathplannerPathAction implements Action {
 	@Override
 	public void start() {
 		autoTimer.reset();
-		autoTimer.start();	
+		autoTimer.start();
 		try {
 			pathPlannerPath = PathPlannerPath.fromPathFile(trajectory);
 		} catch (FileVersionException e) {
@@ -61,6 +61,9 @@ public class PathplannerPathAction implements Action {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+		Drive.getInstance().resetOdometry(pathPlannerPath.getStartingHolonomicPose().get());
+		Drive.getInstance().zeroGyro(pathPlannerPath.getStartingHolonomicPose().get().getRotation().getDegrees());
+		
 		pathPlannerCommand = AutoBuilder.followPath(pathPlannerPath);
 		CommandScheduler.getInstance().schedule(pathPlannerCommand);
 	}
@@ -68,6 +71,7 @@ public class PathplannerPathAction implements Action {
 	@Override
 	public void update() {
 		System.out.println("Trajectory set");
+		System.out.println(pathPlannerCommand.isFinished());
 	}
 
 	@Override

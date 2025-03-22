@@ -18,6 +18,7 @@ import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.frc2024.subsystems.Drive.DriveControlState;
 import com.team1678.lib.requests.LambdaRequest;
 import com.team1678.lib.requests.SequentialRequest;
+import com.team1678.lib.requests.WaitForPrereqRequest;
 import com.team1678.lib.requests.WaitRequest;
 import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.geometry.Rotation2d;
@@ -32,58 +33,58 @@ import com.team6647.frc2025.subsystems.Elevator;
 import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 import java.util.List;
 
-public class putCoral extends AutoModeBase {
+public class intakeAuto extends AutoModeBase {
 	private Drive d = Drive.getInstance();
 	private Superstructure s = Superstructure.getInstance();
 
-	Trajectory254<TimedState<Pose2dWithMotion>> putCoral;
-	public static Trajectory254<TimedState<Pose2dWithMotion>> enterCoral;
-
-	public putCoral() {
-		enterCoral = null;
+	public intakeAuto() {
 	}
 
 	// spotless:off
 	@Override
-	public void routine() throws AutoModeEndedException {
-		CoralRoller.getInstance().setState(CoralRoller.State.CONSTANT);
-		CoralPivot.getInstance().setSetpointMotionMagic(s.currentLevel.coralAngle);
-
-		Pose2d endpose = s.getActiveCoral().toLegacy();
-		if(s.level<4){
-			endpose = FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[s.coralId]).realCorals[s.subCoralId].toLegacy();
-		}else{
-			endpose = FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[s.coralId]).corals4[s.subCoralId].toLegacy();
-		}
-		runAction(new SwervePIDAction(endpose));
-		s.placing_coral = true;
-		if(Superstructure.getInstance().level<4){
-			s.request(
+	protected void routine() throws AutoModeEndedException {
+		//CoralRoller.getInstance().setState(CoralRoller.State.INTAKING);
+		CoralPivot.getInstance().setSetpointMotionMagic(CoralPivot.kIntakingAngle);
+		CoralRoller mCoralRoller = CoralRoller.getInstance();
+		s.request(
 			new SequentialRequest(
-				s.prepareLevel(s.currentLevel),
+				new LambdaRequest(
+					()->{mCoralRoller.setState(CoralRoller.State.INTAKING);}
+				),
 				new WaitRequest(0.2),
-				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.getInstance().OUTAKING);}),
-				new WaitRequest(0.5),
-				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.IDLE);})
+				new WaitForPrereqRequest(()->mCoralRoller.getBeamBreak()),
+				new LambdaRequest(
+					()->{mCoralRoller.setState(CoralRoller.State.IDLE);}
+				)
 			)
 			);
-		}else{
-			runAction(new WaitAction(0.3));
-			s.request(
-			new SequentialRequest(
-				s.prepareLevel(s.currentLevel),
-				new WaitRequest(0.6),
-				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.getInstance().OUTAKING);}),
-				new WaitRequest(0.5),
-				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.IDLE);})
-			)
-			);
-		}
+		//Drive.getInstance().setControlState(DriveControlState.HEADING_CONTROL);
+		//runAction(new TurnInPlaceAction(Superstructure.getInstance().getActiveCoral().getRotation(), 0.6));
+		//runAction(new SwerveTrajectoryAction(putCoral, false));
+		runAction(new SwervePIDAction(s.sourcePose.toLegacy()));
+
+		//runAction(new WaitAction(1));
+		
+		
+ 
+		
+		
+		/*
+		runAction(new RequestAction(s.prepareLevel(s.currentLevel)));
+		runAction(new LambdaAction(()->{
+			CoralRoller.getInstance().setState(CoralRoller.getInstance().OUTAKING);
+		}));
+		 */
+		
+		//el level
+		//runAction(new WaitForEnterPathGeneratedAction());
+		//runAction(new SwerveTrajectoryAction(enterCoral, false));
+		//spin thing
+
 		System.out.println("Finished auto!");
 	}
 	// spotless:on

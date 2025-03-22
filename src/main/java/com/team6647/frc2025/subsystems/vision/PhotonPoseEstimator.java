@@ -30,7 +30,9 @@
  import edu.wpi.first.networktables.StructPublisher;
  import edu.wpi.first.wpilibj.DriverStation;
  import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
- import org.photonvision.PhotonCamera;
+
+import org.littletonrobotics.junction.Logger;
+import org.photonvision.PhotonCamera;
  import org.photonvision.targeting.PhotonPipelineResult;
  import org.photonvision.targeting.PhotonTrackedTarget;
  
@@ -178,6 +180,7 @@
  
          // Publish estimated pose2d
          pose2dPublisher.set(estimatedPose.get().estimatedPose.toPose2d());
+         Logger.recordOutput("/Auto/PhotonPose", estimatedPose.get().estimatedPose.toPose2d());
  
          return Optional.of(EstimatedPose2d.fromEstimatedPose3d(estimatedPose.get()));
      }

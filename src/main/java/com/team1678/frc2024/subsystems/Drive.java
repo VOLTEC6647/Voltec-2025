@@ -142,8 +142,8 @@ public class Drive extends SubsystemV {
 			this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
 			(speeds, feedforwards) -> setVelocity(ChassisSpeeds.fromLegacy(speeds)), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
 			new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-					new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-					new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+					new PIDConstants(1, 0.0, 0.0), // Translation PID constants
+					new PIDConstants(1.5, 0.0, 0.0) // Rotation PID constants
 			),
 			config, // The robot configuration
 			() -> {
@@ -206,7 +206,7 @@ public class Drive extends SubsystemV {
 		), curPose.getRotation());
   this.driveRobotRelative(speeds);
   */
-	kPathFollowDriveP = 1.8;
+	kPathFollowDriveP = 2.5;
 	kPathFollowTurnP = 1.8;//1.8
 	choreoX = new PIDController(kPathFollowDriveP, 0, 0);
 	choreoY = new PIDController(kPathFollowDriveP, 0, 0);
@@ -224,8 +224,8 @@ public class Drive extends SubsystemV {
 	public edu.wpi.first.math.geometry.Pose2d lastSample;
 
 	private Pose2d mPIDSetpoint = new Pose2d();
-	private final double kP = 3.0;
-	private final double kThetaP = -2.5;
+	private final double kP = 5;//3.7;
+	private final double kThetaP = -3.2;
 	private final double kTranslationTolerance = 0.02;
 	private final double kRotationTolerance = Math.toRadians(1.0);
 
@@ -561,7 +561,8 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 				Math.hypot(
 						Constants1678.SwerveConstants.kKinematics.toChassisSpeeds(getModuleStates()).vxMetersPerSecond,
 						Constants1678.SwerveConstants.kKinematics.toChassisSpeeds(getModuleStates()).vyMetersPerSecond));
-			
+		
+						Superstructure.getInstance().showAngle();
 	}
 
 	public synchronized void setTrajectory(TrajectoryIterator<TimedState<Pose2dWithMotion>> trajectory) {
@@ -949,9 +950,9 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 		boolean atTranslation = translationError < kTranslationTolerance;
 		boolean atRotation = rotationError < kRotationTolerance;
 		
-		//Logger.recordOutput("Drive/PID/TranslationError", translationError);
-		//Logger.recordOutput("Drive/PID/RotationError", Math.toDegrees(rotationError));
-		//Logger.recordOutput("Drive/PID/AtSetpoint", atTranslation && atRotation);
+		Logger.recordOutput("Drive/PID/TranslationError", translationError);
+		Logger.recordOutput("Drive/PID/RotationError", Math.toDegrees(rotationError));
+		Logger.recordOutput("Drive/PID/AtSetpoint", atTranslation && atRotation);
 		
 		return atTranslation && atRotation;
 	}
