@@ -46,8 +46,7 @@ import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.algae_roller.AlgaeRoller;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 import com.team6647.frc2025.subsystems.leds.LEDSubsystem;
-import com.team6647.frc2025.subsystems.vision.VisionLimelightSubsystem;
-import com.team6647.frc2025.subsystems.vision.VisionPhotonSubsystem;
+import com.team6647.frc2025.subsystems.vision.VisionSubsystem;
 
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
@@ -104,8 +103,7 @@ public class Robot extends LoggedRobot {
 
 	private Elevator mElevator;
 	private com.team1678.frc2024.subsystems.Climber mClimber;
-	private VisionLimelightSubsystem mVisionLimelight;
-	private VisionPhotonSubsystem mVisionPhoton;
+	private VisionSubsystem mVision;
 
 
 
@@ -165,9 +163,7 @@ public class Robot extends LoggedRobot {
 		mCoralRoller = CoralRoller.getInstance();
 		mElevator = Elevator.getInstance();
 		mClimber = Climber.getInstance();
-		mVisionLimelight = VisionLimelightSubsystem.getInstance();
-		mVisionPhoton = VisionPhotonSubsystem.getInstance();
-
+		mVision = VisionSubsystem.getInstance();
 
 		autoChooser.addOption("Just Forward", new justForwardC());
 		autoChooser.addOption("S3RightA", new S3RightA());
@@ -239,7 +235,8 @@ public class Robot extends LoggedRobot {
 				mElevator,
 				mCoralRoller,
 				mAlgaeT,
-				mClimber
+				mClimber//,
+				//mVision
 			);
 			// spotless:on
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -439,9 +436,9 @@ public class Robot extends LoggedRobot {
 				//LogUtil.recordTrajectory(String.format("Paths/Path %d", i), paths.get(i));
 			//}
 
-			if (mControlBoard.driver.getBButton()) {
-				RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
-			}
+			//if (mControlBoard.driver.getBButton()) {
+			//	RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
+			//}
 			//Logger.recordOutput("Vision Heading/Average", mVisionDevices.getMovingAverageRead());
 
 		} catch (Throwable t) {

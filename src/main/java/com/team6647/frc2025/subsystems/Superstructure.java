@@ -18,6 +18,7 @@ import com.team1678.lib.requests.LambdaRequest;
 import com.team1678.lib.requests.ParallelRequest;
 import com.team1678.lib.requests.Request;
 import com.team1678.lib.requests.SequentialRequest;
+import com.team1678.lib.requests.WaitForPrereqRequest;
 import com.team1678.lib.requests.WaitRequest;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
@@ -169,6 +170,7 @@ public class Superstructure extends Subsystem {
 
 	public void addRequestToQueue(Request req) {
 		queuedRequests.add(req);
+		allRequestsComplete = false;
 	}
 
 	@Override
@@ -400,7 +402,9 @@ public class Superstructure extends Subsystem {
 							mElevator.setWantHome(true);
 							// mElevator.LRequest(Levels.LEVEL1);
 						}),
-				mCoralPivot.LRequest(Levels.LEVEL1));
+				mCoralPivot.LRequest(Levels.LEVEL1),
+			new WaitForPrereqRequest(()->!mElevator.isHoming())
+				);
 	}
 
 	/**

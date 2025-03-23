@@ -16,6 +16,7 @@ import com.team1678.frc2024.auto.actions.WaitToPassYCoordinateAction;
 import com.team1678.frc2024.subsystems.CoralPivot;
 import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.frc2024.subsystems.Drive.DriveControlState;
+import com.team1678.lib.requests.IntakeCoralRequest;
 import com.team1678.lib.requests.LambdaRequest;
 import com.team1678.lib.requests.SequentialRequest;
 import com.team1678.lib.requests.WaitForPrereqRequest;
@@ -51,16 +52,7 @@ public class intakeAuto extends AutoModeBase {
 		CoralPivot.getInstance().setSetpointMotionMagic(CoralPivot.kIntakingAngle);
 		CoralRoller mCoralRoller = CoralRoller.getInstance();
 		s.request(
-			new SequentialRequest(
-				new LambdaRequest(
-					()->{mCoralRoller.setState(CoralRoller.State.INTAKING);}
-				),
-				new WaitRequest(0.2),
-				new WaitForPrereqRequest(()->mCoralRoller.getBeamBreak()),
-				new LambdaRequest(
-					()->{mCoralRoller.setState(CoralRoller.State.IDLE);}
-				)
-			)
+			IntakeCoralRequest.get()
 			);
 		//Drive.getInstance().setControlState(DriveControlState.HEADING_CONTROL);
 		//runAction(new TurnInPlaceAction(Superstructure.getInstance().getActiveCoral().getRotation(), 0.6));

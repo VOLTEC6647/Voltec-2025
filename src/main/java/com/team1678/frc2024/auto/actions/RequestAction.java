@@ -5,6 +5,7 @@ import com.team6647.frc2025.subsystems.Superstructure;
 
 public class RequestAction implements Action {
 	private final Request request;
+	private boolean requestAdded = false;
 
 	public RequestAction(Request request){
 		this.request = request;
@@ -14,6 +15,7 @@ public class RequestAction implements Action {
 	public void start() {
 		Superstructure s = Superstructure.getInstance();
 		s.addRequestToQueue(request);//.request();
+		requestAdded = true;
 	}
 
 	@Override
@@ -21,7 +23,7 @@ public class RequestAction implements Action {
 
 	@Override
 	public boolean isFinished() {
-		return request.isFinished();//Superstructure.getInstance().requestsCompleted();
+		return Superstructure.getInstance().requestsCompleted() && requestAdded;
 	}
 
 	@Override

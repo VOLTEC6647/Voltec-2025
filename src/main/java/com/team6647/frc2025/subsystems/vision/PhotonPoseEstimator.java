@@ -50,6 +50,7 @@ import org.photonvision.PhotonCamera;
      private StructPublisher<Pose2d> pose2dPublisher;
  
      private StructPublisher<Pose3d> pose3dPublisher;
+     public double poseTagArea;
  
  
  
@@ -72,33 +73,34 @@ import org.photonvision.PhotonCamera;
                  .getStructTopic("Vision/"+camera.getName()+"/pose3d of largest tag", Pose3d.struct).publish();
      }
  
-     public Optional<EstimatedPose3d> getEstimatedPose(Pose2d currentEstimatedPose) {
+     public EstimatedPose3d getEstimatedPose(Pose2d currentEstimatedPose) {
+        poseTagArea = 0;
         SmartDashboard.putBoolean("Vision/"+camera.getName()+"/exists", camera == null);
          if (camera == null ){
-             return Optional.empty();
+             return null;
          }
          SmartDashboard.putBoolean("Vision/"+camera.getName()+"/isConnected", camera.isConnected());
          if (!camera.isConnected()){
-             return Optional.empty();
+             return null;
          }
  
          PhotonPipelineResult cameraResult = camera.getLatestResult();;
  
  
          if (cameraResult == null){
-             return Optional.empty();
+             return null;
          }
  
          if (poseCacheTimestampSeconds > 0
                  && Math.abs(poseCacheTimestampSeconds - cameraResult.getTimestampSeconds()) < 1e-6) {
-             return Optional.empty();
+             return null;
              // STOP COMPUTING
          }
  
          poseCacheTimestampSeconds = cameraResult.getTimestampSeconds();
  
          if (!cameraResult.hasTargets()) {
-             return Optional.empty();
+             return null;
          }
  
          // Get number of tags
@@ -121,18 +123,19 @@ import org.photonvision.PhotonCamera;
          // Publish position of largest tag (for debug only)
  //        pose3dPublisher.set((new Pose3d(currentEstimatedPose)).transformBy(robotToCamera).transformBy(target.getBestCameraToTarget()));
  
+
          // Use multitarget
          if (cameraResult.getMultiTagResult().isPresent() && allLargeTagArea) {
+            poseTagArea = target.getArea();
              // Helemaal weekend
-             return Optional.of(
+             return 
                      new EstimatedPose3d(
                              new Pose3d()
                                      .plus(cameraResult.getMultiTagResult().get().estimatedPose.best) // field-to-camera
                                      .relativeTo(fieldTags.getOrigin())
                                      .plus(invRobotToCamera), // field-to-robot
                              cameraResult.getTimestampSeconds()
-                     )
-             );
+                     );
          }
  
          // Use single target with largest area
@@ -147,42 +150,42 @@ import org.photonvision.PhotonCamera;
              if (targetPosition.isEmpty()) {
                  DriverStation.reportError(
                          "Tried to get pose of unknown AprilTag: " + targetFiducialId, false);
-                 return Optional.empty();
+                 return null;
              }
-             return Optional.of(
+             poseTagArea = target.getArea();
+             return 
                  new EstimatedPose3d(
                      targetPosition
                          .get()
                          .transformBy(target.getBestCameraToTarget().inverse())
                          .transformBy(invRobotToCamera),
                      cameraResult.getTimestampSeconds()
-                 )
-             );
+                 );
          }
  
          // Return empty if no tags are good enough
-         return Optional.empty();
+         poseTagArea = 0;
+         return null;
      }
  
-     public Optional<EstimatedPose2d> getFilteredEstimatedPose(Pose2d currentEstimatedPose) {
+     public EstimatedPose2d getFilteredEstimatedPose(Pose2d currentEstimatedPose) {
          // Check field dimensions
-         Optional<EstimatedPose3d> estimatedPose = getEstimatedPose(currentEstimatedPose);
+         EstimatedPose3d estimatedPose = getEstimatedPose(currentEstimatedPose);
  
          // If empty still empty
-         if (estimatedPose.isEmpty()) {
-             return Optional.empty();
+         if (estimatedPose == null) {
+             return null;
          }
  
          // If pose is NOT in field return empty
-         if (!isPoseInField(estimatedPose.get().estimatedPose)) {
-             return Optional.empty();
+         if (!isPoseInField(estimatedPose.estimatedPose)) {
+             return null;
          }
  
          // Publish estimated pose2d
-         pose2dPublisher.set(estimatedPose.get().estimatedPose.toPose2d());
-         Logger.recordOutput("/Auto/PhotonPose", estimatedPose.get().estimatedPose.toPose2d());
+         pose2dPublisher.set(estimatedPose.estimatedPose.toPose2d());
  
-         return Optional.of(EstimatedPose2d.fromEstimatedPose3d(estimatedPose.get()));
+         return EstimatedPose2d.fromEstimatedPose3d(estimatedPose);
      }
  
      private boolean isPoseInField(Pose3d pose){

@@ -41,7 +41,6 @@ import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
 import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.subsystems.Superstructure;
-import com.team6647.frc2025.subsystems.vision.VisionLimelightSubsystem;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -227,7 +226,7 @@ public class Drive extends SubsystemV {
 	private final double kP = 5;//3.7;
 	private final double kThetaP = -3.2;
 	private final double kTranslationTolerance = 0.02;
-	private final double kRotationTolerance = Math.toRadians(1.0);
+	private final double kRotationTolerance = Math.toRadians(0.5);
 
 
 public void choreoController(SwerveSample sample) {

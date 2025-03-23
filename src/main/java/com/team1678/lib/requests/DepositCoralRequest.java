@@ -1,5 +1,6 @@
 package com.team1678.lib.requests;
 
+import com.team1678.frc2024.controlboard.ControlBoard;
 import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 
@@ -13,9 +14,8 @@ public class DepositCoralRequest {
 				new WaitRequest(0.2),
 				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.getInstance().OUTAKING);}),
 				new WaitRequest(0.5),
-				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.IDLE);
-				s.softHome();
-				})
+				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.IDLE);}),
+				s.softHome()
 			);
 		}else{
 			return new SequentialRequest(
@@ -24,10 +24,10 @@ public class DepositCoralRequest {
 				new WaitRequest(0.6),
 				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.getInstance().OUTAKING);}),
 				new WaitRequest(0.5),
-				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.IDLE);
-				s.softHome();
-				})
-			);
+				new WaitForPrereqRequest(()->!ControlBoard.getInstance().operator.bButton.isBeingPressed()),
+				s.softHome(),
+				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.IDLE);})
+				);
 		}
 	}
 }

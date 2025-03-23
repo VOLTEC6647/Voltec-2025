@@ -176,4 +176,8 @@ public class Elevator extends ServoMotorSubsystem {
 			}
 		};
 	}
+
+	public boolean isHoming(){
+		return mHoming;
+	}
 }

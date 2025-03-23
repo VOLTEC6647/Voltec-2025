@@ -30,15 +30,9 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class VisionLimelightSubsystem extends SubsystemBase{
-
-    public static final String FRONT_LIMELIGHT = "limelight-source";
-    public static final String BACK_LIMELIGHT = "limelight-coral";
+public class LimelightPoseEstimator{
 
     // Adjustable transform for the Limelight pose per-alliance
-    private static final Transform2d LL_BLUE_TRANSFORM = new Transform2d(0, 0, new Rotation2d());
-    private static final Transform2d LL_RED_TRANSFORM = new Transform2d(0, 0, new Rotation2d());
-
     public AprilTagFieldLayout aprilTagFieldLayout;
     private boolean odometryEnabled = true;
     private double lastOdometryTime = 0;
@@ -50,16 +44,7 @@ public class VisionLimelightSubsystem extends SubsystemBase{
     public boolean limelightConnected = false;
     private boolean frontLimelightConnected = false;
 
-    private boolean canSeeSpeaker = false;
-    private Double speakerDistance = null;
-    private Double speakerAngle = null;
-    private boolean shootOnTheFlyEnabled = true;
-    private boolean isShootingOnTheFly = false;
-    private boolean directTagAiming = true;
     public Double distanceOverride = null;
-    private Double speakerTagHeight = 0.0;
-    private Double tagHeightOverride = null;
-    private PoseEstimate lastPoseEstimate = null;
     private Pose2d currentTrapPose = null;
     public Double stageTX = null;
     public Double stageTY = null;
@@ -73,28 +58,16 @@ public class VisionLimelightSubsystem extends SubsystemBase{
     final int[] autoTagFilter = new int[] {1,2,6,7,8,9,10,11,12,13,17,18,19,20,21,22};
     final int[] teleopTagFilter = new int[] {1,2,6,7,8,9,10,11,12,13,17,18,19,20,21,22};
 
-    public PoseEstimate lastPose;
-
-    PoseEstimate bestPose;
-    PoseEstimate coralPose;
-    PoseEstimate sourcePose;
     double newHeartbeat;
-
-
-    private static VisionLimelightSubsystem mInstance;
+    private final String cameraName;
     
-    public static VisionLimelightSubsystem getInstance() {
-		if (mInstance == null) {
-			mInstance = new VisionLimelightSubsystem();//, CoralPivotConstants.kHoodEncoderConstants
-		}
-		return mInstance;
-	}
-    public VisionLimelightSubsystem() {
+    public LimelightPoseEstimator(String name) {
         try {
             aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
         } catch (Exception e) {
             aprilTagFieldLayout = null;
         }
+        this.cameraName = name;
 
         SmartDashboard.putNumber("BLUE Distance Offset", 0);
         SmartDashboard.putNumber("RED Distance Offset", 0);
@@ -103,12 +76,11 @@ public class VisionLimelightSubsystem extends SubsystemBase{
         SmartDashboard.putNumber("BLUE Pixel Offset", 0);       
     }
 
-    @Override
-    public void periodic() {
+    public PoseEstimate getEstimatedPose() {
 
         //Logger.recordOutput("Odometry Enabled", odometryEnabled);
         
-        newHeartbeat = LimelightHelpers.getLimelightNTDouble(BACK_LIMELIGHT, "hb");
+        newHeartbeat = LimelightHelpers.getLimelightNTDouble(cameraName, "hb");
         if (newHeartbeat > limelightHeartbeat) {
             limelightConnected = true;
             limelightHeartbeat = newHeartbeat;
@@ -121,75 +93,40 @@ public class VisionLimelightSubsystem extends SubsystemBase{
 
         if (!limelightConnected) {
             rawFiducials = emptyFiducials;
-            speakerAngle = null;
-            speakerDistance = null;
-            speakerTagHeight = null;
             //Logger.recordOutput("LL Pose Valid?", false);
             //Logger.recordOutput("LL Pose", nilPose);
-            return;
+            return null;
         }
 
+        PoseEstimate estimatedPose;
 
-        bestPose = null;
-        coralPose = null;
-        sourcePose = null;
         PoseEstimate megaTag2Pose = null;
 
         
         if (megatag2Enabled) {
             double megatagDegrees = Drive.getInstance().getHeading().getDegrees();
             if (Robot.is_red_alliance) megatagDegrees = MathUtil.inputModulus(megatagDegrees + 180, -180, 180);
-            LimelightHelpers.SetRobotOrientation(BACK_LIMELIGHT, megatagDegrees, 0, 0, 0, 0, 0);
-            LimelightHelpers.SetRobotOrientation(FRONT_LIMELIGHT, megatagDegrees, 0, 0, 0, 0, 0);
-            coralPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(BACK_LIMELIGHT);
-            sourcePose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(FRONT_LIMELIGHT);
+            LimelightHelpers.SetRobotOrientation(cameraName, megatagDegrees, 0, 0, 0, 0, 0);
+            estimatedPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
         } else {
-            coralPose = LimelightHelpers.getBotPoseEstimate_wpiBlue(BACK_LIMELIGHT);
-            sourcePose = LimelightHelpers.getBotPoseEstimate_wpiBlue(FRONT_LIMELIGHT);
+            estimatedPose = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
         }
 
 
-        if (coralPose != null)  {
-            rawFiducials = coralPose.rawFiducials;
-        } else if (sourcePose != null){
-            rawFiducials = sourcePose.rawFiducials;
-        }else {
+        if (estimatedPose != null)  {
+            rawFiducials = estimatedPose.rawFiducials;
+        }else{
             rawFiducials = emptyFiducials;
         }
 
         double deltaSeconds = Timer.getFPGATimestamp() - lastOdometryTime;
         //Logger.recordOutput("LL Pose Pre-Validation", backPose == null ? nilPose : backPose.pose);
         //Logger.recordOutput("LL MegaTag2", megaTag2Pose == null ? nilPose : megaTag2Pose.pose);
-        coralPose = validatePoseEstimate(coralPose, deltaSeconds);
-        sourcePose = validatePoseEstimate(sourcePose, deltaSeconds);
+        estimatedPose = validatePoseEstimate(estimatedPose, deltaSeconds);
         
-        if (sourcePose != null && coralPose != null) {
-            bestPose = (coralPose.avgTagArea >= sourcePose.avgTagArea) ? coralPose : sourcePose;
-        } else if (coralPose != null) {
-            bestPose = coralPose;
-        } else {
-            bestPose = sourcePose;
-        }
-
-        lastPose = bestPose;
-
-        if (bestPose != null) {
-            //sSmartDashboard.put
-            //Logger.recordOutput("Backpose", bestPose.pose);
-            lastOdometryTime = Timer.getFPGATimestamp();
-            lastPoseEstimate = bestPose;
-            if (odometryEnabled) {
-                //RobotContainer.instance.drivetrain.addVisionMeasurement(bestPose.pose, bestPose.timestampSeconds);
-                RobotState.getInstance().addVisionUpdate(
-                    new VisionUpdate(
-                            bestPose.timestampSeconds,
-                            new com.team254.lib.geometry.Translation2d(bestPose.pose.getTranslation()),
-                            new com.team254.lib.geometry.Translation2d(0,0),//mConstants.kRobotToCamera.getTranslation(), // Use the correct camera offset
-                            0.02
-                    )
-                );
-            }
-        }//-0.16342
+        return estimatedPose;
+        
+        //-0.16342
 
         //Logger.recordOutput("LL Pose Valid?", bestPose != null);
         //Logger.recordOutput("LL Pose", bestPose == null ? nilPose : bestPose.pose);
@@ -206,11 +143,11 @@ public class VisionLimelightSubsystem extends SubsystemBase{
     }
 
     public void setAutoTagFilter() {
-        LimelightHelpers.SetFiducialIDFiltersOverride(BACK_LIMELIGHT, autoTagFilter);
+        LimelightHelpers.SetFiducialIDFiltersOverride(cameraName, autoTagFilter);
     }
 
     public void setTeleopTagFilter() {
-        LimelightHelpers.SetFiducialIDFiltersOverride(BACK_LIMELIGHT, teleopTagFilter);
+        LimelightHelpers.SetFiducialIDFiltersOverride(cameraName, teleopTagFilter);
     }
 
     public RawFiducial getFiducial(int id) {
@@ -263,14 +200,6 @@ public class VisionLimelightSubsystem extends SubsystemBase{
         return Commands.runOnce(() -> setAllowVisionOdometry(odometryEnabled));
     }
 
-    public void setDirectTagAiming(boolean directTagAiming) {
-        this.directTagAiming = directTagAiming;
-    }
-
-    public Command directTagAiming(boolean directTagAiming) {
-        return Commands.runOnce(() -> setDirectTagAiming(directTagAiming));
-    }
-
     public Double getDistanceOverride() {
         return distanceOverride;
     }
@@ -285,18 +214,6 @@ public class VisionLimelightSubsystem extends SubsystemBase{
 
     public Command distanceOverride(Double distance) {
         return Commands.runOnce(() -> setDistanceOverride(distance));
-    }
-
-    public void setTagHeightOverride(Double height) {
-        tagHeightOverride = height;
-    }
-
-    public Command clearTagHeightOverride() {
-        return tagHeightOverride(null);
-    }
-
-    public Command tagHeightOverride(Double height) {
-        return Commands.runOnce(() -> setTagHeightOverride(height));
     }
 
     public void setMegatag2Enabled(boolean enabled) {

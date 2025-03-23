@@ -21,51 +21,45 @@ import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.subsystems.Superstructure;
+import com.team6647.frc2025.subsystems.vision.VisionSubsystem;
 
 import choreo.Choreo;
 import choreo.auto.AutoTrajectory;
 import choreo.trajectory.EventMarker;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-public class PathplannerPathAction implements Action {
+public class ResetGyroAction implements Action {
 
 	private Drive mDrive = null;
 
-	private final String trajectory;
-
-	private Timer autoTimer = new Timer();
-	private double correctionDelay = 1.5;
-	private Command pathPlannerCommand;
-	private PathPlannerPath pathPlannerPath;
+	private Rotation2d rotation;
+	private Pose2d pose;
 
 
-	public PathplannerPathAction(String trajectory) {
+	public ResetGyroAction(Rotation2d rotation) {
 		mDrive = Drive.getInstance();
-		this.trajectory = trajectory;
+		this.rotation = rotation;
+	}
 
-		try {
-			pathPlannerPath = PathPlannerPath.fromPathFile(trajectory);
-		} catch (FileVersionException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-
-		pathPlannerCommand = AutoBuilder.followPath(pathPlannerPath);
+	public ResetGyroAction() {
+		mDrive = Drive.getInstance();
 	}
 
 	@Override
 	public void start() {
-		autoTimer.reset();
-		autoTimer.start();
-		
-		CommandScheduler.getInstance().schedule(pathPlannerCommand);
+		pose = VisionSubsystem.getInstance().getBestPose();
+		//if(pose != null){
+			this.rotation = pose.getRotation();
+		//}
+		//if(rotation!=null){
+			Drive.getInstance().zeroGyro(rotation.getDegrees());
+		//}
 	}
 
 	@Override
@@ -75,7 +69,7 @@ public class PathplannerPathAction implements Action {
 
 	@Override
 	public boolean isFinished() {
-		return pathPlannerCommand.isFinished();
+		return true;
 	}
 
 	@Override

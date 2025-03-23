@@ -41,6 +41,7 @@ import com.team6647.frc2025.subsystems.Superstructure.Levels;
 import com.team6647.frc2025.subsystems.algae_roller.AlgaeRoller;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 import com.team6647.frc2025.subsystems.leds.LEDSubsystem;
+import com.team6647.frc2025.subsystems.vision.VisionSubsystem;
 
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.measure.Angle;
@@ -323,15 +324,10 @@ public class DriverControls {
 		//}
 
 		if(mControlBoard.driver.startButton.wasActivated()){
-			s.subCoralId = 1;
-			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(180)).getDegrees()));
-			s.showAngle();
-			startAssist(new putCoralPP());
-			//mDrive.stabilizeHeading(Rotation2d.fromDegrees(55));
+			Drive.getInstance().zeroGyro(VisionSubsystem.getInstance().getBestPose().getRotation().getDegrees());
 		}
 		if(mControlBoard.driver.startButton.wasReleased()){
-			mDrive.setControlState(DriveControlState.OPEN_LOOP);
-			stopAssist();
+			
 		}
 
 		/*

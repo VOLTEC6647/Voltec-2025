@@ -12,8 +12,10 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.util.FileVersionException;
+import com.team1678.frc2024.RobotState;
 import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.lib.swerve.ChassisSpeeds;
+import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.trajectory.TimedView;
 import com.team254.lib.trajectory.Trajectory254;
@@ -31,7 +33,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-public class PathplannerPathAction implements Action {
+public class ResetOdometryAction implements Action {
 
 	private Drive mDrive = null;
 
@@ -43,7 +45,7 @@ public class PathplannerPathAction implements Action {
 	private PathPlannerPath pathPlannerPath;
 
 
-	public PathplannerPathAction(String trajectory) {
+	public ResetOdometryAction(String trajectory) {
 		mDrive = Drive.getInstance();
 		this.trajectory = trajectory;
 
@@ -56,16 +58,13 @@ public class PathplannerPathAction implements Action {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-
-		pathPlannerCommand = AutoBuilder.followPath(pathPlannerPath);
 	}
 
 	@Override
 	public void start() {
-		autoTimer.reset();
-		autoTimer.start();
-		
-		CommandScheduler.getInstance().schedule(pathPlannerCommand);
+		//Drive.getInstance().resetOdometry(pathPlannerPath.getStartingHolonomicPose().get());
+		RobotState.getInstance().reset(Timer.getFPGATimestamp(),new Pose2d(pathPlannerPath.getStartingHolonomicPose().get()));
+		Drive.getInstance().zeroGyro(pathPlannerPath.getStartingHolonomicPose().get().getRotation().getDegrees());
 	}
 
 	@Override
@@ -75,7 +74,7 @@ public class PathplannerPathAction implements Action {
 
 	@Override
 	public boolean isFinished() {
-		return pathPlannerCommand.isFinished();
+		return true;
 	}
 
 	@Override
