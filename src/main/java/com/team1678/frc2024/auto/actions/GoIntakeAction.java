@@ -48,6 +48,7 @@ public class GoIntakeAction implements Action {
 
 	@Override
 	public void start() {
+		System.out.println("Intake Started");
 		mDrive = Drive.getInstance();
 		Superstructure s = Superstructure.getInstance();
 		
@@ -69,6 +70,7 @@ public class GoIntakeAction implements Action {
 
 	@Override
 	public void done() {
+		System.out.println("Intake Ended");
 		//mDrive.setOpenLoop(new ChassisSpeeds());
 	}
 }

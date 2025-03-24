@@ -47,6 +47,7 @@ public class SwervePIDAction implements Action {
 
 	@Override
 	public void start() {
+		System.out.println("PID Started");
 		mDrive = Drive.getInstance();
 		Superstructure s = Superstructure.getInstance();
 		mDrive.setPIDSetpoint(new com.team254.lib.geometry.Pose2d(endpose));
@@ -63,6 +64,7 @@ public class SwervePIDAction implements Action {
 
 	@Override
 	public void done() {
+		System.out.println("PID Finished");
 		//mDrive.setOpenLoop(new ChassisSpeeds());
 	}
 }

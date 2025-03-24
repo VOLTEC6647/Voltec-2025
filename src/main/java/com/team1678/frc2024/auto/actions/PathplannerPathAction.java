@@ -28,6 +28,7 @@ import choreo.trajectory.EventMarker;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -38,6 +39,7 @@ public class PathplannerPathAction implements Action {
 	private final String trajectory;
 
 	private Timer autoTimer = new Timer();
+	private double pathTime;
 	private double correctionDelay = 1.5;
 	private Command pathPlannerCommand;
 	private PathPlannerPath pathPlannerPath;
@@ -56,8 +58,10 @@ public class PathplannerPathAction implements Action {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-
 		pathPlannerCommand = AutoBuilder.followPath(pathPlannerPath);
+		
+		pathTime = 5;
+		
 	}
 
 	@Override
@@ -80,6 +84,6 @@ public class PathplannerPathAction implements Action {
 
 	@Override
 	public void done() {
-		mDrive.feedTeleopSetpoint(new ChassisSpeeds());
+		//mDrive.feedTeleopSetpoint(new ChassisSpeeds());
 	}
 }

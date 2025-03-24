@@ -13,6 +13,7 @@ public abstract class CrashTrackingRunnable implements Runnable {
 			runCrashTracked();
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
+			System.out.println(t.getMessage().toString());
 			throw t;
 		}
 	}

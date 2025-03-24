@@ -166,7 +166,7 @@ public class Constants {
 			//kHoodServoConstants.kMaxUnitsLimit = 62.0;
 
 			kHoodServoConstants.kCruiseVelocity = 400.0; // degrees / s
-			kHoodServoConstants.kAcceleration = 200.0; // degrees / s^2
+			kHoodServoConstants.kAcceleration = 400.0; // degrees / s^2
 
 			kHoodServoConstants.kEnableSupplyCurrentLimit = true;
 			kHoodServoConstants.kSupplyCurrentLimit = 80;
