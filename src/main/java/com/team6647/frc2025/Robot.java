@@ -168,6 +168,7 @@ public class Robot extends LoggedRobot {
 		mElevator = Elevator.getInstance();
 		mClimber = Climber.getInstance();
 		mVision = VisionSubsystem.getInstance();
+		
 
 		autoChooser.addOption("Just Forward", new justForwardC());
 		autoChooser.addOption("S3RightA", new S3RightA());
