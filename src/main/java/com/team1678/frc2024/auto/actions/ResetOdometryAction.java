@@ -62,9 +62,10 @@ public class ResetOdometryAction implements Action {
 
 	@Override
 	public void start() {
-		//Drive.getInstance().resetOdometry(pathPlannerPath.getStartingHolonomicPose().get());
-		RobotState.getInstance().reset(Timer.getFPGATimestamp(),new Pose2d(pathPlannerPath.getStartingHolonomicPose().get()));
 		Drive.getInstance().zeroGyro(pathPlannerPath.getStartingHolonomicPose().get().getRotation().getDegrees());
+
+		Drive.getInstance().resetOdometry(pathPlannerPath.getStartingHolonomicPose().get());
+		//RobotState.getInstance().reset(Timer.getFPGATimestamp(),new Pose2d(pathPlannerPath.getStartingHolonomicPose().get()));
 	}
 
 	@Override

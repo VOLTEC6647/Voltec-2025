@@ -54,12 +54,12 @@ public class ResetGyroAction implements Action {
 	@Override
 	public void start() {
 		pose = VisionSubsystem.getInstance().getBestPose();
-		//if(pose != null){
+		if(pose != null){
 			this.rotation = pose.getRotation();
-		//}
-		//if(rotation!=null){
+		}
+		if(rotation!=null){
 			Drive.getInstance().zeroGyro(rotation.getDegrees());
-		//}
+		}
 	}
 
 	@Override

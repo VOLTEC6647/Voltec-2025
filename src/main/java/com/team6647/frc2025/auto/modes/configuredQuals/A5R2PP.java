@@ -6,6 +6,7 @@ import com.team1678.frc2024.auto.actions.ChoreoTrajectoryAction;
 import com.team1678.frc2024.auto.actions.GoCoralAction;
 import com.team1678.frc2024.auto.actions.GoIntakeAction;
 import com.team1678.frc2024.auto.actions.LambdaAction;
+import com.team1678.frc2024.auto.actions.ParallelAction;
 import com.team1678.frc2024.auto.actions.PathplannerPathAction;
 import com.team1678.frc2024.auto.actions.PathplannerTrajectoryAction;
 import com.team1678.frc2024.auto.actions.RequestAction;
@@ -16,6 +17,7 @@ import com.team1678.frc2024.auto.actions.WaitAction;
 import com.team1678.frc2024.auto.actions.WaitForPrereqAction;
 import com.team1678.frc2024.subsystems.CoralPivot;
 import com.team1678.frc2024.subsystems.Drive;
+import com.team1678.frc2024.subsystems.Drive.DriveControlState;
 import com.team1678.lib.requests.DepositCoralRequest;
 import com.team1678.lib.requests.IntakeCoralRequest;
 import com.team1678.lib.requests.LambdaRequest;
@@ -42,30 +44,31 @@ public class A5R2PP extends AutoModeBase {
 	// spotless:off
 	@Override
 	protected void routine() throws AutoModeEndedException {
-		runAction(new WaitAction(0.6));
 		runAction(new ResetOdometryAction("5R1"));
-		s.setLevel(4);
+		runAction(new WaitForPrereqAction(()->d.readyForAuto()));
+		s.setLevel(2);
 		s.coralId = 5;
 		s.subCoralId = 1;
-		runAction(new WaitAction(0.6));
 		runAction(new PathplannerPathAction("5R1"));
-		runAction(new WaitAction(0.2));
+		runAction(new WaitAction(0.5));
 		runAction(new ResetGyroAction());
 		runAction(new WaitAction(0.1));
 		runAction(new GoCoralAction());
 		runAction(new RequestAction(DepositCoralRequest.get()));
 		
-		s.setLevel(4);
+		s.setLevel(2);
 		s.coralId = 4;
 		s.subCoralId = 1;
 		CoralPivot.getInstance().setSetpointMotionMagic(CoralPivot.kIntakingAngle);
 		runAction(new PathplannerPathAction("5R2"));
+		runAction(new WaitAction(0.2));
+		//runAction(new WaitForPrereqAction(()->d.getControlState() == DriveControlState.OPEN_LOOP));
 		runAction(new GoIntakeAction());
 		runAction(new RequestAction(IntakeCoralRequest.get()));
 
 		runAction(new PathplannerPathAction("5R3"));
 		runAction(new WaitAction(0.2));
-		runAction(new ResetGyroAction());
+		//runAction(new ResetGyroAction());
 		runAction(new WaitAction(0.1));
 		runAction(new GoCoralAction());
 		runAction(new RequestAction(DepositCoralRequest.get()));

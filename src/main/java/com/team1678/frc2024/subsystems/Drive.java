@@ -142,7 +142,7 @@ public class Drive extends SubsystemV {
 			(speeds, feedforwards) -> setVelocity(ChassisSpeeds.fromLegacy(speeds)), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
 			new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
 					new PIDConstants(1, 0.0, 0.0), // Translation PID constants
-					new PIDConstants(1.5, 0.0, 0.0) // Rotation PID constants
+					new PIDConstants(2, 0.0, 0.0) // Rotation PID constants
 			),
 			config, // The robot configuration
 			() -> {
@@ -225,7 +225,7 @@ public class Drive extends SubsystemV {
 	private Pose2d mPIDSetpoint = new Pose2d();
 	private final double kP = 5;//3.7;
 	private final double kThetaP = -3.2;
-	private final double kTranslationTolerance = 0.02;
+	private final double kTranslationTolerance = 0.05;
 	private final double kRotationTolerance = Math.toRadians(0.5);
 
 

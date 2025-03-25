@@ -5,6 +5,8 @@
 package com.team6647.frc2025;
 
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FileVersionException;
 import com.team1678.frc2024.Constants1678;
 import com.team1678.frc2024.RobotState;
 import com.team1678.frc2024.SubsystemManager;
@@ -69,6 +71,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
+import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -76,6 +79,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -179,10 +183,21 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("Panteras", new Panteras());
 		autoChooser.setDefaultOption("A5RPP", new A5R2PP());
 		
-		if(isReal()&&false){
-			Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
-			mDrive.resetOdometry(startC);
-			mDrive.zeroGyro(startC.getRotation().getDegrees());
+		if(isReal()){
+			//Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
+			//mDrive.resetOdometry(startC);
+			//mDrive.zeroGyro(startC.getRotation().getDegrees());
+			try {
+				Pose2d autoPose = new Pose2d(PathPlannerPath.fromPathFile("5R1").getStartingHolonomicPose().get());
+				mDrive.zeroGyro(autoPose.getRotation().getDegrees());
+				mDrive.resetOdometry(autoPose);
+			} catch (FileVersionException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		//autoChooser.addOption("Center 6", new AmpRaceAuto(drivetrain, vision, shooter, shooterPivot, intake, intakePivot, false, 5, 4, 3, 2));
