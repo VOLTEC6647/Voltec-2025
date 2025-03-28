@@ -32,7 +32,7 @@ import com.team6647.frc2025.FieldLayout.CoralTarget;
 import com.team6647.frc2025.auto.actions.AssistModeExecutor;
 import com.team6647.frc2025.auto.modes.configuredQuals.intakeAuto;
 import com.team6647.frc2025.auto.modes.configuredQuals.intakePP;
-import com.team6647.frc2025.auto.modes.configuredQuals.putCoral;
+import com.team6647.frc2025.auto.modes.configuredQuals.PreparePutCoral;
 import com.team6647.frc2025.auto.modes.configuredQuals.putCoralPP;
 import com.team6647.frc2025.subsystems.Elevator;
 import com.team6647.frc2025.subsystems.MotorTest;
@@ -83,7 +83,7 @@ public class DriverControls {
 	private CoralPivot mCoralPivot = CoralPivot.getInstance();
 	private Climber mClimber = Climber.getInstance();
 
-	public boolean assisting = true;
+	public boolean assisting = false;
 	
 
 
@@ -104,7 +104,7 @@ public class DriverControls {
 		if(mControlBoard.operator.aButton.wasActivated()){
 			if(assisting){
 				//new PathplannerAlignAction(null);
-				startAssist(new putCoral());
+				startAssist(new PreparePutCoral());
 
 			}else{
 				mSuperstructure.request(
@@ -240,7 +240,7 @@ public class DriverControls {
 			 */
 
 		if(mControlBoard.operator.startButton.wasActivated()){
-			startAssist(new putCoral());
+			startAssist(new PreparePutCoral());
 		}
 		if (mControlBoard.operator.startButton.wasReleased()) {
 			stopAssist();
@@ -330,7 +330,7 @@ public class DriverControls {
 			
 		}
 
-		/*
+		
 		if(mControlBoard.driver.POV270.wasActivated()){
 			s.subCoralId = 1;
 			double joystickDifference = 0;
@@ -339,7 +339,7 @@ public class DriverControls {
 			}
 			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(joystickDifference)).getDegrees()));
 			s.showAngle();
-			startAssist(new putCoral());
+			startAssist(new PreparePutCoral());
 		}
 		if(mControlBoard.driver.POV270.wasReleased()){
 			mDrive.setControlState(DriveControlState.OPEN_LOOP);
@@ -354,13 +354,13 @@ public class DriverControls {
 			}
 			s.coralId = NearestCoralFinder.getCoralIdFromTarget(NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(joystickDifference)).getDegrees()));
 			s.showAngle();
-			startAssist(new putCoral());
+			startAssist(new PreparePutCoral());
 		}
 		if(mControlBoard.driver.POV90.wasReleased()){
 			mDrive.setControlState(DriveControlState.OPEN_LOOP);
 			stopAssist();
 		}
-			 */
+			 
 
 		/*
 		if(mControlBoard.driver.POV0.wasActivated()){
@@ -397,7 +397,7 @@ public class DriverControls {
 			if(assisting){
 				//new PathplannerAlignAction(null);
 				//placing_coral = true;
-				startAssist(new putCoral());
+				startAssist(new PreparePutCoral());
 			}
 			
 

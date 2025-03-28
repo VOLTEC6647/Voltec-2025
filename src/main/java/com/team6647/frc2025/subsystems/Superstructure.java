@@ -125,7 +125,7 @@ public class Superstructure extends Subsystem {
 		}
 	}
 
-	public Pose2d sourcePose1 = new Pose2d(1.284004807472229,7.1496405601501465,Rotation2d.fromDegrees(305));
+	public Pose2d sourcePose1 = new Pose2d(1.13,7.06,Rotation2d.fromDegrees(-53.4));
 	
 	public Pose2d sourcePose2 = new Pose2d(1.2310409545898438,0.873404324054718,Rotation2d.fromDegrees(55));
 

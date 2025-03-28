@@ -15,7 +15,7 @@ public class GlobalCamera {
     private Pose2d estimatedPose;
     private double tagArea;
     private double timestampSeconds;
-    private final boolean consideringAmbiguity = true;
+    private boolean consideringAmbiguity = true;
 
     public enum CameraType {
         LIMELIGHT,
@@ -80,6 +80,10 @@ public class GlobalCamera {
             }
         }
         return true;
+    }
+
+    public void setConsideringAmbiguity(boolean value){
+        consideringAmbiguity = value;
     }
     
 }

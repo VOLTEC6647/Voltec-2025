@@ -6,6 +6,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystem;
 import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystem.TalonFXConstants;
+import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystemBorePID.ServoMotorSubsystemConstantsBorePID;
 import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystemWithCancoder.AbsoluteEncoderConstants;
 import com.team1678.lib.Conversions;
 import com.team254.lib.drivers.CanDeviceId;
@@ -246,6 +247,51 @@ public class Constants {
 		}
 	}
 
+	public static final class ClimberConstantsBorePID {
+
+		public static final double kRotorRotationsPerOutputRotation = 1.0; // Rotor to unit distance
+
+		public static final ServoMotorSubsystemConstantsBorePID kHoodServoConstants = new ServoMotorSubsystemConstantsBorePID();
+
+		public static final double kHomingVoltage = -3.5;
+		public static final double kHomingCurrentThreshold = 15.0;
+		public static final double kMinHomingTime = 0.4;
+		public static final double kMaxHomingTime = 10.0;
+
+        public static double kHomePosition = 0;
+
+		static {
+			kHoodServoConstants.kName = "ClimberPID";
+
+			kHoodServoConstants.kMainConstants.id = Ports.CLIMBER;
+			kHoodServoConstants.kMainConstants.counterClockwisePositive = false;
+
+			kHoodServoConstants.kTolerance = 1; // Degrees
+			kHoodServoConstants.kRotationsPerUnitDistance = (1.0 / 360.0 * 9*5*5*1.6) /* (7.16 / 1.0)*/; // Cancoder to unit distance
+			kHoodServoConstants.kKp = 2.0;
+			kHoodServoConstants.kKi = 0;
+			kHoodServoConstants.kKd = 0.0;
+
+			kHoodServoConstants.kDeadband = 0; // Ticks
+
+			kHoodServoConstants.kEnableSupplyCurrentLimit = false ;
+			kHoodServoConstants.kSupplyCurrentLimit = 80;
+			kHoodServoConstants.kSupplyCurrentThreshold = 0;
+
+			kHoodServoConstants.kEnableStatorCurrentLimit = false;
+			kHoodServoConstants.kStatorCurrentLimit = 120;
+
+			kHoodServoConstants.kMaxForwardOutput = 12.0;
+			kHoodServoConstants.kMaxReverseOutput = -12.0;//12
+
+			kHoodServoConstants.kRampRate = 0.0;
+
+			kHoodServoConstants.kNeutralMode = NeutralModeValue.Coast;
+
+			kHoodServoConstants.encoder_id = 1;
+		}
+	}
+
 	public static final class AlgaeTConstants {
 
 		public static final double kRotorRotationsPerOutputRotation = 1.0; // Rotor to unit distance
@@ -331,6 +377,8 @@ public class Constants {
         public static final Transform3d CAMERA_CORALR_TRANSFORM = new Transform3d(new Translation3d(Units.inchesToMeters(-6.76877), Units.inchesToMeters(2.469746), Units.inchesToMeters(11.425)), new Rotation3d(0,0,Math.toRadians(200)));//Units.inchesToMeters(0)
         //public static final String LAYOUT_FILE_NAME = "2024-crescendo";
     }
+
+	//ll source x: 1.02191417 y: 0.29256156 z: 0.79701279 r: 50
 
 	
     

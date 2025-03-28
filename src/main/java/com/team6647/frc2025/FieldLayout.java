@@ -1,11 +1,9 @@
 package com.team6647.frc2025;
 
-import com.team1678.frc2024.auto.actions.LambdaAction;
-import com.team1678.frc2024.subsystems.Drive;
+
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
-import com.team6647.frc2025.auto.modes.configuredQuals.putCoral;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -13,14 +11,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-
-import static edu.wpi.first.units.Units.Degrees;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Vector;
-
-import org.littletonrobotics.junction.Logger;
 
 /**
  * Contains various field dimensions and useful reference points. Dimensions are

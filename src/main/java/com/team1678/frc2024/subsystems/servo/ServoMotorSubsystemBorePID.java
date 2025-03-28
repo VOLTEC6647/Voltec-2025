@@ -24,6 +24,7 @@ import com.team254.lib.motion.MotionState;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -31,6 +32,8 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -44,9 +47,7 @@ import org.littletonrobotics.junction.Logger;
  * Abstract base class for a subsystem with a single sensored servo-mechanism.
  * spotless:off
  */
-public abstract class ServoMotorSubsystem extends Subsystem {
-	protected static final int kMotionMagicSlot = 0;
-	protected static final int kPositionPIDSlot = 1;
+public abstract class ServoMotorSubsystemBorePID extends Subsystem {
 
 	// Recommend initializing in a static block!
 	public static class TalonFXConstants {
@@ -57,7 +58,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 	}
 
 	// Recommend initializing in a static block!
-	public static class ServoMotorSubsystemConstants {
+	public static class ServoMotorSubsystemConstantsBorePID {
 		public String kName = "ERROR_ASSIGN_A_NAME";
 
 		public double kLooperDt = 0.01;
@@ -68,29 +69,17 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 		public TalonFXConstants[] kFollowerConstants = new TalonFXConstants[0];
 
 		public NeutralModeValue kNeutralMode = NeutralModeValue.Brake;
-		public double kHomePosition = 0.0; // Units
 		public double kTolerance = 0.0; // Units
 		public double kRotationsPerUnitDistance = 1.0;
 		public double kSoftLimitDeadband = 0.0;
 		public double kKp = 0; // Raw output / raw error
 		public double kKi = 0; // Raw output / sum of raw error
 		public double kKd = 0; // Raw output / (err - prevErr)
-		public double kKv = 0;
-		public double kKa = 0;
-		public double kKs = 0;
-		public double kKg = 0;
+
 		public int kDeadband = 0; // rotation
 
-		public double kPositionKp = 0;
-		public double kPositionKi = 0;
-		public double kPositionKd = 0;
-		public double kPositionKf = 0;
 		public int kPositionDeadband = 0; // Ticks
 
-		public double kVelocityFeedforward = 0;
-		public double kArbitraryFeedforward = 0;
-		public double kCruiseVelocity = 0; // Units/s
-		public double kAcceleration = 0; // Units/s^2
 		public double kJerk = 0; // Units/s^3
 		public double kRampRate = 0.0; // s
 
@@ -105,13 +94,12 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 		public double kMaxForwardOutput = 12.0; // Volts
 		public double kMaxReverseOutput = -12.0; // Volts
 
-		public double kMaxUnitsLimit = Double.POSITIVE_INFINITY;
-		public double kMinUnitsLimit = Double.NEGATIVE_INFINITY;
-
 		public int kStatusFrame8UpdateRate = 1000;
+
+		public int encoder_id = -1;
 	}
 
-	protected final ServoMotorSubsystemConstants mConstants;
+	protected final ServoMotorSubsystemConstantsBorePID mConstants;
 	protected final TalonFX mMain;
 	protected final TalonFX[] mFollowers;
 
@@ -134,7 +122,10 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 	protected double mForwardSoftLimitRotations;
 	protected double mReverseSoftLimitRotations;
 
-	protected ServoMotorSubsystem(final ServoMotorSubsystemConstants constants) {
+	protected PIDController pid;
+	protected DutyCycleEncoder encoder;
+
+	protected ServoMotorSubsystemBorePID(final ServoMotorSubsystemConstantsBorePID constants) {
 		mConstants = constants;
 		mMain = TalonFXFactory.createDefaultTalon(mConstants.kMainConstants.id, false);
 		mFollowers = new TalonFX[mConstants.kFollowerConstants.length];
@@ -165,37 +156,6 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 		Phoenix6Util.checkErrorAndRetry(() -> mMainClosedLoopReferenceSlopeSignal.setUpdateFrequency(200, 0.05));
 
 		mMainConfig = TalonFXFactory.getDefaultConfig();
-
-		mMainConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-		mMainConfig.Feedback.SensorToMechanismRatio = (mConstants.kMainConstants.invert_sensor_phase ? -1 : 1);
-
-		mForwardSoftLimitRotations =
-				(((mConstants.kMaxUnitsLimit - mConstants.kHomePosition) * mConstants.kRotationsPerUnitDistance)
-						- mConstants.kSoftLimitDeadband);
-		mMainConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = mForwardSoftLimitRotations;
-		mMainConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-
-		mReverseSoftLimitRotations =
-				(((mConstants.kMinUnitsLimit - mConstants.kHomePosition) * mConstants.kRotationsPerUnitDistance)
-						+ mConstants.kSoftLimitDeadband);
-		mMainConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = mReverseSoftLimitRotations;
-		mMainConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-
-		mMainConfig.Slot0.kP = mConstants.kKp;
-		mMainConfig.Slot0.kI = mConstants.kKi;
-		mMainConfig.Slot0.kD = mConstants.kKd;
-		mMainConfig.Slot0.kV = mConstants.kKv;
-		mMainConfig.Slot0.kG = mConstants.kKg;
-		mMainConfig.Slot0.kA = mConstants.kKa;
-		mMainConfig.Slot0.kS = mConstants.kKs;
-
-		mMainConfig.Slot1.kP = mConstants.kPositionKp;
-		mMainConfig.Slot1.kI = mConstants.kPositionKi;
-		mMainConfig.Slot1.kD = mConstants.kPositionKd;
-		mMainConfig.Slot1.kV = mConstants.kVelocityFeedforward;
-		mMainConfig.MotionMagic.MotionMagicCruiseVelocity = unitsToRotations(mConstants.kCruiseVelocity);
-		mMainConfig.MotionMagic.MotionMagicAcceleration = unitsToRotations(mConstants.kAcceleration);
-		mMainConfig.MotionMagic.MotionMagicJerk = mConstants.kJerk;
 
 		mMainConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = mConstants.kRampRate;
 		mMainConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = mConstants.kRampRate;
@@ -247,6 +207,9 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
 		TalonUtil.applyAndCheckConfiguration(mMain, mMainConfig);
 
+		pid = new PIDController(mConstants.kKp, mConstants.kKi, mConstants.kKd);
+		encoder = new DutyCycleEncoder(mConstants.encoder_id);
+		pid.setIntegratorRange(-0.5,0.5);
 		// Send a neutral command.
 		stop();
 	}
@@ -257,26 +220,6 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 			conf.CurrentLimits.StatorCurrentLimitEnable = enable;
 			return conf;
 		});
-	}
-
-	public void enableSoftLimits(boolean enable) {
-		UnaryOperator<TalonFXConfiguration> configChanger = (conf) -> {
-			conf.SoftwareLimitSwitch.ForwardSoftLimitEnable = enable;
-			conf.SoftwareLimitSwitch.ReverseSoftLimitEnable = enable;
-			return conf;
-		};
-		mMainConfig = configChanger.apply(mMainConfig);
-
-		configChanger = (conf) -> {
-			conf.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-			conf.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-			return conf;
-		};
-		for (int i = 0; i < mFollowers.length; ++i) {
-			mFollowerConfigs[i] = configChanger.apply(mFollowerConfigs[i]);
-		}
-
-		writeConfigs();
 	}
 
 	public void setNeutralMode(NeutralModeValue mode) {
@@ -305,7 +248,6 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
 	protected enum ControlState {
 		OPEN_LOOP,
-		MOTION_MAGIC,
 		POSITION_PID
 	}
 
@@ -338,39 +280,20 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 		mPeriodicIO.main_supply_current = mMainSupplyCurrentSignal.asSupplier().get().baseUnitMagnitude();//SUS
 		mPeriodicIO.output_voltage = mMainOutputVoltageSignal.asSupplier().get().baseUnitMagnitude();
 		mPeriodicIO.output_percent = mMainOutputPercentageSignal.asSupplier().get();
-		mPeriodicIO.position_rots = mMainPositionSignal.asSupplier().get().baseUnitMagnitude();
-		mPeriodicIO.position_raw = rotationsToHomedUnits(mMainPositionSignal.asSupplier().get().magnitude());
-		mPeriodicIO.position_units = rotationsToHomedUnits(mPeriodicIO.position_rots);
+		mPeriodicIO.position_rots = encoder.get();
 		mPeriodicIO.velocity_rps = mMainVelocitySignal.asSupplier().get().baseUnitMagnitude();
 		mPeriodicIO.active_trajectory_position =
 				mMainClosedLoopReferenceSignal.asSupplier().get();
 
-		final double newVelocity =
-				mMainClosedLoopReferenceSlopeSignal.asSupplier().get();
-		if (Util.epsilonEquals(newVelocity, mConstants.kCruiseVelocity, Math.max(1, mConstants.kDeadband))
-				|| Util.epsilonEquals(
-						newVelocity, mPeriodicIO.active_trajectory_velocity, Math.max(1, mConstants.kDeadband))) {
-			// Mechanism is ~constant velocity.
-			mPeriodicIO.active_trajectory_acceleration = 0.0;
-		} else {
-			// Mechanism is accelerating.
-			mPeriodicIO.active_trajectory_acceleration =
-					Math.signum(newVelocity - mPeriodicIO.active_trajectory_velocity) * mConstants.kAcceleration;
-		}
-		mPeriodicIO.active_trajectory_velocity = newVelocity;
 		mPeriodicIO.inTolerance = inTolerance();
-		mPeriodicIO.trajectoryDone = trajectoryDone();
+		mPeriodicIO.demandPID = pid.calculate(mPeriodicIO.demand,mPeriodicIO.position_rots);
 		Logger.processInputs(mConstants.kName+"/ServoMotor", mPeriodicIO);
 	}
 
 	@Override
 	public synchronized void writePeriodicOutputs() {
-		if (mControlState == ControlState.MOTION_MAGIC) {
-			mMain.setControl(new MotionMagicVoltage(mPeriodicIO.demand).withSlot(kMotionMagicSlot));
-		} else if (mControlState == ControlState.POSITION_PID) {
-			mMain.setControl(new PositionDutyCycle(mPeriodicIO.demand).withSlot(kPositionPIDSlot));
-		} else {
-			mMain.setControl(new DutyCycleOut(mPeriodicIO.demand));
+		if (mControlState == ControlState.POSITION_PID) {
+			mMain.set(mPeriodicIO.demandPID);
 		}
 	}
 
@@ -421,19 +344,12 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
 	// In "Units"
 	public synchronized double getPosition() {
-		return rotationsToHomedUnits(mPeriodicIO.position_rots);
+		return mPeriodicIO.position_rots;
 	}
 
 	// In "Units per second"
 	public synchronized double getVelocity() {
-		return rotationsToUnits(mPeriodicIO.velocity_rps);
-	}
-
-	public synchronized double getVelError() {
-		if (mMotionStateSetpoint == null) {
-			return 0.0;
-		}
-		return rotationsToUnits(mMotionStateSetpoint.vel() - mPeriodicIO.velocity_rps);
+		return mPeriodicIO.velocity_rps;
 	}
 
 	public synchronized boolean hasFinishedTrajectory() {
@@ -442,58 +358,18 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 	}
 
 	public synchronized double getSetpoint() {
-		return (mControlState == ControlState.MOTION_MAGIC || mControlState == ControlState.POSITION_PID)
-				? rotationsToHomedUnits(mPeriodicIO.demand)
-				: Double.NaN;
+		return mPeriodicIO.demand;
 	}
 
-	public synchronized double getSetpointHomed() {
-		return (mControlState == ControlState.MOTION_MAGIC || mControlState == ControlState.POSITION_PID)
-				? rotationsToHomedUnits(mPeriodicIO.demand)
-				: Double.NaN;
-	}
-
-	public synchronized void setSetpointMotionMagic(double units, double feedforward_v) {
-		mPeriodicIO.demand = constrainRotations(homeAwareUnitsToRotations(units));
-		if (mControlState != ControlState.MOTION_MAGIC) {
-			mControlState = ControlState.MOTION_MAGIC;
-		}
-	}
-
-	public synchronized void setSetpointMotionMagic(double units) {
-		setSetpointMotionMagic(units, 0.0);
-	}
-
-	public synchronized void setSetpointPositionPID(double units, double feedforward_v) {
-		mPeriodicIO.demand = constrainRotations(homeAwareUnitsToRotations(units));
+	public synchronized void setSetpointPositionPID(double units) {
+		mPeriodicIO.demand = units;
 		if (mControlState != ControlState.POSITION_PID) {
 			mControlState = ControlState.POSITION_PID;
 		}
 	}
 
-	public synchronized void setSetpointPositionPID(double units) {
-		setSetpointPositionPID(units, 0.0);
-	}
-
 	protected double rotationsToUnits(double rotations) {
 		return rotations / mConstants.kRotationsPerUnitDistance;
-	}
-
-	protected double rotationsToHomedUnits(double rotations) {
-		double val = rotationsToUnits(rotations);
-		return val + mConstants.kHomePosition;
-	}
-
-	protected double unitsToRotations(double units) {
-		return units * mConstants.kRotationsPerUnitDistance;
-	}
-
-	protected double homeAwareUnitsToRotations(double units) {
-		return unitsToRotations(units - mConstants.kHomePosition);
-	}
-
-	protected double constrainRotations(double rotations) {
-		return Util.limit(rotations, mReverseSoftLimitRotations, mForwardSoftLimitRotations);
 	}
 
 	public synchronized void setOpenLoop(double percentage) {
@@ -501,10 +377,6 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 			mControlState = ControlState.OPEN_LOOP;
 		}
 		mPeriodicIO.demand = percentage;
-	}
-
-	public synchronized double getActiveTrajectoryPosition() {
-		return rotationsToHomedUnits((mPeriodicIO.active_trajectory_position));
 	}
 
 	public synchronized String getControlState() {
@@ -571,13 +443,6 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 		mMainConfig.MotionMagic.MotionMagicAcceleration = accel;
 		mMainConfig.MotionMagic.MotionMagicJerk = jerk;
 		mMain.getConfigurator().apply(mMainConfig.MotionMagic);
-	}
-
-	public synchronized void setMotionMagicConfigs(double accel, double velocity) {
-		mMainConfig.MotionMagic.MotionMagicAcceleration = unitsToRotations(accel);
-		mMainConfig.MotionMagic.MotionMagicCruiseVelocity = unitsToRotations(velocity);
-
-		TalonUtil.applyAndCheckConfiguration(mMain, mMainConfig);
 	}
 
 	@Override
@@ -650,7 +515,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
 			@Override
 			public void act() {
-				setSetpointMotionMagic(position);
+				setSetpointPositionPID(position);
 			}
 
 			@Override

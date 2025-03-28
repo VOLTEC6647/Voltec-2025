@@ -13,6 +13,7 @@ import com.team1678.frc2024.SubsystemManager;
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeExecutor;
 import com.team6647.frc2025.auto.AutoModeSelector;
+import com.team6647.frc2025.auto.modes.configuredQuals.A5R2PID;
 import com.team6647.frc2025.auto.modes.configuredQuals.A5R2PP;
 import com.team6647.frc2025.auto.modes.configuredQuals.CTest;
 import com.team6647.frc2025.auto.modes.configuredQuals.L1Attempt;
@@ -182,7 +183,8 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("S3RightPP", new S3RightPP());
 		autoChooser.addOption("L4", new L4AutoPP());
 		autoChooser.addOption("Panteras", new Panteras());
-		autoChooser.setDefaultOption("A5RPP", new A5R2PP());
+		autoChooser.addOption("A5RPP", new A5R2PP());
+		autoChooser.setDefaultOption("A5R", new A5R2PID());
 		
 		if(isReal()){
 			//Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
@@ -399,6 +401,7 @@ public class Robot extends LoggedRobot {
 			for (SubsystemV s:mSubsystems){
 				s.onStop(Timer.getFPGATimestamp());
 			}
+			
 			//mCoralPivot.setOpenLoop(0);
 			disable_enter_time = Timer.getFPGATimestamp();
 		} catch (Throwable t) {

@@ -2,6 +2,7 @@ package com.team6647.frc2025.auto.modes.configuredQuals;
 
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeEndedException;
+import com.team1678.frc2024.auto.actions.GoCoralAction;
 import com.team1678.frc2024.auto.actions.LambdaAction;
 import com.team1678.frc2024.auto.actions.ParallelAction;
 import com.team1678.frc2024.auto.actions.RequestAction;
@@ -37,14 +38,14 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 import java.util.List;
 
-public class putCoral extends AutoModeBase {
+public class PreparePutCoral extends AutoModeBase {
 	private Drive d = Drive.getInstance();
 	private Superstructure s = Superstructure.getInstance();
 
 	Trajectory254<TimedState<Pose2dWithMotion>> putCoral;
 	public static Trajectory254<TimedState<Pose2dWithMotion>> enterCoral;
 
-	public putCoral() {
+	public PreparePutCoral() {
 		enterCoral = null;
 	}
 
@@ -53,37 +54,8 @@ public class putCoral extends AutoModeBase {
 	public void routine() throws AutoModeEndedException {
 		CoralRoller.getInstance().setState(CoralRoller.State.CONSTANT);
 		CoralPivot.getInstance().setSetpointMotionMagic(s.currentLevel.coralAngle);
-
-		Pose2d endpose = s.getActiveCoral().toLegacy();
-		if(s.level<4){
-			endpose = FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[s.coralId]).realCorals[s.subCoralId].toLegacy();
-		}else{
-			endpose = FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[s.coralId]).corals4[s.subCoralId].toLegacy();
-		}
-		runAction(new SwervePIDAction(endpose));
-		s.placing_coral = true;
-		if(Superstructure.getInstance().level<4){
-			s.request(
-			new SequentialRequest(
-				s.prepareLevel(s.currentLevel),
-				new WaitRequest(0.2),
-				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.getInstance().OUTAKING);}),
-				new WaitRequest(0.5),
-				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.IDLE);})
-			)
-			);
-		}else{
-			runAction(new WaitAction(0.3));
-			s.request(
-			new SequentialRequest(
-				s.prepareLevel(s.currentLevel),
-				new WaitRequest(0.6),
-				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.getInstance().OUTAKING);}),
-				new WaitRequest(0.5),
-				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.IDLE);})
-			)
-			);
-		}
+		runAction(new GoCoralAction());
+		s.addRequestToQueue(s.prepareLevel(s.currentLevel));
 		System.out.println("Finished auto!");
 	}
 	// spotless:on

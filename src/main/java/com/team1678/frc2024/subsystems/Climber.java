@@ -26,9 +26,10 @@ public class Climber extends ServoMotorSubsystem {
 	private static Climber mInstance;
 	private boolean mHoming = false;
 	private Stopwatch mHomingStart = new Stopwatch();
-	public static final double kPreparing = -400.0, kVertical = 0.0, kIdle = 0.0;
+	public static final double kPreparing = -134.0, kVertical = 224.0, kIdle = 100.0;
 
 	public static Climber getInstance() {
+
 		if (mInstance == null) {
 			mInstance = new Climber(
 				com.team6647.frc2025.Constants.ClimberConstants.kHoodServoConstants);//, CoralPivotConstants.kHoodEncoderConstants
