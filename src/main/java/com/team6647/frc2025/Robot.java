@@ -13,7 +13,9 @@ import com.team1678.frc2024.SubsystemManager;
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeExecutor;
 import com.team6647.frc2025.auto.AutoModeSelector;
-import com.team6647.frc2025.auto.modes.configuredQuals.A5R2PID;
+import com.team6647.frc2025.auto.modes.configuredQuals.A5RPID;
+import com.team6647.frc2025.auto.modes.configuredQuals.A6CPID;
+import com.team6647.frc2025.auto.modes.configuredQuals.A6LPID;
 import com.team6647.frc2025.auto.modes.configuredQuals.A5R2PP;
 import com.team6647.frc2025.auto.modes.configuredQuals.CTest;
 import com.team6647.frc2025.auto.modes.configuredQuals.L1Attempt;
@@ -26,6 +28,7 @@ import com.team6647.frc2025.auto.modes.configuredQuals.S3Right;
 import com.team6647.frc2025.auto.modes.configuredQuals.S3RightA;
 import com.team6647.frc2025.auto.modes.configuredQuals.S3RightPP;
 import com.team6647.frc2025.auto.modes.configuredQuals.simpleForwardC;
+import com.team6647.frc2025.auto.modes.configuredQuals.simpleForwardD;
 import com.team6647.frc2025.auto.modes.configuredQuals.justForwardC;
 import com.team6647.frc2025.auto.paths.TrajectoryGenerator;
 import com.team1678.frc2024.controlboard.ControlBoard;
@@ -56,6 +59,7 @@ import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DriverStation.MatchType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
@@ -129,6 +133,7 @@ public class Robot extends LoggedRobot {
 	//public static final AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 	public static final AutoModeSelector mThreeNoteNoteSelector = new AutoModeSelector();
 	public static boolean is_red_alliance = false;
+	public static boolean is_event = false;
 	public static String serial;
 
 	double disable_enter_time = 0.0;
@@ -171,7 +176,7 @@ public class Robot extends LoggedRobot {
 		mVision = VisionSubsystem.getInstance();
 		
 
-		autoChooser.addOption("Just Forward", new justForwardC());
+		autoChooser.addOption("Just Forward", new simpleForwardD());
 		autoChooser.addOption("S3RightA", new S3RightA());
 		autoChooser.addOption("SimpleForwardC", new simpleForwardC());
 		autoChooser.addOption("L1Attempt", new L1Attempt());
@@ -184,16 +189,21 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("L4", new L4AutoPP());
 		autoChooser.addOption("Panteras", new Panteras());
 		autoChooser.addOption("A5RPP", new A5R2PP());
-		autoChooser.setDefaultOption("A5R", new A5R2PID());
+		autoChooser.setDefaultOption("A5R", new A5RPID());
+		autoChooser.addOption("A6L", new A6LPID());
+		autoChooser.addOption("A6C", new A6CPID());
+
 		
 		if(isReal()){
 			//Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
 			//mDrive.resetOdometry(startC);
 			//mDrive.zeroGyro(startC.getRotation().getDegrees());
 			try {
-				Pose2d autoPose = new Pose2d(PathPlannerPath.fromPathFile("5R1").getStartingHolonomicPose().get());
+				Pose2d autoPose = FieldLayout.handleAllianceFlip(new Pose2d(PathPlannerPath.fromPathFile("SF").getStartingHolonomicPose().get()), DriverStation.getAlliance().get() == Alliance.Red);
 				mDrive.zeroGyro(autoPose.getRotation().getDegrees());
-				mDrive.resetOdometry(autoPose);
+				for(int i = 0;i<7;i++){
+					mDrive.resetOdometry(autoPose);
+				}
 			} catch (FileVersionException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -430,6 +440,9 @@ public class Robot extends LoggedRobot {
 				}
 			} else {
 				alliance_changed = true;
+			}
+			if(DriverStation.getMatchType() != MatchType.None){
+				is_event = true;
 			}
 
 			//Timer.getFPGATimestamp()

@@ -117,8 +117,8 @@ public class FieldLayout {
 		Pose2d realCoral1 = center.transformBy(new Pose2d(new Translation2d(-0.27, kRealCoralDistanceOffset+pivotOffset), Rotation2d.fromDegrees(180)));
 		Pose2d realCoral2 = center.transformBy(new Pose2d(new Translation2d(-0.27, -kRealCoralDistanceOffset+pivotOffset), Rotation2d.fromDegrees(180)));
 		
-		Pose2d realCoral41 = realCoral1.transformBy(new Pose2d(-0.07,0,new Rotation2d()));
-		Pose2d realCoral42 = realCoral2.transformBy(new Pose2d(-0.07,0,new Rotation2d()));
+		Pose2d realCoral41 = realCoral1.transformBy(new Pose2d(-0.12,0,new Rotation2d()));
+		Pose2d realCoral42 = realCoral2.transformBy(new Pose2d(-0.12,0,new Rotation2d()));
 
 		algae = rotatePoseFromPivot(algae, rot);
 		coral1 = rotatePoseFromPivot(coral1, rot);
@@ -207,6 +207,11 @@ public class FieldLayout {
 		}
 
 		return blue_pose;
+	}
+
+	public static edu.wpi.first.math.geometry.Pose2d handleAllianceFlip(edu.wpi.first.math.geometry.Pose2d blue_pose, boolean is_red_alliance) {
+
+		return handleAllianceFlip(new Pose2d(blue_pose),is_red_alliance).toLegacy();
 	}
 
 	public static Translation2d handleAllianceFlip(Translation2d blue_translation, boolean is_red_alliance) {

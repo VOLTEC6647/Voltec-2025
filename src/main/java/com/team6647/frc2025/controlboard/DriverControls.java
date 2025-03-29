@@ -338,6 +338,7 @@ public class DriverControls {
 				joystickDifference = 180;
 			}
 			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(joystickDifference)).getDegrees()));
+			s.coralId = 4;
 			s.showAngle();
 			startAssist(new PreparePutCoral());
 		}
@@ -353,6 +354,8 @@ public class DriverControls {
 				joystickDifference = 180;
 			}
 			s.coralId = NearestCoralFinder.getCoralIdFromTarget(NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(joystickDifference)).getDegrees()));
+			s.coralId = 4;
+			
 			s.showAngle();
 			startAssist(new PreparePutCoral());
 		}
@@ -460,6 +463,8 @@ public class DriverControls {
 		}
 		if(mControlBoard.operator.backButton.wasReleased()){
 			mClimber.setSetpointMotionMagic(Climber.kVertical);
+			mCoralPivot.setSetpointMotionMagic(CoralPivot.kLevel2Angle);
+			mAlgaeHolder.setSetpointMotionMagic(AlgaeT.kIntakingAngle);
 		}
 
 

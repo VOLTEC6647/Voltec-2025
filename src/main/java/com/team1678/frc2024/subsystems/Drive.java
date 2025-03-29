@@ -44,6 +44,7 @@ import com.team6647.frc2025.subsystems.Superstructure;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -226,7 +227,7 @@ public class Drive extends SubsystemV {
 	private final double kP = 5;//3.7;
 	private final double kThetaP = -3.2;
 	private final double kTranslationTolerance = 0.05;
-	private final double kRotationTolerance = Math.toRadians(0.5);
+	private final double kRotationTolerance = Math.toRadians(2);
 
 
 public void choreoController(SwerveSample sample) {
@@ -937,6 +938,8 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 		}
 	}
 
+	Debouncer posDeb = new Debouncer(1,Debouncer.DebounceType.kRising);
+
 	public boolean isAtPIDSetpoint() {
 		Pose2d currentPose = getPose();
 		
@@ -952,7 +955,8 @@ public edu.wpi.first.math.kinematics.ChassisSpeeds getRobotRelativeSpeeds() {
 		Logger.recordOutput("Drive/PID/TranslationError", translationError);
 		Logger.recordOutput("Drive/PID/RotationError", Math.toDegrees(rotationError));
 		Logger.recordOutput("Drive/PID/AtSetpoint", atTranslation && atRotation);
+		Logger.recordOutput("Drive/PID/Setpoint", mPIDSetpoint.toLegacy());
 		
-		return atTranslation && atRotation;
+		return posDeb.calculate(atTranslation && atRotation);
 	}
 }

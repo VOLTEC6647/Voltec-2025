@@ -55,7 +55,7 @@ public class GoCoralAction implements Action {
 		CoralPivot.getInstance().setSetpointMotionMagic(s.currentLevel.coralAngle);
         Pose2d endpose = s.getActiveCoral().toLegacy();
         if(s.level<4){
-            endpose = FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[s.coralId]).realCorals[s.subCoralId].toLegacy();
+            endpose = s.getActiveCoral().toLegacy();
         }else{
             endpose = FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[s.coralId]).corals4[s.subCoralId].toLegacy();
         }

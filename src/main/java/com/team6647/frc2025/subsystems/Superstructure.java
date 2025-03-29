@@ -421,7 +421,7 @@ public class Superstructure extends Subsystem {
 	}
 
 	public Pose2d getActiveCoral(){
-		return FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[Superstructure.getInstance().coralId]).realCorals[Superstructure.getInstance().subCoralId];
+		return FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[coralId]).realCorals[subCoralId];
 	}
 
 	// spotless:on
