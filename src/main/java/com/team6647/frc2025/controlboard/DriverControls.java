@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
+import org.littletonrobotics.frc2025.RobotState6328;
+import org.littletonrobotics.frc2025.subsystems.drive.Drive;
 import org.littletonrobotics.junction.Logger;
 
 import com.team1678.frc2024.auto.AutoModeBase;
@@ -13,8 +15,6 @@ import com.team1678.frc2024.controlboard.ControlBoard;
 import com.team1678.frc2024.subsystems.AlgaeT;
 import com.team1678.frc2024.subsystems.Climber;
 import com.team1678.frc2024.subsystems.CoralPivot;
-import com.team1678.frc2024.subsystems.Drive;
-import com.team1678.frc2024.subsystems.Drive.DriveControlState;
 import com.team1678.frc2024.subsystems.vision.VisionDeviceManager;
 import com.team1678.lib.requests.LambdaRequest;
 import com.team1678.lib.requests.ParallelRequest;
@@ -31,7 +31,6 @@ import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.FieldLayout.CoralTarget;
 import com.team6647.frc2025.auto.actions.AssistModeExecutor;
 import com.team6647.frc2025.auto.modes.configuredQuals.intakeAuto;
-import com.team6647.frc2025.auto.modes.configuredQuals.intakePP;
 import com.team6647.frc2025.auto.modes.configuredQuals.PreparePutCoral;
 import com.team6647.frc2025.auto.modes.configuredQuals.putCoralPP;
 import com.team6647.frc2025.subsystems.Elevator;
@@ -57,6 +56,7 @@ public class DriverControls {
 	Superstructure s = mSuperstructure;
 
 	Drive mDrive = Drive.getInstance();
+	RobotState6328 state = RobotState6328.getInstance();
 	LEDSubsystem mleds = LEDSubsystem.getInstance();
 
 	/* ONE CONTROLLER */
@@ -180,7 +180,6 @@ public class DriverControls {
 
 		if(mControlBoard.operator.bButton.wasReleased()){
 			stopAssist();
-			mDrive.setControlState(DriveControlState.OPEN_LOOP);
 		}
 		
 		if (mControlBoard.operator.yButton.wasActivated()) {
@@ -228,7 +227,7 @@ public class DriverControls {
 		
 
 		if (mControlBoard.driver.backButton.wasActivated()) {
-			mDrive.zeroGyro(0);
+			state.reseGyro(edu.wpi.first.math.geometry.Rotation2d.fromDegrees(0));
 		}
 		/*
 		if(mControlBoard.operator.bButton.wasActivated()){
@@ -287,7 +286,6 @@ public class DriverControls {
 				s.setLevel(4);
 			}
 			//coralPlacer.stop();
-			s.showLevel();
 		}
 		if(mControlBoard.operator.POV180.wasActivated()){
 			s.setLevel(s.level-1);
@@ -295,7 +293,6 @@ public class DriverControls {
 				s.setLevel(1);
 			}
 			//coralPlacer.stop();
-			s.showLevel();
 		}
 		if(mControlBoard.operator.POV90.wasActivated()){
 			//s.coralStationPosition++;
@@ -324,7 +321,7 @@ public class DriverControls {
 		//}
 
 		if(mControlBoard.driver.startButton.wasActivated()){
-			Drive.getInstance().zeroGyro(VisionSubsystem.getInstance().getBestPose().getRotation().getDegrees());
+			state.reseGyro(VisionSubsystem.getInstance().getBestPose().getRotation());
 		}
 		if(mControlBoard.driver.startButton.wasReleased()){
 			
@@ -337,13 +334,12 @@ public class DriverControls {
 			if(Robot.is_red_alliance){
 				joystickDifference = 180;
 			}
-			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(joystickDifference)).getDegrees()));
+			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, state.getHeading().plus(Rotation2d.fromDegrees(joystickDifference).toLegacy()).getDegrees()));
 			s.coralId = 4;
-			s.showAngle();
+			
 			startAssist(new PreparePutCoral());
 		}
 		if(mControlBoard.driver.POV270.wasReleased()){
-			mDrive.setControlState(DriveControlState.OPEN_LOOP);
 			stopAssist();
 		}
 
@@ -353,14 +349,12 @@ public class DriverControls {
 			if(Robot.is_red_alliance){
 				joystickDifference = 180;
 			}
-			s.coralId = NearestCoralFinder.getCoralIdFromTarget(NearestCoralFinder.findNearestCoral(s.angles, mDrive.getHeading().add(Rotation2d.fromDegrees(joystickDifference)).getDegrees()));
+			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, state.getHeading().plus(Rotation2d.fromDegrees(joystickDifference).toLegacy()).getDegrees()));
 			s.coralId = 4;
 			
-			s.showAngle();
 			startAssist(new PreparePutCoral());
 		}
 		if(mControlBoard.driver.POV90.wasReleased()){
-			mDrive.setControlState(DriveControlState.OPEN_LOOP);
 			stopAssist();
 		}
 			 
@@ -389,10 +383,8 @@ public class DriverControls {
 		*/
 
 		if(mControlBoard.driver.leftTrigger.wasActivated()){
-			mDrive.stabilizeHeading(Rotation2d.fromDegrees(-55));
 		}
 		if(mControlBoard.driver.leftTrigger.wasReleased()){
-			mDrive.setControlState(DriveControlState.OPEN_LOOP);
 		}
 		if(mControlBoard.driver.aButton.wasActivated()){
 			//Rotation2d coralRotation = FieldLayout.getCoralTargetPos(s.angles[s.coralId]).algae.getRotation();
@@ -409,7 +401,6 @@ public class DriverControls {
 		}
 		if(mControlBoard.driver.aButton.wasReleased()){
 			stopAssist();
-			mDrive.setControlState(DriveControlState.OPEN_LOOP);
 			s.placing_coral = false;
 		}
 		/*
@@ -489,7 +480,6 @@ public class DriverControls {
 		if(mAssistedActionsExecutor != null){
 			mAssistedActionsExecutor.stop();
 			mAssistedActionsExecutor = null;
-			mDrive.setControlState(DriveControlState.OPEN_LOOP);
 			//coralPlacer = null;
 			//coralPlacer = null;
 		}
@@ -515,7 +505,7 @@ public class DriverControls {
 			@Override
 			public boolean isFinished() {
 				//return Util.epsilonEquals(mDrive.getPose(), mDrive.getMotionPlanner().isDone(), 0.2);
-				return mDrive.getMotionPlanner().isDone();
+				return false;
 			}
 			//cleanuppp
 		};

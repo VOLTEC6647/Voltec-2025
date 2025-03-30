@@ -1,26 +1,27 @@
 package com.team1678.frc2024.auto.actions;
 
-import com.team1678.frc2024.subsystems.Drive;
+import org.littletonrobotics.frc2025.RobotState6328;
+
 
 public class WaitToPassYCoordinateAction implements Action {
 	double startingXCoordinate;
 	double targetXCoordinate;
-	Drive drive;
+	RobotState6328 state;
 
 	public WaitToPassYCoordinateAction(double y) {
 		targetXCoordinate = y;
-		drive = Drive.getInstance();
+		state = RobotState6328.getInstance();
 	}
 
 	@Override
 	public boolean isFinished() {
 		return Math.signum(startingXCoordinate - targetXCoordinate)
-				!= Math.signum(drive.getPose().getTranslation().y() - targetXCoordinate);
+				!= Math.signum(state.getOdometryPose().getTranslation().getY() - targetXCoordinate);
 	}
 
 	@Override
 	public void start() {
-		startingXCoordinate = drive.getPose().getTranslation().y();
+		startingXCoordinate = state.getOdometryPose().getTranslation().getY();
 	}
 
 	@Override

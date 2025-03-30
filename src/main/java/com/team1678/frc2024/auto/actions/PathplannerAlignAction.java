@@ -3,6 +3,7 @@ package com.team1678.frc2024.auto.actions;
 import java.util.List;
 import java.util.Optional;
 
+import org.littletonrobotics.frc2025.subsystems.drive.Drive;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -12,8 +13,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
-import com.team1678.frc2024.subsystems.Drive;
-import com.team1678.frc2024.subsystems.Drive.DriveControlState;
+
 import com.team1678.lib.swerve.ChassisSpeeds;
 import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.trajectory.TimedView;
@@ -90,7 +90,6 @@ public class PathplannerAlignAction implements Action {
 
 		pathPlannerCommand = AutoBuilder.pathfindToPose(endpose, constraints,0.0);
 		pathPlannerCommand.schedule();
-		mDrive.setControlState(DriveControlState.VELOCITY);
 	}
 
 	@Override
@@ -105,6 +104,6 @@ public class PathplannerAlignAction implements Action {
 
 	@Override
 	public void done() {
-		mDrive.setOpenLoop(new ChassisSpeeds());
+		mDrive.stop();
 	}
 }

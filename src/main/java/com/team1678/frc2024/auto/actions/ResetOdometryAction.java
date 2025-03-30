@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.frc2025.RobotState6328;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -13,9 +14,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.util.FileVersionException;
 import com.team1678.frc2024.RobotState;
-import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.lib.swerve.ChassisSpeeds;
-import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.trajectory.TimedView;
 import com.team254.lib.trajectory.Trajectory254;
@@ -35,8 +34,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class ResetOdometryAction implements Action {
 
-	private Drive mDrive = null;
-
 	private final String trajectory;
 
 	private Timer autoTimer = new Timer();
@@ -46,7 +43,6 @@ public class ResetOdometryAction implements Action {
 
 
 	public ResetOdometryAction(String trajectory) {
-		mDrive = Drive.getInstance();
 		this.trajectory = trajectory;
 
 		try {
@@ -62,10 +58,7 @@ public class ResetOdometryAction implements Action {
 
 	@Override
 	public void start() {
-		Drive.getInstance().zeroGyro(pathPlannerPath.getStartingHolonomicPose().get().getRotation().getDegrees());
-
-		Drive.getInstance().resetOdometry(pathPlannerPath.getStartingHolonomicPose().get());
-		//RobotState.getInstance().reset(Timer.getFPGATimestamp(),new Pose2d(pathPlannerPath.getStartingHolonomicPose().get()));
+		RobotState6328.getInstance().resetPose(pathPlannerPath.getStartingHolonomicPose().get());
 	}
 
 	@Override
@@ -80,6 +73,6 @@ public class ResetOdometryAction implements Action {
 
 	@Override
 	public void done() {
-		mDrive.feedTeleopSetpoint(new ChassisSpeeds());
+		
 	}
 }

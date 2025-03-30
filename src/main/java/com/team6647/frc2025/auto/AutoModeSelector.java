@@ -87,9 +87,6 @@ public class AutoModeSelector {
 			case DO_NOTHING:
 				return Optional.of(new DoNothingMode());
 
-			case TEST_PATH_AUTO:
-				return Optional.of(new TestPathMode());
-
 			//case THREE_NOTE_MODE_34:
 				//return Optional.of(new ThreeNoteMode34());
 

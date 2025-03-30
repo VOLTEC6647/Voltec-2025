@@ -1,6 +1,5 @@
 package com.team1678.frc2024.auto.actions;
 
-import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.lib.requests.Prerequisite;
 import com.team1678.lib.requests.Request;
 import com.team1678.lib.swerve.ChassisSpeeds;

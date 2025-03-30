@@ -1,13 +1,14 @@
 package com.team1678.frc2024.auto.actions;
 
-import com.team1678.frc2024.subsystems.Drive;
+import org.littletonrobotics.frc2025.RobotState6328;
+
 import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.Robot;
 
 public class WaitToPassXCoordinateAction implements Action {
 	double startingXCoordinate;
 	double targetXCoordinate;
-	Drive drive;
+	RobotState6328 state;
 
 	public WaitToPassXCoordinateAction(double x) {
 		if (Robot.is_red_alliance) {
@@ -15,18 +16,17 @@ public class WaitToPassXCoordinateAction implements Action {
 		} else {
 			targetXCoordinate = x;
 		}
-		drive = Drive.getInstance();
 	}
 
 	@Override
 	public boolean isFinished() {
 		return Math.signum(startingXCoordinate - targetXCoordinate)
-				!= Math.signum(drive.getPose().getTranslation().x() - targetXCoordinate);
+				!= Math.signum(state.getOdometryPose().getTranslation().getX() - targetXCoordinate);
 	}
 
 	@Override
 	public void start() {
-		startingXCoordinate = drive.getPose().getTranslation().x();
+		startingXCoordinate = state.getOdometryPose().getTranslation().getX();
 	}
 
 	@Override

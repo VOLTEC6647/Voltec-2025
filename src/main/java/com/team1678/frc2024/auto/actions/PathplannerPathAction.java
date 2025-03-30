@@ -12,7 +12,6 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.util.FileVersionException;
-import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.lib.swerve.ChassisSpeeds;
 import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.trajectory.TimedView;
@@ -34,7 +33,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class PathplannerPathAction implements Action {
 
-	private Drive mDrive = null;
 
 	private final String trajectory;
 
@@ -46,7 +44,6 @@ public class PathplannerPathAction implements Action {
 
 
 	public PathplannerPathAction(String trajectory) {
-		mDrive = Drive.getInstance();
 		this.trajectory = trajectory;
 
 		try {

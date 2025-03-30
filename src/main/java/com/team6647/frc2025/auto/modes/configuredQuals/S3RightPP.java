@@ -1,5 +1,7 @@
 package com.team6647.frc2025.auto.modes.configuredQuals;
 
+import org.littletonrobotics.frc2025.subsystems.drive.Drive;
+
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeEndedException;
 import com.team1678.frc2024.auto.actions.ChoreoTrajectoryAction;
@@ -8,7 +10,6 @@ import com.team1678.frc2024.auto.actions.PathplannerTrajectoryAction;
 import com.team1678.frc2024.auto.actions.WaitAction;
 import com.team1678.frc2024.auto.actions.WaitForPrereqAction;
 import com.team1678.frc2024.subsystems.CoralPivot;
-import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.lib.requests.LambdaRequest;
 import com.team1678.lib.requests.SequentialRequest;
 import com.team1678.lib.requests.WaitForPrereqRequest;
@@ -21,7 +22,7 @@ import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class S3RightPP extends AutoModeBase {
-	private Drive d = Drive.getInstance();
+	//private Drive d = Drive.getInstance();
 	private Superstructure s = Superstructure.getInstance();
 	public S3RightPP() {
 		

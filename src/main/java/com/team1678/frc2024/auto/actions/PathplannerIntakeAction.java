@@ -1,11 +1,10 @@
 package com.team1678.frc2024.auto.actions;
 
+import org.littletonrobotics.frc2025.subsystems.drive.Drive;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import com.pathplanner.lib.path.PathConstraints;
-
-import com.team1678.frc2024.subsystems.Drive;
-import com.team1678.frc2024.subsystems.Drive.DriveControlState;
 import com.team6647.frc2025.subsystems.Superstructure;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class PathplannerIntakeAction implements Action {
 
-	private Drive mDrive = null;
+	private org.littletonrobotics.frc2025.subsystems.drive.Drive mDrive = null;
 
 	private Timer autoTimer = new Timer();
 	private double correctionDelay = 1.5;
@@ -34,7 +33,6 @@ public class PathplannerIntakeAction implements Action {
 
 		pathPlannerCommand = AutoBuilder.pathfindToPose(endpose, constraints,0.0);
 		pathPlannerCommand.schedule();
-		mDrive.setControlState(DriveControlState.VELOCITY);
 	}
 
 	@Override
@@ -50,6 +48,6 @@ public class PathplannerIntakeAction implements Action {
 
 	@Override
 	public void done() {
-		mDrive.setControlState(DriveControlState.OPEN_LOOP);
+		mDrive.stop();
 	}
 }

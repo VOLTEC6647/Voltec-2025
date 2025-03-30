@@ -5,18 +5,13 @@
 package com.team6647.frc2025;
 
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.FileVersionException;
 import com.team1678.frc2024.Constants1678;
 import com.team1678.frc2024.RobotState;
 import com.team1678.frc2024.SubsystemManager;
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeExecutor;
 import com.team6647.frc2025.auto.AutoModeSelector;
-import com.team6647.frc2025.auto.modes.configuredQuals.A5RPID;
-import com.team6647.frc2025.auto.modes.configuredQuals.A6CPID;
-import com.team6647.frc2025.auto.modes.configuredQuals.A6LPID;
-import com.team6647.frc2025.auto.modes.configuredQuals.A5R2PP;
+
 import com.team6647.frc2025.auto.modes.configuredQuals.CTest;
 import com.team6647.frc2025.auto.modes.configuredQuals.L1Attempt;
 import com.team6647.frc2025.auto.modes.configuredQuals.L4AutoPP;
@@ -29,23 +24,15 @@ import com.team6647.frc2025.auto.modes.configuredQuals.S3RightA;
 import com.team6647.frc2025.auto.modes.configuredQuals.S3RightPP;
 import com.team6647.frc2025.auto.modes.configuredQuals.simpleForwardC;
 import com.team6647.frc2025.auto.modes.configuredQuals.simpleForwardD;
-import com.team6647.frc2025.auto.modes.configuredQuals.justForwardC;
-import com.team6647.frc2025.auto.paths.TrajectoryGenerator;
 import com.team1678.frc2024.controlboard.ControlBoard;
 import com.team6647.frc2025.controlboard.DriverControls;
 import com.team1678.frc2024.loops.CrashTracker;
 import com.team1678.frc2024.loops.Looper;
-import com.team1678.frc2024.paths.TrajectoryGenerator1678;
 import com.team1678.frc2024.subsystems.AlgaeT;
 import com.team1678.frc2024.subsystems.Cancoders;
 import com.team1678.frc2024.subsystems.Climber;
 import com.team1678.frc2024.subsystems.CoralPivot;
-import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.frc2024.subsystems.SubsystemV;
-import com.team1678.lib.Util;
-import com.team1678.lib.swerve.ChassisSpeeds;
-import com.team254.lib.geometry.Pose2d;
-import com.team254.lib.geometry.Rotation2d;
 import com.team6647.frc2025.subsystems.Elevator;
 import com.team6647.frc2025.subsystems.MotorTest;
 import com.team6647.frc2025.subsystems.Superstructure;
@@ -54,7 +41,6 @@ import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 import com.team6647.frc2025.subsystems.leds.LEDSubsystem;
 import com.team6647.frc2025.subsystems.vision.VisionSubsystem;
 
-import choreo.Choreo;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -71,22 +57,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-
-import org.json.simple.parser.ParseException;
-import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.frc2025.Constants6328;
+import org.littletonrobotics.frc2025.commands.DriveCommands;
+import org.littletonrobotics.frc2025.subsystems.drive.Drive;
+import org.littletonrobotics.frc2025.subsystems.drive.DriveConstants;
+import org.littletonrobotics.frc2025.subsystems.drive.GyroIO;
+import org.littletonrobotics.frc2025.subsystems.drive.GyroIOPigeon2;
+import org.littletonrobotics.frc2025.subsystems.drive.ModuleIOComp;
+import org.littletonrobotics.frc2025.subsystems.drive.ModuleIOSim;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.util.function.Supplier;
 
 public class Robot extends LoggedRobot {
 
@@ -163,7 +147,30 @@ public class Robot extends LoggedRobot {
 	public Robot() {
 		CrashTracker.logRobotConstruction();
 
-		mDrive = Drive.getInstance();
+		switch (Constants6328.getRobot()) {
+        case COMPBOT -> {
+          mDrive =
+              Drive.getInstance(
+                  new GyroIOPigeon2(),
+                  new ModuleIOComp(DriveConstants.moduleConfigsComp[0]),
+                  new ModuleIOComp(DriveConstants.moduleConfigsComp[1]),
+                  new ModuleIOComp(DriveConstants.moduleConfigsComp[2]),
+                  new ModuleIOComp(DriveConstants.moduleConfigsComp[3]));
+        }
+        case DEVBOT -> {
+			
+        }
+        case SIMBOT -> {
+			mDrive =
+				Drive.getInstance(
+                  new GyroIO() {},
+                  new ModuleIOSim(),
+                  new ModuleIOSim(),
+                  new ModuleIOSim(),
+                  new ModuleIOSim());
+        }
+      }
+
 		leds = LEDSubsystem.getInstance();
 
 		//mMotorTest = MotorTest.getInstance();
@@ -188,29 +195,9 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("S3RightPP", new S3RightPP());
 		autoChooser.addOption("L4", new L4AutoPP());
 		autoChooser.addOption("Panteras", new Panteras());
-		autoChooser.addOption("A5RPP", new A5R2PP());
-		autoChooser.setDefaultOption("A5R", new A5RPID());
-		autoChooser.addOption("A6L", new A6LPID());
-		autoChooser.addOption("A6C", new A6CPID());
-
 		
 		if(isReal()){
-			//Pose2d startC = Pose2d.fromLegacy(Choreo.loadTrajectory("S3Right1").get().getInitialPose(is_red_alliance).get());
-			//mDrive.resetOdometry(startC);
-			//mDrive.zeroGyro(startC.getRotation().getDegrees());
-			try {
-				Pose2d autoPose = FieldLayout.handleAllianceFlip(new Pose2d(PathPlannerPath.fromPathFile("SF").getStartingHolonomicPose().get()), DriverStation.getAlliance().get() == Alliance.Red);
-				mDrive.zeroGyro(autoPose.getRotation().getDegrees());
-				for(int i = 0;i<7;i++){
-					mDrive.resetOdometry(autoPose);
-				}
-			} catch (FileVersionException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+
 		}
 		
 		//autoChooser.addOption("Center 6", new AmpRaceAuto(drivetrain, vision, shooter, shooterPivot, intake, intakePivot, false, 5, 4, 3, 2));
@@ -222,7 +209,6 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void robotInit() {
 		try {
-			mDrive = Drive.getInstance();
 			mCancoders = Cancoders.getInstance();
 			CrashTracker.logRobotInit();
 
@@ -250,11 +236,11 @@ public class Robot extends LoggedRobot {
 						"* Cancoders all initialized: Took " + (Timer.getFPGATimestamp() - startInitTs) + " seconds");
 			}
 
-			mDrive.resetModulesToAbsolute();
+			mDrive.resetHeadings();
 
-			mSubsystems = new SubsystemV[]{
-				mDrive
-			};
+			//mSubsystems = new SubsystemV[]{
+			//	mDrive
+			//};
 			// spotless:off
 			mSubsystemManager.setSubsystems(
 				mSuperstructure,
@@ -270,9 +256,7 @@ public class Robot extends LoggedRobot {
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
-			TrajectoryGenerator.getInstance().generateTrajectories();
 			RobotState.getInstance().resetKalman();
-			mDrive.setNeutralBrake(true);
 
 			RobotController.setBrownoutVoltage(6.0);
 
@@ -316,22 +300,6 @@ public class Robot extends LoggedRobot {
 		mEnabledLooper.start();
 		mAutoModeExecutor.setAutoMode(autoChooser.getSelected());//autoChooser.getSelected());
 		mAutoModeExecutor.start();
-
-		
-
-		//autoFactory = Choreo.createAutoFactory(mDrive,
-		//mDrive::getLegacyPose,
-		//mDrive::choreoController,
-		//is_red_alliance,
-		//new AutoBindings()//,mDrive::choreoLogger	
-		//);
-		/*
-		new SequentialCommandGroup(
-			new InstantCommand(() -> mDrive.feedTeleopSetpointFromLegacy(new edu.wpi.first.math.kinematics.ChassisSpeeds(1.0, 1.0, 0.0))),
-			new WaitCommand(1.5),
-			new InstantCommand(() -> mDrive.feedTeleopSetpointFromLegacy(new edu.wpi.first.math.kinematics.ChassisSpeeds(0.0, 0.0, 0.0)))
-		).schedule();
-		 */
 	}
 
 	@Override
@@ -342,14 +310,14 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void autonomousExit() {
-		mDrive.feedTeleopSetpoint(new ChassisSpeeds(0.0, 0.0, 0.0));
+		mDrive.stop();
 	}
 
 	@Override
 	public void teleopInit() {
 		try {
 			RobotState.getInstance().setIsInAuto(false);
-			mDrive.feedTeleopSetpoint(new ChassisSpeeds(0.0,  0.0, 0.0));
+			mDrive.stop();
 			//VisionDeviceManager.setDisableVision(false);
 			for (SubsystemV s:mSubsystems){
 				s.onStart(Timer.getFPGATimestamp());
@@ -374,26 +342,12 @@ public class Robot extends LoggedRobot {
 
 			mControlBoard.update();
 
-			/* Drive */
-			if (mControlBoard.zeroGyro()) {
-				System.out.println("Zeroing gyro!");
-				mDrive.zeroGyro(FieldLayout.handleAllianceFlip(new Rotation2d(), is_red_alliance)
-						.getDegrees());
-				mDrive.resetModulesToAbsolute();
-				mDrive.resetOdometry(new Pose2d());
-			}
-
-			mDrive.feedTeleopSetpoint(ChassisSpeeds.fromFieldRelativeSpeeds(
-					mControlBoard.getSwerveTranslation().x(),
-					mControlBoard.getSwerveTranslation().y(),
-					mControlBoard.getSwerveRotation(),
-					Util.robotToFieldRelative(mDrive.getHeading(), is_red_alliance)));
-
 			ShuffleboardTab coralTab = Shuffleboard.getTab("Coral");
 			//coralTab.add("Position", 3);
 			//coralTab.add("Level", 3);
 			//coralTab.add("Slot", 3);
 			mSuperstructure.showAngle();
+			mSuperstructure.showLevel();
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -451,9 +405,7 @@ public class Robot extends LoggedRobot {
 			}
 
 			if (alliance_changed) {
-				System.out.println("Alliance changed! Requesting trajectory regeneration!");
-				TrajectoryGenerator1678.getInstance().forceRegenerateTrajectories(is_red_alliance);
-				//mLimelight.setPipeline(is_red_alliance ? Pipeline.AUTO_RED : Pipeline.AUTO_BLUE);
+				System.out.println("Alliance changed! But that doesn't matter :/");
 			}
 
 			//mAutoModeSelector.updateModeCreator(alliance_changed);
@@ -498,4 +450,20 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void testPeriodic() {}
+
+	public static boolean isJITing() {
+		return Timer.getTimestamp() < 45.0; // Check if <45 seconds since robot boot
+	}
+
+	private void confugureButtonBindings(){
+		Supplier<Command> joystickDriveCommandFactory =
+		()->DriveCommands.joystickDrive(mDrive, 
+		()->mControlBoard.getSwerveTranslation().x(),
+		()->mControlBoard.getSwerveTranslation().y(),
+		()->mControlBoard.getSwerveRotation(),
+		()->is_red_alliance
+		//Util.robotToFieldRelative(new Rotation2d(RobotState6328.getInstance().getHeading()),is_red_alliance).toLegacy()
+		);
+		mDrive.setDefaultCommand(joystickDriveCommandFactory.get());
+	}
 }

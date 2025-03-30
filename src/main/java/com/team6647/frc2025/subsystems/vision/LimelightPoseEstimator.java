@@ -7,12 +7,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.HashMap;
 import java.util.Optional;
 
+import org.littletonrobotics.frc2025.RobotState6328;
 import org.littletonrobotics.junction.Logger;
 
 import com.team1678.frc2024.RobotState;
 import com.team1678.frc2024.RobotState.VisionUpdate;
 import com.team1678.frc2024.subsystems.Climber;
-import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.frc2024.subsystems.Subsystem;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.subsystems.vision.LimelightHelpers.PoseEstimate;
@@ -104,7 +104,7 @@ public class LimelightPoseEstimator{
 
         
         if (megatag2Enabled) {
-            double megatagDegrees = Drive.getInstance().getHeading().getDegrees();
+            double megatagDegrees = RobotState6328.getInstance().getHeading().getDegrees();
             if (Robot.is_red_alliance) megatagDegrees = MathUtil.inputModulus(megatagDegrees + 180, -180, 180);
             LimelightHelpers.SetRobotOrientation(cameraName, megatagDegrees, 0, 0, 0, 0, 0);
             estimatedPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
@@ -237,7 +237,7 @@ public class LimelightPoseEstimator{
 
         if (megatag2Enabled) {
             if (poseEstimate.tagCount == 0) return null;
-            if (Math.abs(Drive.getInstance().getPigeonRate()) > 720) return null;
+            //if (Math.abs(Drive.getInstance().getPigeonRate()) > 720) return null;
         } else {
             double tagMin = 1;
             double tagMax = 2;

@@ -8,7 +8,6 @@ import com.team1678.frc2024.led.TimedLEDState;
 import com.team1678.frc2024.loops.ILooper;
 import com.team1678.frc2024.loops.Loop;
 import com.team1678.frc2024.subsystems.CoralPivot;
-import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.frc2024.subsystems.PeriodicLogs;
 import com.team1678.frc2024.subsystems.Subsystem;
 import com.team1678.lib.TunableNumber;
@@ -43,6 +42,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.logging.Level;
 
+import org.littletonrobotics.frc2025.subsystems.drive.Drive;
 import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends Subsystem {
@@ -240,19 +240,15 @@ public class Superstructure extends Subsystem {
 	/* Superstructure functions */
 
 	public synchronized void showAngle() {
-		synchronized (Drive.getInstance()) {
-			Logger.recordOutput("CoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).corals[subCoralId].toLegacy());
-			Logger.recordOutput("RealCoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).realCorals[subCoralId].toLegacy());
-			Logger.recordOutput("SourcePose", sourcePose.toLegacy());
-			Logger.recordOutput("Coral/CoralId", coralId);
-			Logger.recordOutput("Coral/SubCoralId", subCoralId);
-		}
+		Logger.recordOutput("CoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).corals[subCoralId].toLegacy());
+		Logger.recordOutput("RealCoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).realCorals[subCoralId].toLegacy());
+		Logger.recordOutput("SourcePose", sourcePose.toLegacy());
+		Logger.recordOutput("Coral/CoralId", coralId);
+		Logger.recordOutput("Coral/SubCoralId", subCoralId);
 	}
 
 	public synchronized void showSource() {
-		synchronized (Drive.getInstance()) {
-			Logger.recordOutput("CoralSource", FieldLayout.getCoralStation(true, coralStationPosition).toLegacy());
-		}
+		Logger.recordOutput("CoralSource", FieldLayout.getCoralStation(true, coralStationPosition).toLegacy());
 	}
 
 	private double levelCenter = 8.77400016784668;
@@ -264,31 +260,29 @@ public class Superstructure extends Subsystem {
 	};
 
 	public synchronized void showLevel() {
-		synchronized (Drive.getInstance()) {
-			if (level == 1) {
-				Logger.recordOutput("Pointers/PointerC", levels[0].toLegacy());
-				Logger.recordOutput("Pointers/Pointer1", levels[1].toLegacy());
-				Logger.recordOutput("Pointers/Pointer2", levels[2].toLegacy());
-				Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
-			}
-			if (level == 2) {
-				Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
-				Logger.recordOutput("Pointers/PointerC", levels[1].toLegacy());
-				Logger.recordOutput("Pointers/Pointer2", levels[2].toLegacy());
-				Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
-			}
-			if (level == 3) {
-				Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
-				Logger.recordOutput("Pointers/Pointer2", levels[1].toLegacy());
-				Logger.recordOutput("Pointers/PointerC", levels[2].toLegacy());
-				Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
-			}
-			if (level == 4) {
-				Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
-				Logger.recordOutput("Pointers/Pointer2", levels[1].toLegacy());
-				Logger.recordOutput("Pointers/Pointer3", levels[2].toLegacy());
-				Logger.recordOutput("Pointers/PointerC", levels[3].toLegacy());
-			}
+		if (level == 1) {
+			Logger.recordOutput("Pointers/PointerC", levels[0].toLegacy());
+			Logger.recordOutput("Pointers/Pointer1", levels[1].toLegacy());
+			Logger.recordOutput("Pointers/Pointer2", levels[2].toLegacy());
+			Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
+		}
+		if (level == 2) {
+			Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
+			Logger.recordOutput("Pointers/PointerC", levels[1].toLegacy());
+			Logger.recordOutput("Pointers/Pointer2", levels[2].toLegacy());
+			Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
+		}
+		if (level == 3) {
+			Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
+			Logger.recordOutput("Pointers/Pointer2", levels[1].toLegacy());
+			Logger.recordOutput("Pointers/PointerC", levels[2].toLegacy());
+			Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
+		}
+		if (level == 4) {
+			Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
+			Logger.recordOutput("Pointers/Pointer2", levels[1].toLegacy());
+			Logger.recordOutput("Pointers/Pointer3", levels[2].toLegacy());
+			Logger.recordOutput("Pointers/PointerC", levels[3].toLegacy());
 		}
 	}
 
@@ -422,6 +416,10 @@ public class Superstructure extends Subsystem {
 
 	public Pose2d getActiveCoral(){
 		return FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[coralId]).realCorals[subCoralId];
+	}
+
+	public Pose2d getActiveCoralL4(){
+		return FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[coralId]).corals4[subCoralId];
 	}
 
 	// spotless:on

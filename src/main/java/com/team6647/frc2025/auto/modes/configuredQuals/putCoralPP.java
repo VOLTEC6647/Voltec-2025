@@ -7,13 +7,11 @@ import com.team1678.frc2024.auto.actions.ParallelAction;
 import com.team1678.frc2024.auto.actions.PathplannerAlignAction;
 import com.team1678.frc2024.auto.actions.RequestAction;
 import com.team1678.frc2024.auto.actions.SeriesAction;
-import com.team1678.frc2024.auto.actions.SwerveTrajectoryAction;
-import com.team1678.frc2024.auto.actions.TurnInPlaceAction;
+
 import com.team1678.frc2024.auto.actions.WaitAction;
 import com.team1678.frc2024.auto.actions.WaitForSuperstructureAction;
 import com.team1678.frc2024.auto.actions.WaitToPassXCoordinateAction;
 import com.team1678.frc2024.auto.actions.WaitToPassYCoordinateAction;
-import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.lib.requests.LambdaRequest;
 import com.team1678.lib.requests.SequentialRequest;
 import com.team254.lib.geometry.Pose2dWithMotion;
@@ -23,8 +21,6 @@ import com.team254.lib.trajectory.timing.TimedState;
 import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.auto.actions.GenAction;
 import com.team6647.frc2025.auto.actions.WaitForEnterPathGeneratedAction;
-import com.team6647.frc2025.auto.paths.TrajectoryGenerator;
-import com.team6647.frc2025.auto.paths.TrajectoryGenerator.TrajectorySet;
 import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 import com.team6647.frc2025.subsystems.leds.LEDSubsystem;
@@ -34,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import java.util.List;
 
 public class putCoralPP extends AutoModeBase {
-	private Drive d = Drive.getInstance();
 	private Superstructure s = Superstructure.getInstance();
 
 	Trajectory254<TimedState<Pose2dWithMotion>> putCoral;

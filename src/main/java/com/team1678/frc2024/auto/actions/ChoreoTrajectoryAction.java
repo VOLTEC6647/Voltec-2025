@@ -3,9 +3,11 @@ package com.team1678.frc2024.auto.actions;
 import java.util.List;
 import java.util.Optional;
 
+import org.littletonrobotics.frc2025.RobotState6328;
+import org.littletonrobotics.frc2025.subsystems.drive.Drive;
 import org.littletonrobotics.junction.Logger;
 
-import com.team1678.frc2024.subsystems.Drive;
+import com.team1678.frc2024.RobotState;
 import com.team1678.lib.swerve.ChassisSpeeds;
 import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.trajectory.TimedView;
@@ -25,6 +27,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class ChoreoTrajectoryAction implements Action {
 
 	private Drive mDrive = null;
+	private RobotState6328 state = null;
 
 	Optional<Trajectory<SwerveSample>> trajectory;
 	private final boolean mResetGyro;
@@ -41,6 +44,7 @@ public class ChoreoTrajectoryAction implements Action {
 	public ChoreoTrajectoryAction(String trajectoryName, boolean resetPose) {
 		trajectory = Choreo.loadTrajectory(trajectoryName);
 		mDrive = Drive.getInstance();
+		state = RobotState6328.getInstance();
 		mResetGyro = resetPose;
 	}
 
@@ -57,9 +61,8 @@ public class ChoreoTrajectoryAction implements Action {
 		//events = trajectory.get().events();
 		autoTimer.reset();
 		if (mResetGyro) {
-			mDrive.resetOdometry(trajectory.get().getInitialPose(Robot.is_red_alliance).get());
-			mDrive.zeroGyro(trajectory.get().getInitialPose(Robot.is_red_alliance).get().getRotation().getDegrees());
-			System.out.println("Reset odometry to " + mDrive.getPose().getRotation().getDegrees());
+			state.resetPose(trajectory.get().getInitialPose(Robot.is_red_alliance).get());
+			System.out.println("Reset odometry to " + state.getRotation().getDegrees());
 		}
 		autoTimer.start();		
 	}
@@ -96,6 +99,6 @@ public class ChoreoTrajectoryAction implements Action {
 
 	@Override
 	public void done() {
-		mDrive.feedTeleopSetpoint(new ChassisSpeeds());
+		mDrive.stop();
 	}
 }

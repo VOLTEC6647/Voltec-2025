@@ -1,7 +1,5 @@
 package com.team1678.frc2024.auto;
 
-import com.team1678.frc2024.auto.modes.*;
-import com.team1678.frc2024.auto.modes.three.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.Optional;
@@ -91,33 +89,11 @@ public class AutoModeSelector1678 {
 				|| force_regen) {
 			System.out.println("Auto selection changed, updating creator: desiredMode-> " + desiredMode.name() + "//"
 					+ firstNote.name() + "//" + secondNote.name() + "//" + desiredMode.name() + " Spike");
-			mAutoMode = getAutoModeForParams(desiredMode, firstNote, secondNote, desiredSpike);
 		}
 		mCachedDesiredMode = desiredMode;
 		mCachedFirstNote = firstNote;
 		mCachedSecondNote = secondNote;
 		mCachedSpike = desiredSpike;
-	}
-
-	private Optional<AutoModeBase> getAutoModeForParams(
-			DesiredMode mode, TargetNote n_0, TargetNote n_1, TargetSpike s_0) {
-		switch (mode) {
-			case DO_NOTHING:
-				return Optional.of(new DoNothingMode());
-
-			case TEST_PATH_AUTO:
-				return Optional.of(new TestPathMode());
-
-			case THREE_NOTE_MODE_34:
-				return Optional.of(new ThreeNoteMode34());
-
-			default:
-				System.out.println("ERROR: unexpected auto mode: " + mode);
-				break;
-		}
-
-		System.err.println("No valid auto mode found for  " + mode);
-		return Optional.empty();
 	}
 
 	public static SendableChooser<DesiredMode> getModeChooser() {
