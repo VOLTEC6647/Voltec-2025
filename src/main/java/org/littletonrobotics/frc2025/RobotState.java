@@ -33,7 +33,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 @ExtensionMethod({GeomUtil.class})
-public class RobotState6328 {
+public class RobotState {
   // Must be less than 2.0
   private static final LoggedTunableNumber txTyObservationStaleSecs =
       new LoggedTunableNumber("RobotState/TxTyObservationStaleSeconds", 0.5);
@@ -60,10 +60,10 @@ public class RobotState6328 {
     }
   }
 
-  private static RobotState6328 instance;
+  private static RobotState instance;
 
-  public static RobotState6328 getInstance() {
-    if (instance == null) instance = new RobotState6328();
+  public static RobotState getInstance() {
+    if (instance == null) instance = new RobotState();
     return instance;
   }
 
@@ -98,7 +98,7 @@ public class RobotState6328 {
   @Getter @Setter private Rotation2d pitch = Rotation2d.kZero;
   @Getter @Setter private Rotation2d roll = Rotation2d.kZero;
 
-  private RobotState6328() {
+  private RobotState() {
     for (int i = 0; i < 3; ++i) {
       qStdDevs.set(i, 0, Math.pow(odometryStateStdDevs.get(i, 0), 2));
     }
@@ -303,7 +303,7 @@ public class RobotState6328 {
               default -> isRed ? 7 : 18;
             });
     // Use estimated pose if tag pose is not present
-    if (tagPose.isEmpty()) return RobotState6328.getInstance().getEstimatedPose();
+    if (tagPose.isEmpty()) return RobotState.getInstance().getEstimatedPose();
     // Use distance from estimated pose to final pose to get t value
     final double t =
         MathUtil.clamp(

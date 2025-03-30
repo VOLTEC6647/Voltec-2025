@@ -10,11 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import org.littletonrobotics.frc2025.RobotState;
+import org.littletonrobotics.frc2025.RobotState.OdometryObservation;
+import org.littletonrobotics.frc2025.RobotState.VisionObservation;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
-import com.team1678.frc2024.RobotState;
-import com.team1678.frc2024.RobotState.VisionUpdate;
 import com.team1678.frc2024.subsystems.Climber;
 import com.team1678.frc2024.subsystems.Subsystem;
 import com.team6647.frc2025.Robot;
@@ -25,6 +26,7 @@ import com.team6647.frc2025.subsystems.vision.LimelightHelpers.RawFiducial;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -87,12 +89,11 @@ public class VisionSubsystem extends SubsystemBase{
         if(bestCameraIndex != -1) {
             bestPose = cameras.get(bestCameraIndex).getEstimatedPose();
             //RobotContainer.instance.drivetrain.addVisionMeasurement(bestPose.pose, bestPose.timestampSeconds);
-            RobotState.getInstance().addVisionUpdate(
-                new VisionUpdate(
+            RobotState.getInstance().addVisionObservation(
+                new VisionObservation(
+                    cameras.get(bestCameraIndex).getEstimatedPose(),
                     cameras.get(bestCameraIndex).getTimestampSeconds(),
-                    new com.team254.lib.geometry.Translation2d(cameras.get(bestCameraIndex).getEstimatedPose().getTranslation()),
-                    new com.team254.lib.geometry.Translation2d(0,0),//mConstants.kRobotToCamera.getTranslation(), // Use the correct camera offset
-                    0.02
+                    VecBuilder.fill(0.02, 0.02, Double.POSITIVE_INFINITY)
                 )
             );
         }

@@ -3,17 +3,8 @@ package com.team6647.frc2025.subsystems.vision;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.HashMap;
-import java.util.Optional;
-
-import org.littletonrobotics.frc2025.RobotState6328;
-import org.littletonrobotics.junction.Logger;
-
-import com.team1678.frc2024.RobotState;
-import com.team1678.frc2024.RobotState.VisionUpdate;
-import com.team1678.frc2024.subsystems.Climber;
-import com.team1678.frc2024.subsystems.Subsystem;
+import org.littletonrobotics.frc2025.RobotState;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.subsystems.vision.LimelightHelpers.PoseEstimate;
 import com.team6647.frc2025.subsystems.vision.LimelightHelpers.RawFiducial;
@@ -22,11 +13,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -104,7 +91,7 @@ public class LimelightPoseEstimator{
 
         
         if (megatag2Enabled) {
-            double megatagDegrees = RobotState6328.getInstance().getHeading().getDegrees();
+            double megatagDegrees = RobotState.getInstance().getHeading().getDegrees();
             if (Robot.is_red_alliance) megatagDegrees = MathUtil.inputModulus(megatagDegrees + 180, -180, 180);
             LimelightHelpers.SetRobotOrientation(cameraName, megatagDegrees, 0, 0, 0, 0, 0);
             estimatedPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);

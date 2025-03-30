@@ -22,7 +22,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import lombok.Getter;
 import org.littletonrobotics.frc2025.Constants6328;
-import org.littletonrobotics.frc2025.RobotState6328;
+import org.littletonrobotics.frc2025.RobotState;
 import org.littletonrobotics.frc2025.subsystems.drive.Drive;
 import org.littletonrobotics.frc2025.subsystems.drive.DriveConstants;
 import org.littletonrobotics.frc2025.util.GeomUtil;
@@ -94,7 +94,7 @@ public class DriveToPose extends Command {
   private double driveErrorAbs = 0.0;
   private double thetaErrorAbs = 0.0;
   @Getter private boolean running = false;
-  private Supplier<Pose2d> robot = RobotState6328.getInstance()::getEstimatedPose;
+  private Supplier<Pose2d> robot = RobotState.getInstance()::getEstimatedPose;
 
   private Supplier<Translation2d> linearFF = () -> Translation2d.kZero;
   private DoubleSupplier omegaFF = () -> 0.0;
@@ -128,7 +128,7 @@ public class DriveToPose extends Command {
   @Override
   public void initialize() {
     Pose2d currentPose = robot.get();
-    ChassisSpeeds fieldVelocity = RobotState6328.getInstance().getFieldVelocity();
+    ChassisSpeeds fieldVelocity = RobotState.getInstance().getFieldVelocity();
     Translation2d linearFieldVelocity =
         new Translation2d(fieldVelocity.vxMetersPerSecond, fieldVelocity.vyMetersPerSecond);
     driveController.reset(

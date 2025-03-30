@@ -6,7 +6,6 @@ package com.team6647.frc2025;
 
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.team1678.frc2024.Constants1678;
-import com.team1678.frc2024.RobotState;
 import com.team1678.frc2024.SubsystemManager;
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeExecutor;
@@ -256,8 +255,6 @@ public class Robot extends LoggedRobot {
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
 			mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
-			RobotState.getInstance().resetKalman();
-
 			RobotController.setBrownoutVoltage(6.0);
 
 			DataLogManager.start();
@@ -292,7 +289,6 @@ public class Robot extends LoggedRobot {
 		//if (mVisionDevices.getMovingAverageRead() != null) {
 		//	mDrive.zeroGyro(mVisionDevices.getMovingAverageRead());
 		//}
-		RobotState.getInstance().setIsInAuto(true);
 		for (SubsystemV s:mSubsystems){
 			s.onStart(Timer.getFPGATimestamp());
 		}
@@ -316,7 +312,6 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void teleopInit() {
 		try {
-			RobotState.getInstance().setIsInAuto(false);
 			mDrive.stop();
 			//VisionDeviceManager.setDisableVision(false);
 			for (SubsystemV s:mSubsystems){

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-import org.littletonrobotics.frc2025.RobotState6328;
+import org.littletonrobotics.frc2025.RobotState;
 import org.littletonrobotics.frc2025.subsystems.drive.Drive;
 import org.littletonrobotics.frc2025.subsystems.drive.DriveConstants;
 import org.littletonrobotics.junction.Logger;
@@ -98,8 +98,8 @@ public class DriveCommands {
                       speeds,
                       DriverStation.getAlliance().isPresent()
                               && DriverStation.getAlliance().get() == Alliance.Red
-                          ? RobotState6328.getInstance().getRotation().plus(Rotation2d.kPi)
-                          : RobotState6328.getInstance().getRotation()));
+                          ? RobotState.getInstance().getRotation().plus(Rotation2d.kPi)
+                          : RobotState.getInstance().getRotation()));
         },
         drive);
   }
@@ -132,7 +132,7 @@ public class DriveCommands {
                   getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
               // Calculate angular speed
-              Rotation2d rotation = RobotState6328.getInstance().getRotation();
+              Rotation2d rotation = RobotState.getInstance().getRotation();
               double omega =
                   angleController.calculate(
                       rotation.getRadians(), rotationSupplier.get().getRadians());
@@ -154,7 +154,7 @@ public class DriveCommands {
 
         // Reset PID controller when command starts
         .beforeStarting(
-            () -> angleController.reset(RobotState6328.getInstance().getRotation().getRadians()));
+            () -> angleController.reset(RobotState.getInstance().getRotation().getRadians()));
   }
 
   /**

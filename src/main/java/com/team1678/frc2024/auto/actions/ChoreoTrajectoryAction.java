@@ -3,22 +3,10 @@ package com.team1678.frc2024.auto.actions;
 import java.util.List;
 import java.util.Optional;
 
-import org.littletonrobotics.frc2025.RobotState6328;
+import org.littletonrobotics.frc2025.RobotState;
 import org.littletonrobotics.frc2025.subsystems.drive.Drive;
-import org.littletonrobotics.junction.Logger;
-
-import com.team1678.frc2024.RobotState;
-import com.team1678.lib.swerve.ChassisSpeeds;
-import com.team254.lib.geometry.Pose2dWithMotion;
-import com.team254.lib.trajectory.TimedView;
-import com.team254.lib.trajectory.Trajectory254;
-import com.team254.lib.trajectory.TrajectoryIterator;
-import com.team254.lib.trajectory.timing.TimedState;
 import com.team6647.frc2025.Robot;
-import com.team6647.frc2025.subsystems.Superstructure;
-
 import choreo.Choreo;
-import choreo.auto.AutoTrajectory;
 import choreo.trajectory.EventMarker;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
@@ -27,7 +15,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class ChoreoTrajectoryAction implements Action {
 
 	private Drive mDrive = null;
-	private RobotState6328 state = null;
+	private RobotState state = null;
 
 	Optional<Trajectory<SwerveSample>> trajectory;
 	private final boolean mResetGyro;
@@ -44,7 +32,7 @@ public class ChoreoTrajectoryAction implements Action {
 	public ChoreoTrajectoryAction(String trajectoryName, boolean resetPose) {
 		trajectory = Choreo.loadTrajectory(trajectoryName);
 		mDrive = Drive.getInstance();
-		state = RobotState6328.getInstance();
+		state = RobotState.getInstance();
 		mResetGyro = resetPose;
 	}
 

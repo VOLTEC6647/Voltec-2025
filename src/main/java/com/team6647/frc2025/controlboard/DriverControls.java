@@ -1,38 +1,26 @@
 package com.team6647.frc2025.controlboard;
 
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
-import org.littletonrobotics.frc2025.RobotState6328;
+import org.littletonrobotics.frc2025.RobotState;
 import org.littletonrobotics.frc2025.subsystems.drive.Drive;
-import org.littletonrobotics.junction.Logger;
-
 import com.team1678.frc2024.auto.AutoModeBase;
-import com.team1678.frc2024.auto.AutoModeExecutor;
-import com.team1678.frc2024.auto.actions.PathplannerAlignAction;
 import com.team1678.frc2024.controlboard.ControlBoard;
 import com.team1678.frc2024.subsystems.AlgaeT;
 import com.team1678.frc2024.subsystems.Climber;
 import com.team1678.frc2024.subsystems.CoralPivot;
-import com.team1678.frc2024.subsystems.vision.VisionDeviceManager;
 import com.team1678.lib.requests.LambdaRequest;
-import com.team1678.lib.requests.ParallelRequest;
 import com.team1678.lib.requests.Request;
 import com.team1678.lib.requests.SequentialRequest;
 import com.team1678.lib.requests.WaitForPrereqRequest;
 import com.team1678.lib.requests.WaitRequest;
-import com.team1678.lib.util.NearestAngleFinder;
 import com.team1678.lib.util.NearestCoralFinder;
 import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.util.Util;
-import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.Robot;
-import com.team6647.frc2025.FieldLayout.CoralTarget;
 import com.team6647.frc2025.auto.actions.AssistModeExecutor;
 import com.team6647.frc2025.auto.modes.configuredQuals.intakeAuto;
 import com.team6647.frc2025.auto.modes.configuredQuals.PreparePutCoral;
-import com.team6647.frc2025.auto.modes.configuredQuals.putCoralPP;
 import com.team6647.frc2025.subsystems.Elevator;
 import com.team6647.frc2025.subsystems.MotorTest;
 import com.team6647.frc2025.subsystems.Superstructure;
@@ -42,11 +30,7 @@ import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 import com.team6647.frc2025.subsystems.leds.LEDSubsystem;
 import com.team6647.frc2025.subsystems.vision.VisionSubsystem;
 
-import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriverControls {
 
@@ -56,7 +40,7 @@ public class DriverControls {
 	Superstructure s = mSuperstructure;
 
 	Drive mDrive = Drive.getInstance();
-	RobotState6328 state = RobotState6328.getInstance();
+	RobotState state = RobotState.getInstance();
 	LEDSubsystem mleds = LEDSubsystem.getInstance();
 
 	/* ONE CONTROLLER */

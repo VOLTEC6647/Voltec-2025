@@ -34,7 +34,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.frc2025.Constants6328;
 import org.littletonrobotics.frc2025.Constants6328.Mode;
-import org.littletonrobotics.frc2025.RobotState6328;
+import org.littletonrobotics.frc2025.RobotState;
 import org.littletonrobotics.frc2025.util.LoggedTracer;
 import org.littletonrobotics.frc2025.util.LoggedTunableNumber;
 import org.littletonrobotics.frc2025.util.swerve.SwerveSetpoint;
@@ -141,9 +141,9 @@ public class Drive extends SubsystemBase {
 
     try{
       RobotConfig config = RobotConfig.fromGUISettings();
-      RobotState6328 state = RobotState6328.getInstance();
+      RobotState state = RobotState.getInstance();
 	  AutoBuilder.configure(
-			state::getOdometryPose, // Robot pose supplier
+			state::getEstimatedPose, // Robot pose supplier
 			state::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
 			this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
 			(speeds, feedforwards) -> runVelocity(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
@@ -215,9 +215,9 @@ public class Drive extends SubsystemBase {
       for (int j = 0; j < 4; j++) {
         wheelPositions[j] = modules[j].getOdometryPositions()[i];
       }
-      RobotState6328.getInstance()
+      RobotState.getInstance()
           .addOdometryObservation(
-              new RobotState6328.OdometryObservation(
+              new RobotState.OdometryObservation(
                   wheelPositions,
                   Optional.ofNullable(
                       gyroInputs.data.connected() ? gyroInputs.odometryYawPositions[i] : null),
@@ -226,7 +226,7 @@ public class Drive extends SubsystemBase {
       // Log 3D robot pose
       Logger.recordOutput(
           "RobotState/EstimatedPose3d",
-          new Pose3d(RobotState6328.getInstance().getEstimatedPose())
+          new Pose3d(RobotState.getInstance().getEstimatedPose())
               .exp(
                   new Twist3d(
                       0.0,
@@ -249,9 +249,9 @@ public class Drive extends SubsystemBase {
                       0.0)));
     }
 
-    RobotState6328.getInstance().addDriveSpeeds(getChassisSpeeds());
-    RobotState6328.getInstance().setPitch(gyroInputs.data.pitchPosition());
-    RobotState6328.getInstance().setRoll(gyroInputs.data.rollPosition());
+    RobotState.getInstance().addDriveSpeeds(getChassisSpeeds());
+    RobotState.getInstance().setPitch(gyroInputs.data.pitchPosition());
+    RobotState.getInstance().setRoll(gyroInputs.data.rollPosition());
 
     // Update brake mode
     // Reset movement timer if velocity above threshold
@@ -457,7 +457,7 @@ public class Drive extends SubsystemBase {
   public void choreoController(SwerveSample sample) {
 	//lastSample = sample.getPose();
 
-	Pose2d currentPose = RobotState6328.getInstance().getOdometryPose();
+	Pose2d currentPose = RobotState.getInstance().getEstimatedPose();
 	ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
 	  sample.vx + choreoX.calculate(currentPose.getTranslation().getX(), sample.x),
 	  sample.vy + choreoY.calculate(currentPose.getTranslation().getY(), sample.y),

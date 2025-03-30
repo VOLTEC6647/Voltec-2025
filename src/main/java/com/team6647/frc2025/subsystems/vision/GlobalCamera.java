@@ -1,8 +1,7 @@
 package com.team6647.frc2025.subsystems.vision;
 
-import org.littletonrobotics.frc2025.RobotState6328;
+import org.littletonrobotics.frc2025.RobotState;
 
-import com.team1678.frc2024.RobotState;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.subsystems.vision.LimelightHelpers.PoseEstimate;
 import com.team6647.frc2025.subsystems.vision.PhotonPoseEstimator.EstimatedPose2d;
@@ -48,7 +47,7 @@ public class GlobalCamera {
             }
 
         } else if (cameraType == CameraType.PHOTON) {
-            EstimatedPose2d estimate = photonPoseEstimator.getFilteredEstimatedPose(RobotState.getInstance().getLatestFieldToVehicle().toLegacy());
+            EstimatedPose2d estimate = photonPoseEstimator.getFilteredEstimatedPose(RobotState.getInstance().getEstimatedPose());
             if (estimate != null && filterAmbiguity(estimate.estimatedPose.getRotation().getDegrees())) {
                 this.estimatedPose = estimate.estimatedPose;
                 this.tagArea = photonPoseEstimator.poseTagArea;
@@ -77,7 +76,7 @@ public class GlobalCamera {
 
     public boolean filterAmbiguity(double rotation) {
         if(consideringAmbiguity && Robot.is_event){
-            if(Math.abs(rotation-RobotState6328.getInstance().getHeading().getDegrees())>6){
+            if(Math.abs(rotation-RobotState.getInstance().getHeading().getDegrees())>6){
                 return false;
             }
         }
