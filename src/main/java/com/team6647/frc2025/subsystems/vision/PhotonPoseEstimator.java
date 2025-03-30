@@ -231,4 +231,7 @@ import org.photonvision.PhotonCamera;
              );
          }
      }
+     public boolean isConnected() {
+         return camera.isConnected();
+     }
  }

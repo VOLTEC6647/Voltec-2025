@@ -1,48 +1,30 @@
 
 package com.team6647.frc2025.subsystems.vision;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-
 import org.littletonrobotics.frc2025.RobotState;
-import org.littletonrobotics.frc2025.RobotState.OdometryObservation;
 import org.littletonrobotics.frc2025.RobotState.VisionObservation;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
-import com.team1678.frc2024.subsystems.Climber;
-import com.team1678.frc2024.subsystems.Subsystem;
-import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.Constants.VisionPhotonConstants;
-import com.team6647.frc2025.subsystems.vision.LimelightHelpers.PoseEstimate;
-import com.team6647.frc2025.subsystems.vision.LimelightHelpers.RawFiducial;
+import com.team6647.lib.util.QuestNav;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class VisionSubsystem extends SubsystemBase{
-    private String[] limelights = new String[] {"limelight-coral", "limelight-source"};
-    private String[] photons = new String[] {"corall", "coralr"};
+    private String[] limelights = new String[] {"limelight-coral"};//, "limelight-source"
+    private String[] photons = new String[] {};//"corall", "coralr"
     private Transform3d photonTransform[] = new Transform3d[] {VisionPhotonConstants.CAMERA_CORALL_TRANSFORM, VisionPhotonConstants.CAMERA_CORALR_TRANSFORM};
     private ArrayList<GlobalCamera> cameras = new ArrayList<GlobalCamera>();
-    private Pose2d bestPose = null;
+    @Getter private Pose2d bestPose = null;
+    private boolean questNavEnabled = false;
 
     private static VisionSubsystem mInstance;
     
@@ -64,6 +46,10 @@ public class VisionSubsystem extends SubsystemBase{
             PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(AprilTagFields.k2025Reefscape.loadAprilTagLayoutField(), new PhotonCamera(photon), photonTransform[i], VisionPhotonConstants.AMBIGUITY_THRESHOLD, VisionPhotonConstants.TAG_AREA_THRESHOLD);
             cameras.add(new GlobalCamera(photon, photonPoseEstimator));
         }
+
+        if(questNavEnabled) {
+            cameras.add(new GlobalCamera("QuestNav", new QuestNav()));
+        }
     }
 
     @Override
@@ -71,8 +57,11 @@ public class VisionSubsystem extends SubsystemBase{
         for(int i = 0; i < cameras.size(); i++) {
             GlobalCamera camera = cameras.get(i);
             camera.updateEstimatedPose();
+            Logger.recordOutput("/Cameras/" + camera.getName() +"/Area", camera.getTagArea());
+            Logger.recordOutput("/Cameras/" + camera.getName() +"/Timestamp", camera.getTimestampSeconds());
+            Logger.recordOutput("/Cameras/" + camera.getName() +"/isConnected", camera.isConnected());
             if(camera.getEstimatedPose()!= null){
-            Logger.recordOutput("/Cameras/"+ camera.getName() +"Pose", camera.getEstimatedPose());
+                Logger.recordOutput("/Cameras/" + camera.getName() +"/Pose", camera.getEstimatedPose());
             }
         }
 
@@ -87,19 +76,16 @@ public class VisionSubsystem extends SubsystemBase{
         }
 
         if(bestCameraIndex != -1) {
-            bestPose = cameras.get(bestCameraIndex).getEstimatedPose();
+            GlobalCamera bestCamera = cameras.get(bestCameraIndex);
+            bestPose = bestCamera.getEstimatedPose();
             //RobotContainer.instance.drivetrain.addVisionMeasurement(bestPose.pose, bestPose.timestampSeconds);
             RobotState.getInstance().addVisionObservation(
                 new VisionObservation(
-                    cameras.get(bestCameraIndex).getEstimatedPose(),
-                    cameras.get(bestCameraIndex).getTimestampSeconds(),
-                    VecBuilder.fill(0.02, 0.02, Double.POSITIVE_INFINITY)
+                    bestCamera.getEstimatedPose(),
+                    bestCamera.getTimestampSeconds(),
+                    VecBuilder.fill(bestCamera.getStdevsXY(), bestCamera.getStdevsXY(), bestCamera.getStdevsRot())
                 )
             );
         }
-    }
-
-    public Pose2d getBestPose(){
-        return bestPose;
     }
 }
