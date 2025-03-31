@@ -35,7 +35,7 @@ public class AlgaeT extends ServoMotorSubsystem {
 		//zeroSensors();
 		changeTalonConfig((conf) -> {
 			conf.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-			conf.Feedback.FeedbackRemoteSensorID = Ports.CLIMBER.getDeviceNumber();
+			//conf.Feedback.FeedbackRemoteSensorID = Ports.CLIMBER.getDeviceNumber();
 			conf.Feedback.RotorToSensorRatio = (CoralPivotConstants.kRotorRotationsPerOutputRotation)
 					/ (mConstants.kRotationsPerUnitDistance * 360.0);
 			conf.Feedback.SensorToMechanismRatio = 1.0;

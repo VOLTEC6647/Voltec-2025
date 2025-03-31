@@ -6,9 +6,18 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystem;
 import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystem.TalonFXConstants;
+import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystemBorePID.ServoMotorSubsystemConstantsBorePID;
 import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystemWithCancoder.AbsoluteEncoderConstants;
 import com.team1678.lib.Conversions;
 import com.team254.lib.drivers.CanDeviceId;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Transform2d;
+
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
+
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -55,10 +64,9 @@ public class Constants {
 			kElevatorServoConstants.kKg = 0;
 			kElevatorServoConstants.kDeadband = 0; // rots
 
-			kElevatorServoConstants.kCruiseVelocity = 2;//12.0; // m / s
-			kElevatorServoConstants.kAcceleration = 0.4; // m / s^2
+			kElevatorServoConstants.kCruiseVelocity = 2;//4  //12.0; // m / s
+			kElevatorServoConstants.kAcceleration = 1.7;//2 // m / s^2
 			kElevatorServoConstants.kRampRate = 0.0; // s
-
 			kElevatorServoConstants.kMaxForwardOutput = 12.0;
 			kElevatorServoConstants.kMaxReverseOutput = -12.0;
 
@@ -78,6 +86,7 @@ public class Constants {
 		public static double kHomingTimeout = 0.1; // seconds
 		public static double kHomingVelocityWindow = 0.1; // "units" / second
 		public static double kHomingOutput = -2.0; // volts
+		public static double kMaxHomingOutput = -3.5; // volts
 
 		//public static double kHomingZone = 0; // meters
 		//public static double kHomingTimeout = 0.5; // seconds
@@ -102,6 +111,11 @@ public class Constants {
 			
 			return config;
 		}
+	}
+
+	public static final class CoralRollerConstants {
+		public static double sensorThreshold = 130;
+		public static int sensorId;
 	}
 
 	public static final class AlgaeHolderConstants {
@@ -153,7 +167,7 @@ public class Constants {
 			//kHoodServoConstants.kMaxUnitsLimit = 62.0;
 
 			kHoodServoConstants.kCruiseVelocity = 400.0; // degrees / s
-			kHoodServoConstants.kAcceleration = 200.0; // degrees / s^2
+			kHoodServoConstants.kAcceleration = 400.0; // degrees / s^2
 
 			kHoodServoConstants.kEnableSupplyCurrentLimit = true;
 			kHoodServoConstants.kSupplyCurrentLimit = 80;
@@ -199,7 +213,7 @@ public class Constants {
 			kHoodServoConstants.kHomePosition = 0; // Degrees
 			kHoodServoConstants.kTolerance = 1; // Degrees
 			kHoodServoConstants.kRotationsPerUnitDistance = (1.0 / 360.0 * 9*5*5*1.6) /* (7.16 / 1.0)*/; // Cancoder to unit distance
-			kHoodServoConstants.kKp = 3.0;
+			kHoodServoConstants.kKp = 2.0;
 			kHoodServoConstants.kKi = 0;
 			kHoodServoConstants.kKd = 0.0;
 			kHoodServoConstants.kKg = 0;
@@ -209,8 +223,8 @@ public class Constants {
 			//kHoodServoConstants.kMinUnitsLimit = 15.0;
 			//kHoodServoConstants.kMaxUnitsLimit = 62.0;
 
-			kHoodServoConstants.kCruiseVelocity = 600.0; // degrees / s
-			kHoodServoConstants.kAcceleration = 200.0; // degrees / s^2
+			kHoodServoConstants.kCruiseVelocity = 300.0; // degrees / s
+			kHoodServoConstants.kAcceleration = 50.0; // degrees / s^2
 
 			kHoodServoConstants.kEnableSupplyCurrentLimit = false ;
 			kHoodServoConstants.kSupplyCurrentLimit = 80;
@@ -230,6 +244,51 @@ public class Constants {
 			kHoodEncoderConstants.remote_encoder_port = Ports.CORAL_CANCODER;
 			kHoodEncoderConstants.rotor_rotations_per_output = 1.0;
 			kHoodEncoderConstants.remote_encoder_offset = 0;
+		}
+	}
+
+	public static final class ClimberConstantsBorePID {
+
+		public static final double kRotorRotationsPerOutputRotation = 1.0; // Rotor to unit distance
+
+		public static final ServoMotorSubsystemConstantsBorePID kHoodServoConstants = new ServoMotorSubsystemConstantsBorePID();
+
+		public static final double kHomingVoltage = -3.5;
+		public static final double kHomingCurrentThreshold = 15.0;
+		public static final double kMinHomingTime = 0.4;
+		public static final double kMaxHomingTime = 10.0;
+
+        public static double kHomePosition = 0;
+
+		static {
+			kHoodServoConstants.kName = "ClimberPID";
+
+			kHoodServoConstants.kMainConstants.id = Ports.CLIMBER;
+			kHoodServoConstants.kMainConstants.counterClockwisePositive = false;
+
+			kHoodServoConstants.kTolerance = 1; // Degrees
+			kHoodServoConstants.kRotationsPerUnitDistance = (1.0 / 360.0 * 9*5*5*1.6) /* (7.16 / 1.0)*/; // Cancoder to unit distance
+			kHoodServoConstants.kKp = 2.0;
+			kHoodServoConstants.kKi = 0;
+			kHoodServoConstants.kKd = 0.0;
+
+			kHoodServoConstants.kDeadband = 0; // Ticks
+
+			kHoodServoConstants.kEnableSupplyCurrentLimit = false ;
+			kHoodServoConstants.kSupplyCurrentLimit = 80;
+			kHoodServoConstants.kSupplyCurrentThreshold = 0;
+
+			kHoodServoConstants.kEnableStatorCurrentLimit = false;
+			kHoodServoConstants.kStatorCurrentLimit = 120;
+
+			kHoodServoConstants.kMaxForwardOutput = 12.0;
+			kHoodServoConstants.kMaxReverseOutput = -12.0;//12
+
+			kHoodServoConstants.kRampRate = 0.0;
+
+			kHoodServoConstants.kNeutralMode = NeutralModeValue.Coast;
+
+			kHoodServoConstants.encoder_id = 1;
 		}
 	}
 
@@ -293,6 +352,33 @@ public class Constants {
 			kHoodEncoderConstants.remote_encoder_offset = 0;
 		}
 	}
+
+	public static final class VisionConstants {
+		Transform2d robotToBottomLimelight = new com.team254.lib.geometry.Transform2d(
+				new com.team254.lib.geometry.Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(0)),
+				Rotation2d.fromDegrees(180));
+
+				Transform2d robotToTopLimelight = new com.team254.lib.geometry.Transform2d(
+					new com.team254.lib.geometry.Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(0)),
+					Rotation2d.fromDegrees(180));
+	}
+
+	public static class VisionPhotonConstants{
+
+        /**
+         * Standard deviation of the limelight measurements
+         */
+        public static final double STANDARD_DEV_TRANSLATION = 0.5;
+        public static final double STANDARD_DEV_ROTATION = 1.5;
+        public static final double AMBIGUITY_THRESHOLD = 0.17;
+        public static final double TAG_AREA_THRESHOLD = 0.06; //0.1;
+
+        public static final Transform3d CAMERA_CORALL_TRANSFORM = new Transform3d(new Translation3d(Units.inchesToMeters(-6.76877), Units.inchesToMeters(-2.469746), Units.inchesToMeters(11.425)), new Rotation3d(0,0,Math.toRadians(200)));//Units.inchesToMeters(0)
+        public static final Transform3d CAMERA_CORALR_TRANSFORM = new Transform3d(new Translation3d(Units.inchesToMeters(-6.76877), Units.inchesToMeters(2.469746), Units.inchesToMeters(11.425)), new Rotation3d(0,0,Math.toRadians(200)));//Units.inchesToMeters(0)
+        //public static final String LAYOUT_FILE_NAME = "2024-crescendo";
+    }
+
+	//ll source x: 1.02191417 y: 0.29256156 z: 0.79701279 r: 50
 
 	
     

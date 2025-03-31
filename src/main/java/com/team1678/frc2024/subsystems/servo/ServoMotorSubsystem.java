@@ -339,6 +339,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 		mPeriodicIO.output_voltage = mMainOutputVoltageSignal.asSupplier().get().baseUnitMagnitude();
 		mPeriodicIO.output_percent = mMainOutputPercentageSignal.asSupplier().get();
 		mPeriodicIO.position_rots = mMainPositionSignal.asSupplier().get().baseUnitMagnitude();
+		mPeriodicIO.position_raw = rotationsToHomedUnits(mMainPositionSignal.asSupplier().get().magnitude());
 		mPeriodicIO.position_units = rotationsToHomedUnits(mPeriodicIO.position_rots);
 		mPeriodicIO.velocity_rps = mMainVelocitySignal.asSupplier().get().baseUnitMagnitude();
 		mPeriodicIO.active_trajectory_position =

@@ -1,7 +1,5 @@
 package com.team1678.frc2024.auto;
 
-import com.team1678.frc2024.auto.modes.*;
-import com.team1678.frc2024.auto.modes.three.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.Optional;
@@ -72,24 +70,7 @@ public class AutoModeSelector1678 {
 
 		SmartDashboard.putData("Auto Mode", mModeChooser);
 
-		mFirstNoteChooser.setDefaultOption("N1", TargetNote.N1);
-		mFirstNoteChooser.addOption("N2", TargetNote.N2);
-		mFirstNoteChooser.addOption("N3", TargetNote.N3);
-		mFirstNoteChooser.addOption("N4", TargetNote.N4);
-		mFirstNoteChooser.addOption("N5", TargetNote.N5);
-		SmartDashboard.putData("First Note", mFirstNoteChooser);
-
-		mSecondNoteChooser.addOption("N1", TargetNote.N1);
-		mSecondNoteChooser.setDefaultOption("N2", TargetNote.N2);
-		mSecondNoteChooser.addOption("N3", TargetNote.N3);
-		mSecondNoteChooser.addOption("N4", TargetNote.N4);
-		mSecondNoteChooser.addOption("N5", TargetNote.N5);
-		SmartDashboard.putData("Second Note", mSecondNoteChooser);
-
-		mSpikeChooser.setDefaultOption("Left", TargetSpike.LEFT);
-		mSpikeChooser.addOption("Center", TargetSpike.CENTER);
-		mSpikeChooser.addOption("Right", TargetSpike.RIGHT);
-		SmartDashboard.putData("First Spike", mSpikeChooser);
+		
 	}
 
 	public void updateModeCreator(boolean force_regen) {
@@ -108,33 +89,11 @@ public class AutoModeSelector1678 {
 				|| force_regen) {
 			System.out.println("Auto selection changed, updating creator: desiredMode-> " + desiredMode.name() + "//"
 					+ firstNote.name() + "//" + secondNote.name() + "//" + desiredMode.name() + " Spike");
-			mAutoMode = getAutoModeForParams(desiredMode, firstNote, secondNote, desiredSpike);
 		}
 		mCachedDesiredMode = desiredMode;
 		mCachedFirstNote = firstNote;
 		mCachedSecondNote = secondNote;
 		mCachedSpike = desiredSpike;
-	}
-
-	private Optional<AutoModeBase> getAutoModeForParams(
-			DesiredMode mode, TargetNote n_0, TargetNote n_1, TargetSpike s_0) {
-		switch (mode) {
-			case DO_NOTHING:
-				return Optional.of(new DoNothingMode());
-
-			case TEST_PATH_AUTO:
-				return Optional.of(new TestPathMode());
-
-			case THREE_NOTE_MODE_34:
-				return Optional.of(new ThreeNoteMode34());
-
-			default:
-				System.out.println("ERROR: unexpected auto mode: " + mode);
-				break;
-		}
-
-		System.err.println("No valid auto mode found for  " + mode);
-		return Optional.empty();
 	}
 
 	public static SendableChooser<DesiredMode> getModeChooser() {

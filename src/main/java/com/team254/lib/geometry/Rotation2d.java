@@ -306,6 +306,6 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
     }
 
     public edu.wpi.first.math.geometry.Rotation2d toLegacy(){
-        return new edu.wpi.first.math.geometry.Rotation2d().fromRadians(this.getRadians());
+        return edu.wpi.first.math.geometry.Rotation2d.fromRadians(this.getRadians());
     }
 }

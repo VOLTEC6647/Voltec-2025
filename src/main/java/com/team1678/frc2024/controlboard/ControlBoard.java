@@ -1,7 +1,8 @@
 package com.team1678.frc2024.controlboard;
 
+import org.littletonrobotics.frc2025.subsystems.drive.Drive;
+
 import com.team1678.frc2024.Constants1678;
-import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.lib.Util;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
@@ -73,7 +74,7 @@ public class ControlBoard {
 			double scaled_x = Util.scaledDeadband(forwardAxis, 1.0, Math.abs(deadband_vector.x()));
 			double scaled_y = Util.scaledDeadband(strafeAxis, 1.0, Math.abs(deadband_vector.y()));
 			return new Translation2d(scaled_x, scaled_y)
-					.scale(Drive.getInstance().getKinematicLimits().kMaxDriveVelocity);
+					.scale(Constants1678.SwerveConstants.kUncappedLimits.kMaxDriveVelocity);
 		}
 	}
 
@@ -85,51 +86,9 @@ public class ControlBoard {
 		if (Math.abs(rotAxis) < kSwerveDeadband) {
 			return 0.0;
 		} else {
-			return Drive.getInstance().getKinematicLimits().kMaxAngularVelocity
+			return Constants1678.SwerveConstants.kUncappedLimits.kMaxAngularVelocity
 					* (rotAxis - (Math.signum(rotAxis) * kSwerveDeadband))
 					/ (1 - kSwerveDeadband);
 		}
-	}
-
-	public boolean zeroGyro() {
-		return driver.startButton.isBeingPressed() && driver.backButton.isBeingPressed();
-	}
-
-	// Only Driver
-	public boolean getEnterClimbModeDriver() {
-		return driver.leftBumper.isBeingPressed()
-				&& driver.rightBumper.isBeingPressed()
-				&& driver.rightTrigger.isBeingPressed()
-				&& driver.rightBumper.isBeingPressed();
-	}
-
-	public boolean topButtonsClearDriver() {
-		return !(driver.leftBumper.isBeingPressed()
-				|| driver.rightBumper.isBeingPressed()
-				|| driver.leftTrigger.isBeingPressed()
-				|| driver.rightTrigger.isBeingPressed());
-	}
-
-	public boolean getExitClimbModeDriver() {
-		return driver.leftCenterClick.isBeingPressed() && driver.rightCenterClick.isBeingPressed();
-	}
-
-	// Driver and Operator
-	public boolean getEnterClimbModeOperator() {
-		return operator.leftBumper.isBeingPressed()
-				&& operator.rightBumper.isBeingPressed()
-				&& operator.leftTrigger.isBeingPressed()
-				&& operator.rightTrigger.isBeingPressed();
-	}
-
-	public boolean topButtonsClearOperator() {
-		return !(operator.leftBumper.isBeingPressed()
-				|| operator.rightBumper.isBeingPressed()
-				|| operator.leftTrigger.isBeingPressed()
-				|| operator.rightTrigger.isBeingPressed());
-	}
-
-	public boolean getExitClimbModeOperator() {
-		return operator.getBackButton() && operator.getStartButton();
 	}
 }

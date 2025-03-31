@@ -18,6 +18,7 @@ public class WaitForPrereqRequest extends Request {
 
 	@Override
 	public void act() {
+		stopwatch = new Stopwatch();
 		stopwatch.start();
 	}
 

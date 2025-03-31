@@ -3,8 +3,7 @@ package com.team6647.frc2025.auto.actions;
 import java.util.function.Supplier;
 
 import com.team1678.frc2024.auto.actions.Action;
-import com.team1678.frc2024.subsystems.Drive;
-import com.team6647.frc2025.auto.modes.configuredQuals.putCoral;
+import com.team6647.frc2025.auto.modes.configuredQuals.PreparePutCoral;
 
 public class WaitForPathGeneratedAction implements Action {
 

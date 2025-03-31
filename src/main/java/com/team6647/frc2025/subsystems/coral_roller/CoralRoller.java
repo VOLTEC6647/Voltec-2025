@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralRoller extends Subsystem {
 	private static CoralRoller mInstance;
+    public static final double OuttakeDelay = 1.5;
 
 	public static CoralRoller getInstance() {
 		if (mInstance == null) {
@@ -31,8 +32,9 @@ public class CoralRoller extends Subsystem {
 	public State OUTAKING = State.OUTAKING3;
 
 	public enum State {
-		IDLE(0.0),
-		INTAKING(-1.3),
+		IDLE(-0),
+		CONSTANT(-0.35),
+		INTAKING(-3),//-1.3
 		OUTAKING4(1.5),
 		OUTAKING3(1.3),
 		OUTAKING2(1.3),
@@ -130,7 +132,11 @@ public class CoralRoller extends Subsystem {
 
 	@Override
 	public synchronized void outputTelemetry() {
-		Logger.recordOutput("subsystems/CoralRoller/State", mState.toString());
-		Logger.processInputs("subsystems/CoralRoller/IO", inputs);
+		Logger.recordOutput("CoralRoller/State", mState.toString());
+		Logger.processInputs("CoralRoller/IO", inputs);
+	}
+
+	public boolean getBeamBreak(){
+		return inputs.hasCoral;
 	}
 }

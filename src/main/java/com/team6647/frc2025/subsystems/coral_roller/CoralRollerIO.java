@@ -8,6 +8,8 @@ public interface CoralRollerIO {
         public double roller_output_voltage;
         public double roller_stator_current;
         public double roller_demand;
+        public boolean hasCoral;
+        public double sensorDistance;
     }
 
     public default void updateInputs(CoralRollerIOInputs inputs) {}

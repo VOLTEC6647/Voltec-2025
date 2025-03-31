@@ -10,6 +10,7 @@ public interface ServoMotorSubsystemIO {
         // INPUTS
 		public double timestamp;
 		public double position_rots; // motor rotations
+		public double position_raw; // motor rotations raw
 		public double position_units;
 		public double velocity_rps;
 		public double prev_vel_rps;
@@ -27,6 +28,7 @@ public interface ServoMotorSubsystemIO {
 
 		// OUTPUTS
 		public double demand; // position (motor rots) or percent output
+		public double demandPID;
     }
 
     public default void updateInputs(CoralRollerIOInputs inputs) {}

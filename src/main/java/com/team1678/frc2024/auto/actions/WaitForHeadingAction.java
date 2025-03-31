@@ -1,24 +1,25 @@
 package com.team1678.frc2024.auto.actions;
 
-import com.team1678.frc2024.subsystems.Drive;
+import org.littletonrobotics.frc2025.RobotState;
+
 import com.team1678.lib.swerve.ChassisSpeeds;
 import com.team254.lib.util.TimeDelayedBoolean;
 
 public class WaitForHeadingAction implements Action {
-	Drive drive;
+	RobotState state;
 	double target;
 	double margin;
 	TimeDelayedBoolean onTarget = new TimeDelayedBoolean();
 
 	public WaitForHeadingAction(double target, double margin) {
-		drive = Drive.getInstance();
+		state = RobotState.getInstance();
 		this.target = target;
 		this.margin = margin;
 	}
 
 	@Override
 	public boolean isFinished() {
-		double heading = drive.getPose().getRotation().getDegrees();
+		double heading = state.getHeading().getDegrees();
 		System.out.println(heading);
 		return onTarget.update(Math.abs(target - heading) <= margin, 1.0);
 	}
@@ -28,7 +29,6 @@ public class WaitForHeadingAction implements Action {
 
 	@Override
 	public void update() {
-		drive.feedTeleopSetpoint(new ChassisSpeeds());
 	}
 
 	@Override

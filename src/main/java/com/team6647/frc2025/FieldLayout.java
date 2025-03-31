@@ -1,11 +1,9 @@
 package com.team6647.frc2025;
 
-import com.team1678.frc2024.auto.actions.LambdaAction;
-import com.team1678.frc2024.subsystems.Drive;
+
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
-import com.team6647.frc2025.auto.modes.configuredQuals.putCoral;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -13,14 +11,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-
-import static edu.wpi.first.units.Units.Degrees;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Vector;
-
-import org.littletonrobotics.junction.Logger;
 
 /**
  * Contains various field dimensions and useful reference points. Dimensions are
@@ -65,8 +55,9 @@ public class FieldLayout {
 	}
 
 	public static double kCoralDistance = 1.6; //Please Fix
-	public static double kCoralDistanceOffset = 0.3f; // temproral
-	public static double kPreDistance = 1.0f;
+	public static double kAlgaeOffset = 1.6; //Please Fix
+	public static double kCoralDistanceOffset = 0.2f; // temproral
+	public static double kRealCoralDistanceOffset = 0.165; // temproral
 
 	public enum CoralTarget {
 		RIGHT(0.0),
@@ -80,8 +71,11 @@ public class FieldLayout {
 
 		public double angle;
 
+		public double angleId;
+
 		CoralTarget(double angle) {
 			this.angle = angle;
+			//this.angleId = Cora
 		}
 	}
 
@@ -89,21 +83,17 @@ public class FieldLayout {
 
 	public static class CoralSet{
 		public Pose2d algae;
-		public Pose2d coral1;
-		public Pose2d coral2;
-		public Pose2d algaePre;
-		public Pose2d coral1Pre;
-		public Pose2d coral2Pre;
+		public Pose2d realAlgae;
 		public Pose2d[] corals;
+		public Pose2d[] realCorals;
+		public Pose2d[] corals4;
 
-		public CoralSet(Pose2d algae, Pose2d coral1, Pose2d coral2, Pose2d algaePre, Pose2d coral1Pre, Pose2d coral2Pre, Pose2d[] corals) {
+		public CoralSet(Pose2d algae, Pose2d realAlgae, Pose2d[] corals, Pose2d[] realCorals, Pose2d[] corals4) {
 			this.algae = algae;
-			this.coral1 = coral1;
-			this.coral2 = coral2;
-			this.algaePre = algaePre;
-			this.coral1Pre = coral1Pre;
-			this.coral2Pre = coral2Pre;
+			this.realAlgae = realAlgae;
 			this.corals = corals;
+			this.realCorals = realCorals;
+			this.corals4 = corals4;
 		}
 	}
 
@@ -122,25 +112,41 @@ public class FieldLayout {
 		Pose2d coral1 = center.transformBy(new Pose2d(new Translation2d(0, kCoralDistanceOffset), new Rotation2d()));
 		Pose2d coral2 = center.transformBy(new Pose2d(new Translation2d(0, -kCoralDistanceOffset), new Rotation2d()));
 		
-		Pose2d algaePre = algae.transformBy(new Pose2d(new Translation2d(kPreDistance, 0), new Rotation2d()));
-		Pose2d coral1Pre = coral1.transformBy(new Pose2d(new Translation2d(kPreDistance, 0), new Rotation2d()));
-		Pose2d coral2Pre = coral2.transformBy(new Pose2d(new Translation2d(kPreDistance, 0), new Rotation2d()));
+		double pivotOffset = Units.inchesToMeters(8.9);
+		Pose2d realAlgae = algae.transformBy(new Pose2d(new Translation2d(0, pivotOffset), Rotation2d.fromDegrees(180)));
+		Pose2d realCoral1 = center.transformBy(new Pose2d(new Translation2d(-0.27, kRealCoralDistanceOffset+pivotOffset), Rotation2d.fromDegrees(180)));
+		Pose2d realCoral2 = center.transformBy(new Pose2d(new Translation2d(-0.27, -kRealCoralDistanceOffset+pivotOffset), Rotation2d.fromDegrees(180)));
 		
+		Pose2d realCoral41 = realCoral1.transformBy(new Pose2d(-0.12,0,new Rotation2d()));
+		Pose2d realCoral42 = realCoral2.transformBy(new Pose2d(-0.12,0,new Rotation2d()));
+
 		algae = rotatePoseFromPivot(algae, rot);
 		coral1 = rotatePoseFromPivot(coral1, rot);
 		coral2 = rotatePoseFromPivot(coral2, rot);
+
+		realAlgae = rotatePoseFromPivot(realAlgae, rot);
+		realCoral1 = rotatePoseFromPivot(realCoral1, rot);
+		realCoral2 = rotatePoseFromPivot(realCoral2, rot);
+
+		realCoral41 = rotatePoseFromPivot(realCoral41, rot);
+		realCoral42 = rotatePoseFromPivot(realCoral42, rot);
 
 		algae = handleCoralFlip(algae.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
 		coral1 = handleCoralFlip(coral1.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
 		coral2 = handleCoralFlip(coral2.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
 
-		algaePre = new Pose2d();//rotatePoseFromPivot(algaePre, rot);
-		coral1Pre = new Pose2d();//rotatePoseFromPivot(coral1Pre, rot);
-		coral2Pre = new Pose2d();//rotatePoseFromPivot(coral2Pre, rot);
+		realAlgae = handleCoralFlip(realAlgae.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
+		realCoral1 = handleCoralFlip(realCoral1.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
+		realCoral2 = handleCoralFlip(realCoral2.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
+
+		realCoral41 = handleCoralFlip(realCoral41.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
+		realCoral42 = handleCoralFlip(realCoral42.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
 
 		Pose2d[] corals = {coral1, coral2};
+		Pose2d[] realCorals = {realCoral1, realCoral2};
+		Pose2d[] corals4 = {realCoral41, realCoral42};
 
-		return (new CoralSet(algae, coral1, coral2, algaePre, coral1Pre, coral2Pre, corals));
+		return (new CoralSet(algae, realAlgae, corals, realCorals, corals4));
 	}
 
 	public static Pose2d rotatePoseFromPivot(Pose2d coral, Rotation2d rot) {
@@ -160,6 +166,8 @@ public class FieldLayout {
     }
 
 	public static Pose2d handleCoralFlip(Pose2d blue_pose, boolean is_red_alliance) {
+		blue_pose = blue_pose.rotateBy(Rotation2d.fromDegrees(180));
+		
 		if (is_red_alliance) {
 			blue_pose = blue_pose.mirrorAboutX(kFieldLength / 2.0).mirrorAboutY(kFieldWidth / 2.0);
 		}
@@ -199,6 +207,11 @@ public class FieldLayout {
 		}
 
 		return blue_pose;
+	}
+
+	public static edu.wpi.first.math.geometry.Pose2d handleAllianceFlip(edu.wpi.first.math.geometry.Pose2d blue_pose, boolean is_red_alliance) {
+
+		return handleAllianceFlip(new Pose2d(blue_pose),is_red_alliance).toLegacy();
 	}
 
 	public static Translation2d handleAllianceFlip(Translation2d blue_translation, boolean is_red_alliance) {

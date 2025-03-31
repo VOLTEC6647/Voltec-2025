@@ -77,11 +77,17 @@ public class Elevator extends ServoMotorSubsystem {
 			mHomingDelay.update(Timer.getFPGATimestamp(), false);
 		}
 	}
+	private double homingOutput;
 
 	@Override
 	public void writePeriodicOutputs() {
 		if (mHoming) {
-			setOpenLoop(Constants.ElevatorConstants.kHomingOutput / mConstants.kMaxForwardOutput);
+			if (mPeriodicIO.position_units>0.4){
+				homingOutput = Constants.ElevatorConstants.kMaxHomingOutput;
+			}else{
+			homingOutput = Constants.ElevatorConstants.kHomingOutput;
+			}
+			setOpenLoop(homingOutput / mConstants.kMaxForwardOutput);
 			if (mHomingDelay.update(
 					Timer.getFPGATimestamp(),
 					Math.abs(getVelocity()) < Constants.ElevatorConstants.kHomingVelocityWindow)) {
@@ -155,9 +161,6 @@ public class Elevator extends ServoMotorSubsystem {
 	}
 
 	
-	/**
-	 * @return New reqeust commanding the elevator to extend for Amp scoring.
-	 */
 	public Request L3Request() {
 		return new Request() {
 
@@ -172,5 +175,9 @@ public class Elevator extends ServoMotorSubsystem {
 				return Util.epsilonEquals(getPosition(), kL3Height, 0.1);
 			}
 		};
+	}
+
+	public boolean isHoming(){
+		return mHoming;
 	}
 }

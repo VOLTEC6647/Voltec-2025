@@ -2,13 +2,11 @@ package com.team6647.frc2025.subsystems;
 
 import com.team1678.frc2024.Constants1678;
 import com.team1678.frc2024.Ports1678;
-import com.team1678.frc2024.RobotState;
 import com.team1678.frc2024.controlboard.ControlBoard;
 import com.team1678.frc2024.led.TimedLEDState;
 import com.team1678.frc2024.loops.ILooper;
 import com.team1678.frc2024.loops.Loop;
 import com.team1678.frc2024.subsystems.CoralPivot;
-import com.team1678.frc2024.subsystems.Drive;
 import com.team1678.frc2024.subsystems.PeriodicLogs;
 import com.team1678.frc2024.subsystems.Subsystem;
 import com.team1678.lib.TunableNumber;
@@ -18,6 +16,7 @@ import com.team1678.lib.requests.LambdaRequest;
 import com.team1678.lib.requests.ParallelRequest;
 import com.team1678.lib.requests.Request;
 import com.team1678.lib.requests.SequentialRequest;
+import com.team1678.lib.requests.WaitForPrereqRequest;
 import com.team1678.lib.requests.WaitRequest;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
@@ -27,7 +26,6 @@ import com.team254.lib.util.TimeDelayedBoolean;
 import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.FieldLayout.CoralTarget;
-import com.team6647.frc2025.auto.modes.configuredQuals.test1;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 
 import choreo.Choreo;
@@ -43,6 +41,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.logging.Level;
 
+import org.littletonrobotics.frc2025.subsystems.drive.Drive;
 import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends Subsystem {
@@ -103,6 +102,8 @@ public class Superstructure extends Subsystem {
 	public int coralStationPosition = 0;
 	private CoralRoller mCoralRoller = CoralRoller.getInstance();
 
+	public boolean placing_coral = true;
+
 	public void setLevel(int level) {
 		this.level = level;
 		if (level == 1) {
@@ -120,6 +121,18 @@ public class Superstructure extends Subsystem {
 		if (level == 4) {
 			this.currentLevel = Levels.LEVEL4;
 			mCoralRoller.OUTAKING = CoralRoller.State.OUTAKING4;
+		}
+	}
+
+	public Pose2d sourcePose1 = new Pose2d(1.13,7.06,Rotation2d.fromDegrees(-53.4));
+	
+	public Pose2d sourcePose2 = new Pose2d(1.2310409545898438,0.873404324054718,Rotation2d.fromDegrees(55));
+
+	public Pose2d sourcePose = sourcePose1;
+
+	public void setSource(int id) {
+		if(id == 1){
+
 		}
 	}
 
@@ -154,8 +167,9 @@ public class Superstructure extends Subsystem {
 		setRequestQueue(requests);
 	}
 
-	private void addRequestToQueue(Request req) {
+	public void addRequestToQueue(Request req) {
 		queuedRequests.add(req);
+		allRequestsComplete = false;
 	}
 
 	@Override
@@ -223,21 +237,17 @@ public class Superstructure extends Subsystem {
 	}
 
 	/* Superstructure functions */
-	public void go6(boolean ferryShot) {
-		new test1();
-	}
 
 	public synchronized void showAngle() {
-		synchronized (Drive.getInstance()) {
-			Logger.recordOutput("CoralPose",
-					FieldLayout.getCoralTargetPos(angles[coralId]).corals[subCoralId].toLegacy());
-		}
+		Logger.recordOutput("CoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).corals[subCoralId].toLegacy());
+		Logger.recordOutput("RealCoralPose", FieldLayout.getCoralTargetPos(angles[coralId]).realCorals[subCoralId].toLegacy());
+		Logger.recordOutput("SourcePose", sourcePose.toLegacy());
+		Logger.recordOutput("Coral/CoralId", coralId);
+		Logger.recordOutput("Coral/SubCoralId", subCoralId);
 	}
 
 	public synchronized void showSource() {
-		synchronized (Drive.getInstance()) {
-			Logger.recordOutput("CoralSource", FieldLayout.getCoralStation(true, coralStationPosition).toLegacy());
-		}
+		Logger.recordOutput("CoralSource", FieldLayout.getCoralStation(true, coralStationPosition).toLegacy());
 	}
 
 	private double levelCenter = 8.77400016784668;
@@ -249,31 +259,29 @@ public class Superstructure extends Subsystem {
 	};
 
 	public synchronized void showLevel() {
-		synchronized (Drive.getInstance()) {
-			if (level == 1) {
-				Logger.recordOutput("Pointers/PointerC", levels[0].toLegacy());
-				Logger.recordOutput("Pointers/Pointer1", levels[1].toLegacy());
-				Logger.recordOutput("Pointers/Pointer2", levels[2].toLegacy());
-				Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
-			}
-			if (level == 2) {
-				Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
-				Logger.recordOutput("Pointers/PointerC", levels[1].toLegacy());
-				Logger.recordOutput("Pointers/Pointer2", levels[2].toLegacy());
-				Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
-			}
-			if (level == 3) {
-				Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
-				Logger.recordOutput("Pointers/Pointer2", levels[1].toLegacy());
-				Logger.recordOutput("Pointers/PointerC", levels[2].toLegacy());
-				Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
-			}
-			if (level == 4) {
-				Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
-				Logger.recordOutput("Pointers/Pointer2", levels[1].toLegacy());
-				Logger.recordOutput("Pointers/Pointer3", levels[2].toLegacy());
-				Logger.recordOutput("Pointers/PointerC", levels[3].toLegacy());
-			}
+		if (level == 1) {
+			Logger.recordOutput("Pointers/PointerC", levels[0].toLegacy());
+			Logger.recordOutput("Pointers/Pointer1", levels[1].toLegacy());
+			Logger.recordOutput("Pointers/Pointer2", levels[2].toLegacy());
+			Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
+		}
+		if (level == 2) {
+			Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
+			Logger.recordOutput("Pointers/PointerC", levels[1].toLegacy());
+			Logger.recordOutput("Pointers/Pointer2", levels[2].toLegacy());
+			Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
+		}
+		if (level == 3) {
+			Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
+			Logger.recordOutput("Pointers/Pointer2", levels[1].toLegacy());
+			Logger.recordOutput("Pointers/PointerC", levels[2].toLegacy());
+			Logger.recordOutput("Pointers/Pointer3", levels[3].toLegacy());
+		}
+		if (level == 4) {
+			Logger.recordOutput("Pointers/Pointer1", levels[0].toLegacy());
+			Logger.recordOutput("Pointers/Pointer2", levels[1].toLegacy());
+			Logger.recordOutput("Pointers/Pointer3", levels[2].toLegacy());
+			Logger.recordOutput("Pointers/PointerC", levels[3].toLegacy());
 		}
 	}
 
@@ -373,8 +381,8 @@ public class Superstructure extends Subsystem {
 
 	public Request prepareLevel(Levels levelPos) {
 		return new ParallelRequest(
-				mElevator.LRequest(levelPos),
-				mCoralPivot.LRequest(levelPos));
+				mElevator.setPositionRequest(levelPos.elevatorHeight),
+				mCoralPivot.setPositionRequest(levelPos.coralAngle));
 	}
 
 	public Request softHome() {
@@ -387,7 +395,9 @@ public class Superstructure extends Subsystem {
 							mElevator.setWantHome(true);
 							// mElevator.LRequest(Levels.LEVEL1);
 						}),
-				mCoralPivot.LRequest(Levels.LEVEL1));
+				mCoralPivot.LRequest(Levels.LEVEL1),
+			new WaitForPrereqRequest(()->!mElevator.isHoming())
+				);
 	}
 
 	/**
@@ -401,6 +411,14 @@ public class Superstructure extends Subsystem {
 
 	public void preGen() {
 
+	}
+
+	public Pose2d getActiveCoral(){
+		return FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[coralId]).realCorals[subCoralId];
+	}
+
+	public Pose2d getActiveCoralL4(){
+		return FieldLayout.getCoralTargetPos(Superstructure.getInstance().angles[coralId]).corals4[subCoralId];
 	}
 
 	// spotless:on
