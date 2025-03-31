@@ -25,6 +25,7 @@ public class VisionSubsystem extends SubsystemBase{
     private ArrayList<GlobalCamera> cameras = new ArrayList<GlobalCamera>();
     @Getter private Pose2d bestPose = null;
     private boolean questNavEnabled = false;
+    private GlobalCamera questNavCamera;
 
     private static VisionSubsystem mInstance;
     
@@ -48,7 +49,8 @@ public class VisionSubsystem extends SubsystemBase{
         }
 
         if(questNavEnabled) {
-            cameras.add(new GlobalCamera("QuestNav", new QuestNav()));
+            questNavCamera = new GlobalCamera("QuestNav", new QuestNav());
+            cameras.add(questNavCamera);
         }
     }
 
@@ -64,6 +66,11 @@ public class VisionSubsystem extends SubsystemBase{
             if(camera.getEstimatedPose()!= null){
                 Logger.recordOutput("/Cameras/" + camera.getName() +"/Pose", camera.getEstimatedPose());
             }
+        }
+        if(questNavCamera != null){
+            Logger.recordOutput("/Cameras/" + questNavCamera.getName() +"/BatteryPercent", questNavCamera.getBatteryPercent());
+            Logger.recordOutput("/Cameras/" + questNavCamera.getName() +"/IsTracking", questNavCamera.getTrackingStatus());
+            Logger.recordOutput("/Cameras/" + questNavCamera.getName() +"/LostCount", questNavCamera.getTrackingLostCounter());
         }
 
         int bestCameraIndex = -1;

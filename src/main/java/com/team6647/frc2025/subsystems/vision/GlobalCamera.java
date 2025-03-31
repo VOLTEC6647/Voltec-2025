@@ -129,5 +129,25 @@ public class GlobalCamera {
         }
         return 0;
     }
-    
+
+    public double getBatteryPercent() {
+        if (cameraType == CameraType.QUESTNAV) {
+            return questNav.getBatteryPercent();
+        }
+        return 0;
+    }
+
+    public boolean getTrackingStatus() {
+        if (cameraType == CameraType.QUESTNAV) {
+            return questNav.getTrackingStatus();
+        }
+        return false;
+    }
+
+    public Long getTrackingLostCounter() {
+        if (cameraType == CameraType.QUESTNAV) {
+            return questNav.getTrackingLostCounter();
+        }
+        return 0L;
+    }
 }

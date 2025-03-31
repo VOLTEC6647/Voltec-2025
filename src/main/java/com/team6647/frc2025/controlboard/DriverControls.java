@@ -42,6 +42,7 @@ public class DriverControls {
 	Drive mDrive = Drive.getInstance();
 	RobotState state = RobotState.getInstance();
 	LEDSubsystem mleds = LEDSubsystem.getInstance();
+	VisionSubsystem mVision = VisionSubsystem.getInstance();
 
 	/* ONE CONTROLLER */
 
@@ -211,7 +212,7 @@ public class DriverControls {
 		
 
 		if (mControlBoard.driver.backButton.wasActivated()) {
-			state.reseGyro(edu.wpi.first.math.geometry.Rotation2d.fromDegrees(0));
+			state.resetGyro(edu.wpi.first.math.geometry.Rotation2d.fromDegrees(0));
 		}
 		/*
 		if(mControlBoard.operator.bButton.wasActivated()){
@@ -305,7 +306,8 @@ public class DriverControls {
 		//}
 
 		if(mControlBoard.driver.startButton.wasActivated()){
-			state.reseGyro(VisionSubsystem.getInstance().getBestPose().getRotation());
+			state.resetGyro(mVision.getBestPose().getRotation());
+			mVision.
 		}
 		if(mControlBoard.driver.startButton.wasReleased()){
 			

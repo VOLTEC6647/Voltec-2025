@@ -119,7 +119,7 @@ public class RobotState {
   }
 
   //sus
-  public void reseGyro(Rotation2d rotation) {
+  public void resetGyro(Rotation2d rotation) {
     gyroOffset = rotation.minus(odometryPose.getRotation().minus(gyroOffset));
   }
 
