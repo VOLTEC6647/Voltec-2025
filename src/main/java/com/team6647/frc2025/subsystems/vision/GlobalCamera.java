@@ -118,5 +118,16 @@ public class GlobalCamera {
         }
         return false;
     }
+
+    public double getFPS() {
+        if (cameraType == CameraType.LIMELIGHT) {
+            return limelightPoseEstimator.getFPS();
+        } else if (cameraType == CameraType.PHOTON) {
+            return photonPoseEstimator.getFPS();
+        } else if (cameraType == CameraType.QUESTNAV) {
+            return questNav.getFPS();
+        }
+        return 0;
+    }
     
 }

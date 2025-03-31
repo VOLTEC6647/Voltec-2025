@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 
 public class QuestNav {
   // Configure Network Tables topics (questnav/...) to communicate with the Quest HMD
@@ -123,6 +124,48 @@ public class QuestNav {
       ret += 360;
     }
     return ret;
+  }
+
+  // Variables for FPS calculation
+  private long lastFrameCount = 0;
+  private double lastFPSTimestamp = 0.0;
+  private double calculatedFPS = 0.0; // Store calculated FPS
+
+  public double getFPS() {
+      long currentFrameCount = questFrameCount.get();
+      double currentTime = Timer.getFPGATimestamp(); // Use FPGA time for consistent intervals
+
+      // Initialize on first run or if time hasn't advanced
+      if (lastFPSTimestamp == 0.0) {
+          lastFrameCount = currentFrameCount;
+          lastFPSTimestamp = currentTime;
+          return 0.0; // Not enough data yet
+      }
+
+      double timeDelta = currentTime - lastFPSTimestamp;
+
+      // Avoid division by zero or calculating FPS too frequently (e.g., > 50ms interval)
+      if (timeDelta < 0.05) {
+          return calculatedFPS; // Return the previously calculated FPS
+      }
+
+      long frameDelta = currentFrameCount - lastFrameCount;
+
+      // Calculate FPS only if frames have incremented and time has passed
+      if (frameDelta > 0 && timeDelta > 0) {
+          calculatedFPS = (double) frameDelta / timeDelta;
+      } else if (frameDelta < 0) {
+          // Frame count likely reset (e.g., Quest app restart), reset calculation
+          calculatedFPS = 0.0;
+      }
+      // If frameDelta is 0, FPS is effectively 0 for this interval,
+      // but we keep the last calculated non-zero FPS for stability unless counter resets.
+
+      // Update state for the next calculation
+      lastFrameCount = currentFrameCount;
+      lastFPSTimestamp = currentTime;
+
+      return calculatedFPS;
   }
 
   private Translation2d getQuestNavTranslation() {

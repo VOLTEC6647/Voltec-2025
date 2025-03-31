@@ -231,7 +231,13 @@ import org.photonvision.PhotonCamera;
              );
          }
      }
+
      public boolean isConnected() {
          return camera.isConnected();
      }
+
+     public double getFPS() {
+        return -1;
+    }
+
  }

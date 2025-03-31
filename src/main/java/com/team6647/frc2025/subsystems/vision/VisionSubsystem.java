@@ -60,6 +60,7 @@ public class VisionSubsystem extends SubsystemBase{
             Logger.recordOutput("/Cameras/" + camera.getName() +"/Area", camera.getTagArea());
             Logger.recordOutput("/Cameras/" + camera.getName() +"/Timestamp", camera.getTimestampSeconds());
             Logger.recordOutput("/Cameras/" + camera.getName() +"/isConnected", camera.isConnected());
+            Logger.recordOutput("/Cameras/" + camera.getName() +"/FPS", camera.getFPS());
             if(camera.getEstimatedPose()!= null){
                 Logger.recordOutput("/Cameras/" + camera.getName() +"/Pose", camera.getEstimatedPose());
             }

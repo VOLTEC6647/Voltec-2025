@@ -137,6 +137,21 @@ public class LimelightPoseEstimator{
         LimelightHelpers.SetFiducialIDFiltersOverride(cameraName, teleopTagFilter);
     }
 
+    public double getFPS() {
+        double pipelineLatency = LimelightHelpers.getLatency_Pipeline(this.cameraName); // tl in ms
+        double captureLatency = LimelightHelpers.getLatency_Capture(this.cameraName); // cl in ms
+
+        double totalLatencyMs = pipelineLatency + captureLatency;
+
+        if (totalLatencyMs <= 0) {
+            return 0.0;
+        }
+
+        double fps = 1000.0 / totalLatencyMs;
+
+        return fps;
+    }
+
     public RawFiducial getFiducial(int id) {
         for (RawFiducial tag : rawFiducials) {
             if (tag != null && tag.id == id) {
