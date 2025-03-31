@@ -8,6 +8,7 @@ import com.team6647.frc2025.subsystems.vision.PhotonPoseEstimator.EstimatedPose2
 import com.team6647.lib.util.QuestNav;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import lombok.Getter;
 
 public class GlobalCamera {
@@ -96,7 +97,7 @@ public class GlobalCamera {
     }
 
     public boolean filterAmbiguity(double rotation) {
-        if(consideringAmbiguity && Robot.is_event){
+        if(consideringAmbiguity && DriverStation.isEnabled()){ //&& Robot.is_event
             if(Math.abs(rotation-RobotState.getInstance().getHeading().getDegrees())>6){
                 return false;
             }
@@ -149,5 +150,11 @@ public class GlobalCamera {
             return questNav.getTrackingLostCounter();
         }
         return 0L;
+    }
+
+    public void setPosition(Pose2d pose) {
+        if (cameraType == CameraType.QUESTNAV) {
+            questNav.setPosition(pose);
+        }
     }
 }

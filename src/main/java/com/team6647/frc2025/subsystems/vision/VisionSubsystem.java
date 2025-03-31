@@ -96,4 +96,10 @@ public class VisionSubsystem extends SubsystemBase{
             );
         }
     }
+
+    public void setQuestPose(Pose2d pose) {
+        if(questNavCamera != null) {
+            questNavCamera.setPosition(pose);
+        }
+    }
 }

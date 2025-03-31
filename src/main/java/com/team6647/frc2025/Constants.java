@@ -77,7 +77,7 @@ public class Constants {
 
 			kElevatorServoConstants.kNeutralMode = NeutralModeValue.Brake;
 
-			kElevatorServoConstants.kTolerance = 1;
+			kElevatorServoConstants.kTolerance = 0.05;
 			
 		}
 		
@@ -154,7 +154,7 @@ public class Constants {
 			kHoodServoConstants.kMainConstants.counterClockwisePositive = false;
 
 			kHoodServoConstants.kHomePosition = 0; // Degrees
-			kHoodServoConstants.kTolerance = 1; // Degrees
+			kHoodServoConstants.kTolerance = 5; // Degrees
 			kHoodServoConstants.kRotationsPerUnitDistance = (1.0 / 360.0 * 75) /* (7.16 / 1.0)*/; // Cancoder to unit distance
 			kHoodServoConstants.kKp = 3.0;
 			kHoodServoConstants.kKi = 0;
@@ -211,7 +211,7 @@ public class Constants {
 			kHoodServoConstants.kMainConstants.counterClockwisePositive = false;
 
 			kHoodServoConstants.kHomePosition = 0; // Degrees
-			kHoodServoConstants.kTolerance = 1; // Degrees
+			kHoodServoConstants.kTolerance = 5; // Degrees
 			kHoodServoConstants.kRotationsPerUnitDistance = (1.0 / 360.0 * 9*5*5*1.6) /* (7.16 / 1.0)*/; // Cancoder to unit distance
 			kHoodServoConstants.kKp = 2.0;
 			kHoodServoConstants.kKi = 0;
@@ -315,7 +315,7 @@ public class Constants {
 			kHoodServoConstants.kMainConstants.counterClockwisePositive = true;
 
 			kHoodServoConstants.kHomePosition = 0; // Degrees
-			kHoodServoConstants.kTolerance = 1; // Degrees
+			kHoodServoConstants.kTolerance = 5; // Degrees
 			kHoodServoConstants.kRotationsPerUnitDistance = (1.0 / 360.0 * 5) /* (7.16 / 1.0)*/; // Cancoder to unit distance
 			kHoodServoConstants.kKp = 17.0;
 			kHoodServoConstants.kKi = 0;

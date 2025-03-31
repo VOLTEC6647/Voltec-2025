@@ -655,7 +655,8 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
 			@Override
 			public boolean isFinished() {
-				return trajectoryDone();
+				//return trajectoryDone();
+				return Util.epsilonEquals(mPeriodicIO.position_raw, position, mConstants.kTolerance);
 			}
 		};
 	}

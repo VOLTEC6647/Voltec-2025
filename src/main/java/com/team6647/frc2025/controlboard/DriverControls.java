@@ -307,7 +307,7 @@ public class DriverControls {
 
 		if(mControlBoard.driver.startButton.wasActivated()){
 			state.resetGyro(mVision.getBestPose().getRotation());
-			mVision.
+			mVision.setQuestPose(mVision.getBestPose());
 		}
 		if(mControlBoard.driver.startButton.wasReleased()){
 			

@@ -11,7 +11,6 @@ public class DepositCoralRequest {
 		if(Superstructure.getInstance().level<4){
 			return new SequentialRequest(
 				s.prepareLevel(s.currentLevel),
-				new WaitRequest(0.2),
 				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.getInstance().OUTAKING);}),
 				new WaitRequest(0.5),
 				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.IDLE);}),
@@ -21,12 +20,12 @@ public class DepositCoralRequest {
 			return new SequentialRequest(
 				new WaitRequest(0.3),
 				s.prepareLevel(s.currentLevel),
-				new WaitRequest(0.6),
 				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.getInstance().OUTAKING);}),
 				new WaitRequest(0.5),
-				new WaitForPrereqRequest(()->!ControlBoard.getInstance().operator.bButton.isBeingPressed()),
-				s.softHome(),
-				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.IDLE);})
+				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.INTAKING);}),
+				new WaitRequest(0.5),
+				new LambdaRequest(()->{CoralRoller.getInstance().setState(CoralRoller.State.IDLE);}),
+				s.softHome()
 				);
 		}
 	}

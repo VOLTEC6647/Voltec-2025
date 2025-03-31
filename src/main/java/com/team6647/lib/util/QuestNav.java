@@ -108,6 +108,14 @@ public class QuestNav {
     }
   }
 
+  //not tested
+  public void setPosition(Pose2d pose) {
+    resetPosition = pose;
+    if (questMiso.get() != 99) {
+      questMosi.set(1);
+    }
+  }
+
   // Clean up questnav subroutine messages after processing on the headset
   public void cleanUpQuestNavMessages() {
     if (questMiso.get() == 99) {
