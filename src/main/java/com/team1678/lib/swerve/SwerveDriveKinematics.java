@@ -163,7 +163,7 @@ public class SwerveDriveKinematics {
 					"Number of modules is not consistent with number of wheel locations provided in " + "constructor");
 		}
 		var moduleStatesMatrix = new SimpleMatrix(m_numModules * 2, 1);
-
+	
 		for (int i = 0; i < m_numModules; i++) {
 			var module = wheelStates[i];
 			moduleStatesMatrix.set(i * 2, 0, module.speedMetersPerSecond * module.angle.cos());

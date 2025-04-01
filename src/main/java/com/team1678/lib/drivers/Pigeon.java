@@ -103,11 +103,35 @@ public class Pigeon {
 		return angleSignal;
 	}
 
+	public StatusSignal<Angle> getPitchStatusSignal() {
+		StatusSignal<Angle> angleSignal = mGyro.getPitch();
+		//return new StatusSignal<Double>(angleSignal.getClass(), angleSignal.asSupplier().get().baseUnit(), angleSignal.);
+		return angleSignal;
+	}
+
+	public StatusSignal<Angle> getRollStatusSignal() {
+		StatusSignal<Angle> angleSignal = mGyro.getRoll();
+		//return new StatusSignal<Double>(angleSignal.getClass(), angleSignal.asSupplier().get().baseUnit(), angleSignal.);
+		return angleSignal;
+	}
+
 	public StatusSignal<AngularVelocity> getRateStatusSignal() {
 		return mGyro.getAngularVelocityZDevice();
 	}
 
 	public StatusSignal<AngularVelocity> getAV() {
 		return mGyro.getAngularVelocityZWorld();
+	}
+
+	public StatusSignal<AngularVelocity> getAVZ() {
+		return mGyro.getAngularVelocityZWorld();
+	}
+
+	public StatusSignal<AngularVelocity> getAVX() {
+		return mGyro.getAngularVelocityXWorld();
+	}
+
+	public StatusSignal<AngularVelocity> getAVY() {
+		return mGyro.getAngularVelocityYWorld();
 	}
 }

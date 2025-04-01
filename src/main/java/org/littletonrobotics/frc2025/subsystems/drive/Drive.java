@@ -451,7 +451,12 @@ public class Drive extends SubsystemBase {
 	}
 
   public void resetHeadings(){
-    kinematics.resetHeadings();
+    Rotation2d[] headings = new Rotation2d[4];
+    for (int i = 0; i < 4; i++) {
+      headings[i] = Rotation2d.fromDegrees(0);
+    }
+    kinematics.resetHeadings(headings);
+    stop();
   }
   
   public void choreoController(SwerveSample sample) {

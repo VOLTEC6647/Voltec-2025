@@ -298,9 +298,9 @@ public class Robot extends LoggedRobot {
 		//if (mVisionDevices.getMovingAverageRead() != null) {
 		//	mDrive.zeroGyro(mVisionDevices.getMovingAverageRead());
 		//}
-		for (SubsystemV s:mSubsystems){
-			s.onStart(Timer.getFPGATimestamp());
-		}
+		//for (SubsystemV s:mSubsystems){
+		//	s.onStart(Timer.getFPGATimestamp());
+		//}
 		mDisabledLooper.stop();
 		mEnabledLooper.start();
 		mAutoModeExecutor.setAutoMode(autoChooser.getSelected());//autoChooser.getSelected());
@@ -323,9 +323,9 @@ public class Robot extends LoggedRobot {
 		try {
 			mDrive.stop();
 			//VisionDeviceManager.setDisableVision(false);
-			for (SubsystemV s:mSubsystems){
-				s.onStart(Timer.getFPGATimestamp());
-			}
+			//for (SubsystemV s:mSubsystems){
+			//	s.onStart(Timer.getFPGATimestamp());
+			//}
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 
@@ -366,9 +366,9 @@ public class Robot extends LoggedRobot {
 			CrashTracker.logDisabledInit();
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
-			for (SubsystemV s:mSubsystems){
-				s.onStop(Timer.getFPGATimestamp());
-			}
+			//for (SubsystemV s:mSubsystems){
+			//	s.onStop(Timer.getFPGATimestamp());
+			//}
 			
 			//mCoralPivot.setOpenLoop(0);
 			disable_enter_time = Timer.getFPGATimestamp();
@@ -438,14 +438,14 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void testInit() {
 		try {
-			for (SubsystemV s:mSubsystems){
-				s.onStop(Timer.getFPGATimestamp());
-			}
+			//for (SubsystemV s:mSubsystems){
+			//	s.onStop(Timer.getFPGATimestamp());
+			//}
 			mDisabledLooper.stop();
 			mEnabledLooper.stop();
-			for (SubsystemV s:mSubsystems){
-				s.onStop(Timer.getFPGATimestamp());
-			}
+			//for (SubsystemV s:mSubsystems){
+			//	s.onStop(Timer.getFPGATimestamp());
+			//}
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;

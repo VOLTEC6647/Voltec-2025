@@ -38,16 +38,6 @@ public class Module {
 
   static {
     switch (Constants6328.getRobot()) {
-      case COMPBOT, DEVBOT -> {
-        drivekS.initDefault(5.0);
-        drivekV.initDefault(0);
-        // Multiplied by desired wheelTorqueNm
-        drivekT.initDefault(ModuleIOComp.driveReduction / DCMotor.getKrakenX60Foc(1).KtNMPerAmp);
-        drivekP.initDefault(35.0);
-        drivekD.initDefault(0);
-        turnkP.initDefault(4000.0);
-        turnkD.initDefault(50.0);
-      }
       default -> {
         drivekS.initDefault(0.014);
         drivekV.initDefault(0.134);

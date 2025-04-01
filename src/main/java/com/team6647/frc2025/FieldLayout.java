@@ -37,7 +37,7 @@ public class FieldLayout {
 
 	static {
 		//try {
-			kTagMap = AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
+			kTagMap = AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField();
 			//kTagMap = new AprilTagFieldLayout("/edu/wpi/first/apriltag/2024-crescendo.json");
 			//kTagMap = new AprilTagFieldLayout("/edu/wpi/first/apriltag/2025-reefscape.json");
 		//} catch (IOException e) {

@@ -21,7 +21,9 @@ public class CommandAction implements Action {
 	}
 
 	@Override
-	public void update() {}
+	public void update() {
+		System.out.println(command.isFinished());
+	}
 
 	@Override
 	public boolean isFinished() {

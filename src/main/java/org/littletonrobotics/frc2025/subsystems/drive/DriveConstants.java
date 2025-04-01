@@ -26,7 +26,7 @@ public class DriveConstants {
   public static final double trackWidthY =
       Constants6328.getRobot() == RobotType.DEVBOT
           ? Units.inchesToMeters(20.75)
-          : Units.inchesToMeters(22.75);
+          : Units.inchesToMeters(20.75);
   public static final double driveBaseRadius = Math.hypot(trackWidthX / 2, trackWidthY / 2);
   public static final double maxLinearSpeed = 4.69;
   public static final double maxAngularSpeed = 4.69 / driveBaseRadius;
@@ -127,7 +127,7 @@ public class DriveConstants {
   };
 
   public static class PigeonConstants {
-    public static final int id = Constants6328.getRobot() == RobotType.DEVBOT ? Ports1678.PIGEON : 30;
+    public static final int id = Constants6328.getRobot() == RobotType.DEVBOT ? Ports1678.PIGEON : Ports1678.PIGEON;
   }
 
   @Builder

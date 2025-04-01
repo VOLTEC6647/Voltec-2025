@@ -44,7 +44,7 @@ public class VisionSubsystem extends SubsystemBase{
 
         for(int i = 0; i < photons.length; i++) {
             String photon = photons[i];
-            PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(AprilTagFields.k2025Reefscape.loadAprilTagLayoutField(), new PhotonCamera(photon), photonTransform[i], VisionPhotonConstants.AMBIGUITY_THRESHOLD, VisionPhotonConstants.TAG_AREA_THRESHOLD);
+            PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField(), new PhotonCamera(photon), photonTransform[i], VisionPhotonConstants.AMBIGUITY_THRESHOLD, VisionPhotonConstants.TAG_AREA_THRESHOLD);
             cameras.add(new GlobalCamera(photon, photonPoseEstimator));
         }
 

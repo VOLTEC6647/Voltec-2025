@@ -50,7 +50,7 @@ public class LimelightPoseEstimator{
     
     public LimelightPoseEstimator(String name) {
         try {
-            aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
+            aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
         } catch (Exception e) {
             aprilTagFieldLayout = null;
         }

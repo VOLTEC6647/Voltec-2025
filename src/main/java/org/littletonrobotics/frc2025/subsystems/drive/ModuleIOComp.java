@@ -22,6 +22,8 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.team1678.frc2024.Ports1678;
+
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -53,11 +55,11 @@ public class ModuleIOComp implements ModuleIO {
   private static final Executor brakeModeExecutor = Executors.newFixedThreadPool(8);
 
   // Control requests
-  private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0).withUpdateFreqHz(0);
-  private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
-      new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0);
-  private final VelocityTorqueCurrentFOC velocityTorqueCurrentRequest =
-      new VelocityTorqueCurrentFOC(0.0).withUpdateFreqHz(0);
+  private final DutyCycleOut torqueCurrentRequest = new DutyCycleOut(0).withUpdateFreqHz(0);
+  private final PositionDutyCycle positionTorqueCurrentRequest =
+      new PositionDutyCycle(0.0).withUpdateFreqHz(0);
+  private final VelocityDutyCycle velocityTorqueCurrentRequest =
+      new VelocityDutyCycle(0.0).withUpdateFreqHz(0);
 
   // Inputs from drive motor
   private final StatusSignal<Angle> drivePosition;
@@ -82,9 +84,9 @@ public class ModuleIOComp implements ModuleIO {
   private final Debouncer turnEncoderConnectedDebounce = new Debouncer(0.5);
 
   public ModuleIOComp(ModuleConfig config) {
-    driveTalon = new TalonFX(config.driveMotorId(), "*");
-    turnTalon = new TalonFX(config.turnMotorId(), "*");
-    encoder = new CANcoder(config.encoderChannel(), "*");
+    driveTalon = new TalonFX(config.driveMotorId(), com.team6647.frc2025.Constants.DriveConstants.swerveCANBus);
+    turnTalon = new TalonFX(config.turnMotorId(), com.team6647.frc2025.Constants.DriveConstants.swerveCANBus);
+    encoder = new CANcoder(config.encoderChannel(), com.team6647.frc2025.Constants.DriveConstants.swerveCANBus);
     encoderOffset = config.encoderOffset();
 
     // Configure drive motor
@@ -103,7 +105,7 @@ public class ModuleIOComp implements ModuleIO {
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     turnConfig.Slot0 = new Slot0Configs().withKP(0).withKI(0).withKD(0);
     turnConfig.Feedback.FeedbackRemoteSensorID = config.encoderChannel();
-    turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     turnConfig.Feedback.RotorToSensorRatio = turnReduction;
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
     turnConfig.TorqueCurrent.PeakForwardTorqueCurrent = turnCurrentLimitAmps;
