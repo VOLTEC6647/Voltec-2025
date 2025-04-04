@@ -2,7 +2,6 @@ package com.team1678.frc2024.auto.actions;
 
 import com.team1678.lib.requests.Prerequisite;
 import com.team1678.lib.requests.Request;
-import com.team1678.lib.swerve.ChassisSpeeds;
 import com.team1678.lib.util.Stopwatch;
 import com.team254.lib.util.TimeDelayedBoolean;
 

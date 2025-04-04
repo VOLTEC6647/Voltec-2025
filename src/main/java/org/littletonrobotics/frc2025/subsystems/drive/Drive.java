@@ -443,13 +443,6 @@ public class Drive extends SubsystemBase {
     return gyroInputs.data.yawPosition();
   }
 
-  public static class KinematicLimits {
-		public double kMaxDriveVelocity = Constants1678.SwerveConstants.maxSpeed; // m/s
-		public double kMaxAccel = Double.MAX_VALUE; // m/s^2
-		public double kMaxAngularVelocity = Constants1678.SwerveConstants.maxAngularVelocity; // rad/s
-		public double kMaxAngularAccel = Double.MAX_VALUE; // rad/s^2
-	}
-
   public void resetHeadings(){
     Rotation2d[] headings = new Rotation2d[4];
     for (int i = 0; i < 4; i++) {

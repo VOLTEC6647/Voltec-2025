@@ -40,7 +40,8 @@ public class QuestNav {
   private double lastProcessedHeartbeatId = 0;
 
   // Local heading helper variables
-  private float yaw_offset = 0.0f;
+  private float yaw_offset = 90.0f;
+  //private static JadbConnection jadb = new JadbConnection();
   private Pose2d resetPosition = new Pose2d();
 
   /** Process heartbeat requests from Quest and respond with the same ID */
@@ -185,4 +186,6 @@ public class QuestNav {
     var oculousPositionCompensated = getQuestNavTranslation().minus(new Translation2d(0, 0.1651)); // 6.5
     return new Pose2d(oculousPositionCompensated, Rotation2d.fromDegrees(getOculusYaw()));
   }
+
+  //private static void 
 }

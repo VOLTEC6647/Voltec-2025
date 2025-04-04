@@ -54,7 +54,7 @@ public class DriveConstants {
         .driveMotorId(Ports1678.FL_DRIVE.getDeviceNumber())
         .turnMotorId(Ports1678.FL_ROTATION.getDeviceNumber())
         .encoderChannel(Ports1678.FL_CANCODER.getDeviceNumber())
-        .encoderOffset(Rotation2d.fromRadians(1.057373))
+        .encoderOffset(Rotation2d.fromRotations(-0.437256+0.5).unaryMinus())
         .turnInverted(true)
         .encoderInverted(false)
         .build(),
@@ -63,7 +63,7 @@ public class DriveConstants {
         .driveMotorId(Ports1678.FR_DRIVE.getDeviceNumber())
         .turnMotorId(Ports1678.FR_ROTATION.getDeviceNumber())
         .encoderChannel(Ports1678.FR_CANCODER.getDeviceNumber())
-        .encoderOffset(Rotation2d.fromRadians(0.880615))
+        .encoderOffset(Rotation2d.fromRotations(-0.118408).unaryMinus())
         .turnInverted(true)
         .encoderInverted(false)
         .build(),
@@ -72,7 +72,7 @@ public class DriveConstants {
         .driveMotorId(Ports1678.BL_DRIVE.getDeviceNumber())
         .turnMotorId(Ports1678.BL_ROTATION.getDeviceNumber())
         .encoderChannel(Ports1678.BL_CANCODER.getDeviceNumber())
-        .encoderOffset(Rotation2d.fromRadians(0.143311))
+        .encoderOffset(Rotation2d.fromRotations(-0.354248+0.5).unaryMinus())
         .turnInverted(true)
         .encoderInverted(false)
         .build(),
@@ -81,7 +81,7 @@ public class DriveConstants {
         .driveMotorId(Ports1678.BR_DRIVE.getDeviceNumber())
         .turnMotorId(Ports1678.BR_ROTATION.getDeviceNumber())
         .encoderChannel(Ports1678.BR_CANCODER.getDeviceNumber())
-        .encoderOffset(Rotation2d.fromRadians(0.526855))
+        .encoderOffset(Rotation2d.fromRotations(-0.472656).unaryMinus())
         .turnInverted(true)
         .encoderInverted(false)
         .build()

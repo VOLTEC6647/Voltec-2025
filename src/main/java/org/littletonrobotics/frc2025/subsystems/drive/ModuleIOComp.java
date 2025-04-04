@@ -27,6 +27,7 @@ import com.team1678.frc2024.Ports1678;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -126,7 +127,8 @@ public class ModuleIOComp implements ModuleIO {
             ? SensorDirectionValue.Clockwise_Positive
             : SensorDirectionValue.CounterClockwise_Positive;
     tryUntilOk(5, () -> encoder.getConfigurator().apply(cancoderConfig));
-
+    //turnTalon.setPosition(Rotation2d.fromDegrees(90).getRotations());
+    //driveTalon.setPosition(Rotation2d.fromDegrees(45).getDegrees());
     // Create drive status signals
     drivePosition = driveTalon.getPosition();
     drivePositionQueue =

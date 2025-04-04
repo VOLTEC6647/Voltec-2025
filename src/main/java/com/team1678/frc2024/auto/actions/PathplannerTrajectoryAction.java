@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.team1678.lib.swerve.ChassisSpeeds;
 import com.team254.lib.geometry.Pose2dWithMotion;
 import com.team254.lib.trajectory.TimedView;
 import com.team254.lib.trajectory.Trajectory254;

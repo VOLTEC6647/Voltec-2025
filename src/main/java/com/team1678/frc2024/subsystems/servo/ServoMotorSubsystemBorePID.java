@@ -15,7 +15,6 @@ import com.team1678.frc2024.loops.ILooper;
 import com.team1678.frc2024.loops.Loop;
 import com.team1678.frc2024.subsystems.Subsystem;
 import com.team1678.lib.requests.Request;
-import com.team1678.lib.swerve.SwerveModule.mPeriodicIO;
 import com.team254.lib.drivers.CanDeviceId;
 import com.team254.lib.drivers.Phoenix6Util;
 import com.team254.lib.drivers.TalonFXFactory;

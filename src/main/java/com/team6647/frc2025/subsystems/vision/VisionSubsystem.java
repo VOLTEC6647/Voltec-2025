@@ -24,8 +24,10 @@ public class VisionSubsystem extends SubsystemBase{
     private Transform3d photonTransform[] = new Transform3d[] {VisionPhotonConstants.CAMERA_CORALL_TRANSFORM, VisionPhotonConstants.CAMERA_CORALR_TRANSFORM};
     private ArrayList<GlobalCamera> cameras = new ArrayList<GlobalCamera>();
     @Getter private Pose2d bestPose = null;
-    private boolean questNavEnabled = false;
+    private boolean questNavEnabled = true;
     private GlobalCamera questNavCamera;
+    QuestNav questNav = null;
+    private GlobalCamera coralLimelight;
 
     private static VisionSubsystem mInstance;
     
@@ -39,7 +41,11 @@ public class VisionSubsystem extends SubsystemBase{
         for(int i = 0; i < limelights.length; i++) {
             String limelight = limelights[i];
             LimelightPoseEstimator limelightPoseEstimator = new LimelightPoseEstimator(limelight);
-            cameras.add(new GlobalCamera(limelight, limelightPoseEstimator));
+            GlobalCamera toAdd = new GlobalCamera(limelight, limelightPoseEstimator);
+            cameras.add(toAdd);
+            if(toAdd.getName()=="limelight-coral"){
+                coralLimelight = toAdd;
+            }
         }
 
         for(int i = 0; i < photons.length; i++) {
@@ -49,7 +55,8 @@ public class VisionSubsystem extends SubsystemBase{
         }
 
         if(questNavEnabled) {
-            questNavCamera = new GlobalCamera("QuestNav", new QuestNav());
+            questNav = new QuestNav();
+            questNavCamera = new GlobalCamera("QuestNav", questNav);
             cameras.add(questNavCamera);
         }
     }

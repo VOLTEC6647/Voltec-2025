@@ -28,7 +28,6 @@ import com.team6647.frc2025.controlboard.DriverControls;
 import com.team1678.frc2024.loops.CrashTracker;
 import com.team1678.frc2024.loops.Looper;
 import com.team1678.frc2024.subsystems.AlgaeT;
-import com.team1678.frc2024.subsystems.Cancoders;
 import com.team1678.frc2024.subsystems.Climber;
 import com.team1678.frc2024.subsystems.CoralPivot;
 import com.team1678.frc2024.subsystems.SubsystemV;
@@ -93,7 +92,6 @@ public class Robot extends LoggedRobot {
 	// subsystem instances
 	private Drive mDrive;
 	private LEDSubsystem leds;
-	private Cancoders mCancoders;
 
 	private MotorTest mMotorTest;
 	private AlgaeRoller mAlgaeRoller;
@@ -216,7 +214,6 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void robotInit() {
 		try {
-			mCancoders = Cancoders.getInstance();
 			CrashTracker.logRobotInit();
 
 			LiveWindow.disableAllTelemetry();
@@ -229,18 +226,6 @@ public class Robot extends LoggedRobot {
 				SmartDashboard.putString("Comp Serial", Constants1678.kCompSerial);
 				SmartDashboard.putString("Epsilon Serial", Constants1678.kEpsilonSerial);
 				SmartDashboard.putString("Serial Number", serial);
-			}
-
-			if (Robot.isReal()) {
-				mCancoders = Cancoders.getInstance();
-				double startInitTs = Timer.getFPGATimestamp();
-				System.out.println("* Starting to init Cancoders at ts " + startInitTs);
-				while (Timer.getFPGATimestamp() - startInitTs < Constants1678.SwerveConstants.kCancoderBootAllowanceSeconds
-						&& !mCancoders.allHaveBeenInitialized()) {
-					Timer.delay(0.1);
-				}
-				System.out.println(
-						"* Cancoders all initialized: Took " + (Timer.getFPGATimestamp() - startInitTs) + " seconds");
 			}
 
 			mDrive.resetHeadings();
@@ -462,9 +447,9 @@ public class Robot extends LoggedRobot {
 	private void confugureButtonBindings(){
 		Supplier<Command> joystickDriveCommandFactory =
 		()->DriveCommands.joystickDrive(mDrive, 
-		()->mControlBoard.getSwerveTranslation().x(),
-		()->mControlBoard.getSwerveTranslation().y(),
-		()->mControlBoard.getSwerveRotation(),
+		()->-mControlBoard.driver.getLeftY(),
+		()->-mControlBoard.driver.getLeftX(),
+		()->-mControlBoard.driver.getRightX(),
 		()->is_red_alliance
 		//Util.robotToFieldRelative(new Rotation2d(RobotState6328.getInstance().getHeading()),is_red_alliance).toLegacy()
 		);

@@ -2,7 +2,6 @@ package com.team1678.frc2024.auto.actions;
 
 import org.littletonrobotics.frc2025.RobotState;
 
-import com.team1678.lib.swerve.ChassisSpeeds;
 import com.team254.lib.util.TimeDelayedBoolean;
 
 public class WaitForHeadingAction implements Action {
