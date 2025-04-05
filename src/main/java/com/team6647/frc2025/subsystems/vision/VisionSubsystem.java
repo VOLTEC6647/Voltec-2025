@@ -2,6 +2,7 @@
 package com.team6647.frc2025.subsystems.vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class VisionSubsystem extends SubsystemBase{
     private GlobalCamera questNavCamera;
     QuestNav questNav = null;
     private GlobalCamera coralLimelight;
+    public boolean hasFirstPose = false;
 
     private static VisionSubsystem mInstance;
     

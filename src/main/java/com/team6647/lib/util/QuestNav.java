@@ -1,8 +1,16 @@
 package com.team6647.lib.util;
 
+import java.util.Queue;
+
+import org.littletonrobotics.frc2025.util.LoggedTunableNumber;
+
+import com.team1678.lib.requests.SequentialRequest;
+
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -14,6 +22,10 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import lombok.Getter;
 
 public class QuestNav {
   // Configure Network Tables topics (questnav/...) to communicate with the Quest HMD
@@ -40,9 +52,20 @@ public class QuestNav {
   private double lastProcessedHeartbeatId = 0;
 
   // Local heading helper variables
-  private float yaw_offset = 90.0f;
+  private float yaw_offset = 0.0f;
   //private static JadbConnection jadb = new JadbConnection();
   private Pose2d resetPosition = new Pose2d();
+  private Pose2d zeroPose = new Pose2d();
+  public boolean hasFirstPose = false;
+  public boolean hasReset = false;
+  private static final LoggedTunableNumber centerOffset = new LoggedTunableNumber("Camera/QuestOffset");
+
+
+  public QuestNav(){
+    centerOffset.initDefault(0.33);
+  }
+
+  
 
   /** Process heartbeat requests from Quest and respond with the same ID */
   public void processHeartbeat() {
@@ -103,18 +126,31 @@ public class QuestNav {
 
   // Zero the absolute 3D position of the robot (similar to long-pressing the quest logo)
   public void zeroPosition() {
+    zeroPose = getRobotCentric();
+    /*
     resetPosition = getPose();
     if (questMiso.get() != 99) {
-      questMosi.set(1);
+      //questMosi.set(1);
+      new SequentialCommandGroup(
+        new WaitCommand(3),
+        new InstantCommand(()->{
+          //questMosi.set(0);
+        })
+      ).schedule();
     }
+       */
   }
 
   //not tested
   public void setPosition(Pose2d pose) {
-    resetPosition = pose;
-    if (questMiso.get() != 99) {
-      questMosi.set(1);
-    }
+    hasReset = true;
+    offset = pose.minus(new Pose2d());
+    zeroPosition();
+    //zeroPosition();
+    //resetPosition = pose;
+    //if (questMiso.get() != 99) {
+    //  questMosi.set(1);
+    //}
   }
 
   // Clean up questnav subroutine messages after processing on the headset
@@ -183,8 +219,31 @@ public class QuestNav {
   }
 
   private Pose2d getQuestNavPose() {
-    var oculousPositionCompensated = getQuestNavTranslation().minus(new Translation2d(0, 0.1651)); // 6.5
+    var oculousPositionCompensated = getQuestNavTranslation().minus(new Translation2d(0, 0)); // 6.5 //centerOffset.get()//0.1651
     return new Pose2d(oculousPositionCompensated, Rotation2d.fromDegrees(getOculusYaw()));
+  }
+  private Transform2d offset = new Transform2d();
+
+  public Pose2d getRobotCentric(){
+    Pose2d currentpose = getPose();
+    //hasFirstPose = true;
+    return new Pose2d(
+      -currentpose.getX()-offset.getX(),
+      -currentpose.getY()-offset.getY(),
+      currentpose.getRotation().times(-1).plus(offset.getRotation())
+    ).plus(new Transform2d(new Translation2d(centerOffset.get(),0),new Rotation2d()));
+    //return currentpose.plus(offset);
+  }
+
+  public Pose2d getPoseWOffset(){
+    Pose2d currentpose = getPose();
+    //hasFirstPose = true;
+    return new Pose2d(
+      currentpose.getX()-zeroPose.getX(),
+      currentpose.getY()-zeroPose.getY(),
+      currentpose.getRotation().plus(zeroPose.getRotation())
+    );
+    //return currentpose.plus(offset);
   }
 
   //private static void 

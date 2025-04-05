@@ -5,6 +5,8 @@
 package com.team6647.frc2025;
 
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FileVersionException;
 import com.team1678.frc2024.Constants1678;
 import com.team1678.frc2024.SubsystemManager;
 import com.team1678.frc2024.auto.AutoModeBase;
@@ -40,6 +42,7 @@ import com.team6647.frc2025.subsystems.leds.LEDSubsystem;
 import com.team6647.frc2025.subsystems.vision.VisionSubsystem;
 
 import choreo.auto.AutoFactory;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -62,6 +65,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
+import org.json.simple.parser.ParseException;
 import org.littletonrobotics.frc2025.Constants6328;
 import org.littletonrobotics.frc2025.RobotState;
 import org.littletonrobotics.frc2025.commands.DriveCommands;
@@ -76,6 +80,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import java.io.IOException;
 import java.util.function.Supplier;
 
 public class Robot extends LoggedRobot {
@@ -103,15 +108,12 @@ public class Robot extends LoggedRobot {
 	private com.team1678.frc2024.subsystems.Climber mClimber;
 	private VisionSubsystem mVision;
 
-
-
-
-
 	// vision
-	//private final VisionDeviceManager mVisionDevices = VisionDeviceManager.getInstance();
+	// private final VisionDeviceManager mVisionDevices =
+	// VisionDeviceManager.getInstance();
 
 	// limelight
-	//private final Limelight mLimelight = Limelight.getInstance();
+	// private final Limelight mLimelight = Limelight.getInstance();
 
 	// enabled and disabled loopers
 	private final Looper mEnabledLooper = new Looper();
@@ -119,16 +121,15 @@ public class Robot extends LoggedRobot {
 
 	// auto instances
 	private AutoModeExecutor mAutoModeExecutor = new AutoModeExecutor();
-	//public static final AutoModeSelector mAutoModeSelector = new AutoModeSelector();
+	// public static final AutoModeSelector mAutoModeSelector = new
+	// AutoModeSelector();
 	public static final AutoModeSelector mThreeNoteNoteSelector = new AutoModeSelector();
 	public static boolean is_red_alliance = false;
 	public static boolean is_event = false;
 	public static String serial;
 
 	double disable_enter_time = 0.0;
-	
-	
-	
+
 	static {
 		Logger.recordMetadata("Voltec", "Betabot");
 		if (Robot.isReal()) {
@@ -139,10 +140,12 @@ public class Robot extends LoggedRobot {
 		} else {
 			serial = "";
 			Logger.addDataReceiver(new NT4Publisher());
-			//setUseTiming(false); // Run as fast as possible
-			//String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-			//Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-			//Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+			// setUseTiming(false); // Run as fast as possible
+			// String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
+			// AdvantageScope (or prompt the user)
+			// Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+			// Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath,
+			// "_sim")));
 		}
 		Logger.start();
 		Constants1678.isComp = serial.startsWith(Constants1678.kCompSerial);
@@ -153,32 +156,31 @@ public class Robot extends LoggedRobot {
 		CrashTracker.logRobotConstruction();
 
 		switch (Constants6328.getRobot()) {
-        case COMPBOT -> {
-          mDrive =
-              Drive.getInstance(
-                  new GyroIOPigeon2(),
-                  new ModuleIOComp(DriveConstants.moduleConfigsComp[0]),
-                  new ModuleIOComp(DriveConstants.moduleConfigsComp[1]),
-                  new ModuleIOComp(DriveConstants.moduleConfigsComp[2]),
-                  new ModuleIOComp(DriveConstants.moduleConfigsComp[3]));
-        }
-        case DEVBOT -> {
-			
-        }
-        case SIMBOT -> {
-			mDrive =
-				Drive.getInstance(
-                  new GyroIO() {},
-                  new ModuleIOSim(),
-                  new ModuleIOSim(),
-                  new ModuleIOSim(),
-                  new ModuleIOSim());
-        }
-      }
+			case COMPBOT -> {
+				mDrive = Drive.getInstance(
+						new GyroIOPigeon2(),
+						new ModuleIOComp(DriveConstants.moduleConfigsComp[0]),
+						new ModuleIOComp(DriveConstants.moduleConfigsComp[1]),
+						new ModuleIOComp(DriveConstants.moduleConfigsComp[2]),
+						new ModuleIOComp(DriveConstants.moduleConfigsComp[3]));
+			}
+			case DEVBOT -> {
+
+			}
+			case SIMBOT -> {
+				mDrive = Drive.getInstance(
+						new GyroIO() {
+						},
+						new ModuleIOSim(),
+						new ModuleIOSim(),
+						new ModuleIOSim(),
+						new ModuleIOSim());
+			}
+		}
 
 		leds = LEDSubsystem.getInstance();
 
-		//mMotorTest = MotorTest.getInstance();
+		// mMotorTest = MotorTest.getInstance();
 		mAlgaeRoller = AlgaeRoller.getInstance();
 		mAlgaeT = AlgaeT.getInstance();
 		mCoralPivot = CoralPivot.getInstance();
@@ -186,7 +188,6 @@ public class Robot extends LoggedRobot {
 		mElevator = Elevator.getInstance();
 		mClimber = Climber.getInstance();
 		mVision = VisionSubsystem.getInstance();
-		
 
 		autoChooser.addOption("Just Forward", new simpleForwardD());
 		autoChooser.addOption("S3RightA", new S3RightA());
@@ -200,12 +201,29 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("S3RightPP", new S3RightPP());
 		autoChooser.addOption("L4", new L4AutoPP());
 		autoChooser.addOption("Panteras", new Panteras());
-		
-		if(isReal()){
+
+		if (isReal()) {
+			RobotState state = RobotState.getInstance();
+			Pose2d autoPose;
+			try {
+				autoPose = FieldLayout.handleAllianceFlip(
+						PathPlannerPath.fromPathFile("SF").getStartingHolonomicPose().get(),
+						DriverStation.getAlliance().get() == Alliance.Red);
+				state.resetGyro(autoPose.getRotation());
+				state.resetPose(autoPose);
+				VisionSubsystem.getInstance().setQuestPose(autoPose);
+			} catch (FileVersionException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
 
 		}
-		
-		//autoChooser.addOption("Center 6", new AmpRaceAuto(drivetrain, vision, shooter, shooterPivot, intake, intakePivot, false, 5, 4, 3, 2));
+
+		// autoChooser.addOption("Center 6", new AmpRaceAuto(drivetrain, vision,
+		// shooter, shooterPivot, intake, intakePivot, false, 5, 4, 3, 2));
 		SmartDashboard.putData("Auto Mode", autoChooser);
 
 		SmartDashboard.putData("Auto Chosen", autoChooser);
@@ -230,19 +248,19 @@ public class Robot extends LoggedRobot {
 
 			mDrive.resetHeadings();
 
-			//mSubsystems = new SubsystemV[]{
-			//	mDrive
-			//};
+			// mSubsystems = new SubsystemV[]{
+			// mDrive
+			// };
 			// spotless:off
 			mSubsystemManager.setSubsystems(
-				mSuperstructure,
-				mAlgaeRoller,
-				mCoralPivot,
-				mElevator,
-				mCoralRoller,
-				mAlgaeT,
-				mClimber//,
-				//mVision
+					mSuperstructure,
+					mAlgaeRoller,
+					mCoralPivot,
+					mElevator,
+					mCoralRoller,
+					mAlgaeT,
+					mClimber// ,
+			// mVision
 			);
 			// spotless:on
 			mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -256,14 +274,14 @@ public class Robot extends LoggedRobot {
 			mSuperstructure.showAngle();
 
 			leds.solidBlue();
-			//leds.escuderia_effect();
+			// leds.escuderia_effect();
 			PathfindingCommand.warmupCommand().schedule();
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
 		}
-		//CommandScheduler.getInstance().enable();
+		// CommandScheduler.getInstance().enable();
 		confugureButtonBindings();
 	}
 
@@ -280,22 +298,21 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void autonomousInit() {
-		//if (mVisionDevices.getMovingAverageRead() != null) {
-		//	mDrive.zeroGyro(mVisionDevices.getMovingAverageRead());
-		//}
-		//for (SubsystemV s:mSubsystems){
-		//	s.onStart(Timer.getFPGATimestamp());
-		//}
+		// if (mVisionDevices.getMovingAverageRead() != null) {
+		// mDrive.zeroGyro(mVisionDevices.getMovingAverageRead());
+		// }
+		// for (SubsystemV s:mSubsystems){
+		// s.onStart(Timer.getFPGATimestamp());
+		// }
 		mDisabledLooper.stop();
 		mEnabledLooper.start();
-		mAutoModeExecutor.setAutoMode(autoChooser.getSelected());//autoChooser.getSelected());
+		mAutoModeExecutor.setAutoMode(autoChooser.getSelected());// autoChooser.getSelected());
 		mAutoModeExecutor.start();
 	}
 
 	@Override
 	public void autonomousPeriodic() {
 
-		 
 	}
 
 	@Override
@@ -307,17 +324,17 @@ public class Robot extends LoggedRobot {
 	public void teleopInit() {
 		try {
 			mDrive.stop();
-			//VisionDeviceManager.setDisableVision(false);
-			//for (SubsystemV s:mSubsystems){
-			//	s.onStart(Timer.getFPGATimestamp());
-			//}
+			// VisionDeviceManager.setDisableVision(false);
+			// for (SubsystemV s:mSubsystems){
+			// s.onStart(Timer.getFPGATimestamp());
+			// }
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 
-			//mLimelight.setPipeline(Pipeline.TELEOP);
-			//mCoralPivot.zeroSensors();
-			//mCoralPivot.setWantHome(true);
-				
+			// mLimelight.setPipeline(Pipeline.TELEOP);
+			// mCoralPivot.zeroSensors();
+			// mCoralPivot.setWantHome(true);
+
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -332,9 +349,9 @@ public class Robot extends LoggedRobot {
 			mControlBoard.update();
 
 			ShuffleboardTab coralTab = Shuffleboard.getTab("Coral");
-			//coralTab.add("Position", 3);
-			//coralTab.add("Level", 3);
-			//coralTab.add("Slot", 3);
+			// coralTab.add("Position", 3);
+			// coralTab.add("Level", 3);
+			// coralTab.add("Slot", 3);
 			mSuperstructure.showAngle();
 			mSuperstructure.showLevel();
 
@@ -347,15 +364,15 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void disabledInit() {
 		try {
-			//VisionDeviceManager.setDisableVision(false);
+			// VisionDeviceManager.setDisableVision(false);
 			CrashTracker.logDisabledInit();
 			mEnabledLooper.stop();
 			mDisabledLooper.start();
-			//for (SubsystemV s:mSubsystems){
-			//	s.onStop(Timer.getFPGATimestamp());
-			//}
-			
-			//mCoralPivot.setOpenLoop(0);
+			// for (SubsystemV s:mSubsystems){
+			// s.onStop(Timer.getFPGATimestamp());
+			// }
+
+			// mCoralPivot.setOpenLoop(0);
 			disable_enter_time = Timer.getFPGATimestamp();
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -366,7 +383,8 @@ public class Robot extends LoggedRobot {
 			mAutoModeExecutor.stop();
 		}
 
-		//mLimelight.setPipeline(is_red_alliance ? Pipeline.AUTO_RED : Pipeline.AUTO_BLUE);
+		// mLimelight.setPipeline(is_red_alliance ? Pipeline.AUTO_RED :
+		// Pipeline.AUTO_BLUE);
 	}
 
 	@Override
@@ -384,11 +402,11 @@ public class Robot extends LoggedRobot {
 			} else {
 				alliance_changed = true;
 			}
-			if(DriverStation.getMatchType() != MatchType.None){
+			if (DriverStation.getMatchType() != MatchType.None) {
 				is_event = true;
 			}
 
-			//Timer.getFPGATimestamp()
+			// Timer.getFPGATimestamp()
 			if (Timer.getFPGATimestamp() - disable_enter_time > 5.0) {
 				disable_enter_time = Double.POSITIVE_INFINITY;
 			}
@@ -397,22 +415,24 @@ public class Robot extends LoggedRobot {
 				System.out.println("Alliance changed! But that doesn't matter :/");
 			}
 
-			//mAutoModeSelector.updateModeCreator(alliance_changed);
+			// mAutoModeSelector.updateModeCreator(alliance_changed);
 
-			//if (autoMode.isPresent() && (autoMode.get() != mAutoModeExecutor.getAutoMode())) {
-			//	mAutoModeExecutor.setAutoMode(autoMode.get());
-			//}
+			// if (autoMode.isPresent() && (autoMode.get() !=
+			// mAutoModeExecutor.getAutoMode())) {
+			// mAutoModeExecutor.setAutoMode(autoMode.get());
+			// }
 
-			//List<Trajectory<TimedState<Pose2dWithMotion>>> paths =
-					//autoMode.get().getPaths();
-			//for (int i = 0; i < paths.size(); i++) {
-				//LogUtil.recordTrajectory(String.format("Paths/Path %d", i), paths.get(i));
-			//}
+			// List<Trajectory<TimedState<Pose2dWithMotion>>> paths =
+			// autoMode.get().getPaths();
+			// for (int i = 0; i < paths.size(); i++) {
+			// LogUtil.recordTrajectory(String.format("Paths/Path %d", i), paths.get(i));
+			// }
 
-			//if (mControlBoard.driver.getBButton()) {
-			//	RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
-			//}
-			//Logger.recordOutput("Vision Heading/Average", mVisionDevices.getMovingAverageRead());
+			// if (mControlBoard.driver.getBButton()) {
+			// RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
+			// }
+			// Logger.recordOutput("Vision Heading/Average",
+			// mVisionDevices.getMovingAverageRead());
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
@@ -423,14 +443,14 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void testInit() {
 		try {
-			//for (SubsystemV s:mSubsystems){
-			//	s.onStop(Timer.getFPGATimestamp());
-			//}
+			// for (SubsystemV s:mSubsystems){
+			// s.onStop(Timer.getFPGATimestamp());
+			// }
 			mDisabledLooper.stop();
 			mEnabledLooper.stop();
-			//for (SubsystemV s:mSubsystems){
-			//	s.onStop(Timer.getFPGATimestamp());
-			//}
+			// for (SubsystemV s:mSubsystems){
+			// s.onStop(Timer.getFPGATimestamp());
+			// }
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
@@ -438,32 +458,35 @@ public class Robot extends LoggedRobot {
 	}
 
 	@Override
-	public void testPeriodic() {}
+	public void testPeriodic() {
+	}
 
 	public static boolean isJITing() {
 		return Timer.getTimestamp() < 45.0; // Check if <45 seconds since robot boot
 	}
 
-	private void confugureButtonBindings(){
-		Supplier<Command> joystickDriveCommandFactory =
-		()->DriveCommands.joystickDrive(mDrive, 
-		()->-mControlBoard.driver.getLeftY(),
-		()->-mControlBoard.driver.getLeftX(),
-		()->-mControlBoard.driver.getRightX(),
-		()->is_red_alliance
-		//Util.robotToFieldRelative(new Rotation2d(RobotState6328.getInstance().getHeading()),is_red_alliance).toLegacy()
+	private void confugureButtonBindings() {
+		Supplier<Command> joystickDriveCommandFactory = () -> DriveCommands.joystickDrive(mDrive,
+				() -> -mControlBoard.driver.getLeftY(),
+				() -> -mControlBoard.driver.getLeftX(),
+				() -> -mControlBoard.driver.getRightX(),
+				() -> is_red_alliance
+		// Util.robotToFieldRelative(new
+		// Rotation2d(RobotState6328.getInstance().getHeading()),is_red_alliance).toLegacy()
 		);
 		mDrive.setDefaultCommand(joystickDriveCommandFactory.get());
-		new ParallelRaceGroup(
-			new RepeatCommand(new SequentialCommandGroup(
-			new InstantCommand(()->{
-				RobotState.getInstance().resetGyro(mVision.getBestPose().getRotation());
-				mVision.setQuestPose(mVision.getBestPose());
-			}),
-			new WaitCommand(5)
-			)),
-			new WaitUntilCommand(()->DriverStation.isEnabled())
-		).schedule();
-		
+		/*
+		 * new ParallelRaceGroup(
+		 * new RepeatCommand(new SequentialCommandGroup(
+		 * new InstantCommand(()->{
+		 * RobotState.getInstance().resetGyro(mVision.getBestPose().getRotation());
+		 * mVision.setQuestPose(mVision.getBestPose());
+		 * }),
+		 * new WaitCommand(5)
+		 * )),
+		 * new WaitUntilCommand(()->DriverStation.isEnabled())
+		 * );
+		 */
+
 	}
 }

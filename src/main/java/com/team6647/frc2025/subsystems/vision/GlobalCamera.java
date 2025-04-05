@@ -9,13 +9,16 @@ import com.team6647.lib.util.QuestNav;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import lombok.Getter;
 
 public class GlobalCamera {
     private CameraType cameraType;
     private LimelightPoseEstimator limelightPoseEstimator;
     private PhotonPoseEstimator photonPoseEstimator;
-    private QuestNav questNav;
+    public QuestNav questNav;
     private final String cameraName;
     private Pose2d estimatedPose;
     private double tagArea;
@@ -48,7 +51,7 @@ public class GlobalCamera {
         this.cameraType = CameraType.QUESTNAV;
         this.cameraName = name;
         this.questNav = questNav;
-        this.stdevsXY = 0.2;
+        this.stdevsXY = 0.002;
         this.consideringAmbiguity = false;
     }
 
@@ -73,7 +76,13 @@ public class GlobalCamera {
                 this.tagArea = 0;  
             }
         } else if (cameraType == CameraType.QUESTNAV) {
-            Pose2d pose = questNav.getPose();
+            if (!isConnected()){
+                this.estimatedPose = null;
+                this.tagArea = 0;
+                this.timestampSeconds = questNav.timestamp();
+                return;
+            }
+            Pose2d pose = questNav.getRobotCentric();//questNav.getPose();
             this.estimatedPose = pose;
             this.tagArea = Double.POSITIVE_INFINITY;
             this.timestampSeconds = questNav.timestamp();
@@ -153,8 +162,20 @@ public class GlobalCamera {
     }
 
     public void setPosition(Pose2d pose) {
+        questNav.setPosition(pose);
+        /*
         if (cameraType == CameraType.QUESTNAV) {
-            questNav.setPosition(pose);
+            if(questNav.hasFirstPose){
+                questNav.setPosition(pose);
+            }else{
+                new SequentialCommandGroup(
+                   new WaitUntilCommand(()->questNav.hasFirstPose),
+                    new InstantCommand(()->{questNav.setPosition(pose);})
+                ).schedule();
+                
+            }
+            //questNav.zeroPosition();
         }
+             */
     }
 }
