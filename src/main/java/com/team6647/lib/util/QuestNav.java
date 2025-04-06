@@ -1,13 +1,8 @@
 package com.team6647.lib.util;
 
-import java.util.Queue;
-
 import org.littletonrobotics.frc2025.util.LoggedTunableNumber;
 
-import com.team1678.lib.requests.SequentialRequest;
-
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -21,14 +16,10 @@ import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import lombok.Getter;
 
 public class QuestNav {
-  // Configure Network Tables topics (questnav/...) to communicate with the Quest HMD
+  // Configure Network Tables topics (questnav/...) to communicate with the Quest
+  // HMD
   NetworkTableInstance nt4Instance = NetworkTableInstance.getDefault();
   NetworkTable nt4Table = nt4Instance.getTable("questnav");
   private IntegerSubscriber questMiso = nt4Table.getIntegerTopic("miso").subscribe(0);
@@ -36,36 +27,38 @@ public class QuestNav {
 
   // Subscribe to the Network Tables questnav data topics
   private DoubleSubscriber questTimestamp = nt4Table.getDoubleTopic("timestamp").subscribe(0.0f);
-  private FloatArraySubscriber questPosition = nt4Table.getFloatArrayTopic("position").subscribe(new float[]{0.0f, 0.0f, 0.0f});
-  private FloatArraySubscriber questQuaternion = nt4Table.getFloatArrayTopic("quaternion").subscribe(new float[]{0.0f, 0.0f, 0.0f, 0.0f});
-  private FloatArraySubscriber questEulerAngles = nt4Table.getFloatArrayTopic("eulerAngles").subscribe(new float[]{0.0f, 0.0f, 0.0f});
+  private FloatArraySubscriber questPosition = nt4Table.getFloatArrayTopic("position")
+      .subscribe(new float[] { 0.0f, 0.0f, 0.0f });
+  private FloatArraySubscriber questQuaternion = nt4Table.getFloatArrayTopic("quaternion")
+      .subscribe(new float[] { 0.0f, 0.0f, 0.0f, 0.0f });
+  private FloatArraySubscriber questEulerAngles = nt4Table.getFloatArrayTopic("eulerAngles")
+      .subscribe(new float[] { 0.0f, 0.0f, 0.0f });
   private IntegerSubscriber questFrameCount = nt4Table.getIntegerTopic("frameCount").subscribe(0);
   private DoubleSubscriber questBatteryPercent = nt4Table.getDoubleTopic("device/batteryPercent").subscribe(0.0f);
   private BooleanSubscriber questIsTracking = nt4Table.getBooleanTopic("device/isTracking").subscribe(false);
-  private IntegerSubscriber questTrackingLostCount = nt4Table.getIntegerTopic("device/trackingLostCounter").subscribe(0);
+  private IntegerSubscriber questTrackingLostCount = nt4Table.getIntegerTopic("device/trackingLostCounter")
+      .subscribe(0);
 
   /** Subscriber for heartbeat requests */
-  private final DoubleSubscriber heartbeatRequestSub = nt4Table.getDoubleTopic("heartbeat/quest_to_robot").subscribe(0.0);
+  private final DoubleSubscriber heartbeatRequestSub = nt4Table.getDoubleTopic("heartbeat/quest_to_robot")
+      .subscribe(0.0);
   /** Publisher for heartbeat responses */
   private final DoublePublisher heartbeatResponsePub = nt4Table.getDoubleTopic("heartbeat/robot_to_quest").publish();
+  private static final LoggedTunableNumber centerOffsetForward = new LoggedTunableNumber("Camera/QuestOffsetForward");
+  private static final LoggedTunableNumber centerOffsetRight = new LoggedTunableNumber("Camera/QuestOffsetRight");
+
   /** Last processed heartbeat request ID */
   private double lastProcessedHeartbeatId = 0;
 
   // Local heading helper variables
-  private float yaw_offset = 0.0f;
-  //private static JadbConnection jadb = new JadbConnection();
+  private float yaw_offset = -90.0f;
   private Pose2d resetPosition = new Pose2d();
-  private Pose2d zeroPose = new Pose2d();
-  public boolean hasFirstPose = false;
-  public boolean hasReset = false;
-  private static final LoggedTunableNumber centerOffset = new LoggedTunableNumber("Camera/QuestOffset");
+  private Pose2d robotOffset = new Pose2d();
 
-
-  public QuestNav(){
-    centerOffset.initDefault(0.33);
+  public QuestNav() {
+    centerOffsetForward.initDefault(0.33);
+    centerOffsetRight.initDefault(0.33);
   }
-
-  
 
   /** Process heartbeat requests from Quest and respond with the same ID */
   public void processHeartbeat() {
@@ -79,7 +72,14 @@ public class QuestNav {
 
   // Gets the Quest's measured position.
   public Pose2d getPose() {
-    return new Pose2d(getQuestNavPose().minus(resetPosition).getTranslation(), Rotation2d.fromDegrees(getOculusYaw()));
+    Pose2d qnP = getQuestNavPose();
+    Pose2d finalpose = new Pose2d(
+        qnP.getX()+robotOffset.getX(),
+        qnP.getY()+robotOffset.getY(),
+        qnP.getRotation().plus(robotOffset.getRotation()));
+    // return new Pose2d(getQuestNavPose().minus(resetPosition).getTranslation(),
+    // Rotation2d.fromDegrees(getOculusYaw()));
+    return finalpose;
   }
 
   // Gets the battery percent of the Quest.
@@ -87,7 +87,7 @@ public class QuestNav {
     return questBatteryPercent.get();
   }
 
-  // Gets the current tracking state of the Quest. 
+  // Gets the current tracking state of the Quest.
   public Boolean getTrackingStatus() {
     return questIsTracking.get();
   }
@@ -97,7 +97,8 @@ public class QuestNav {
     return questFrameCount.get();
   }
 
-  // Gets the number of tracking lost events since the Quest connected to the robot. 
+  // Gets the number of tracking lost events since the Quest connected to the
+  // robot.
   public Long getTrackingLostCounter() {
     return questTrackingLostCount.get();
   }
@@ -124,33 +125,20 @@ public class QuestNav {
     yaw_offset = eulerAngles[1];
   }
 
-  // Zero the absolute 3D position of the robot (similar to long-pressing the quest logo)
+  // Zero the absolute 3D position of the robot (similar to long-pressing the
+  // quest logo)
   public void zeroPosition() {
-    zeroPose = getRobotCentric();
-    /*
     resetPosition = getPose();
-    if (questMiso.get() != 99) {
-      //questMosi.set(1);
-      new SequentialCommandGroup(
-        new WaitCommand(3),
-        new InstantCommand(()->{
-          //questMosi.set(0);
-        })
-      ).schedule();
-    }
-       */
   }
 
-  //not tested
   public void setPosition(Pose2d pose) {
-    hasReset = true;
-    offset = pose.minus(new Pose2d());
-    zeroPosition();
-    //zeroPosition();
-    //resetPosition = pose;
-    //if (questMiso.get() != 99) {
-    //  questMosi.set(1);
-    //}
+    //resetPosition = getPose();
+    Pose2d currentPose = getQuestNavPose();
+    
+    robotOffset = new Pose2d(
+      pose.getX()-currentPose.getX(),
+      pose.getY()-currentPose.getY(),
+        currentPose.getRotation().minus(pose.getRotation()));
   }
 
   // Clean up questnav subroutine messages after processing on the headset
@@ -171,80 +159,16 @@ public class QuestNav {
     return ret;
   }
 
-  // Variables for FPS calculation
-  private long lastFrameCount = 0;
-  private double lastFPSTimestamp = 0.0;
-  private double calculatedFPS = 0.0; // Store calculated FPS
-
-  public double getFPS() {
-      long currentFrameCount = questFrameCount.get();
-      double currentTime = Timer.getFPGATimestamp(); // Use FPGA time for consistent intervals
-
-      // Initialize on first run or if time hasn't advanced
-      if (lastFPSTimestamp == 0.0) {
-          lastFrameCount = currentFrameCount;
-          lastFPSTimestamp = currentTime;
-          return 0.0; // Not enough data yet
-      }
-
-      double timeDelta = currentTime - lastFPSTimestamp;
-
-      // Avoid division by zero or calculating FPS too frequently (e.g., > 50ms interval)
-      if (timeDelta < 0.05) {
-          return calculatedFPS; // Return the previously calculated FPS
-      }
-
-      long frameDelta = currentFrameCount - lastFrameCount;
-
-      // Calculate FPS only if frames have incremented and time has passed
-      if (frameDelta > 0 && timeDelta > 0) {
-          calculatedFPS = (double) frameDelta / timeDelta;
-      } else if (frameDelta < 0) {
-          // Frame count likely reset (e.g., Quest app restart), reset calculation
-          calculatedFPS = 0.0;
-      }
-      // If frameDelta is 0, FPS is effectively 0 for this interval,
-      // but we keep the last calculated non-zero FPS for stability unless counter resets.
-
-      // Update state for the next calculation
-      lastFrameCount = currentFrameCount;
-      lastFPSTimestamp = currentTime;
-
-      return calculatedFPS;
-  }
-
   private Translation2d getQuestNavTranslation() {
     float[] questnavPosition = questPosition.get();
     return new Translation2d(questnavPosition[2], -questnavPosition[0]);
   }
 
   private Pose2d getQuestNavPose() {
-    var oculousPositionCompensated = getQuestNavTranslation().minus(new Translation2d(0, 0)); // 6.5 //centerOffset.get()//0.1651
-    return new Pose2d(oculousPositionCompensated, Rotation2d.fromDegrees(getOculusYaw()));
+    Transform2d offsetPose = new Transform2d(
+        new Translation2d(centerOffsetForward.get(), centerOffsetRight.get()).unaryMinus(),
+        new Rotation2d());
+    var oculousPositionCompensated = getQuestNavTranslation(); // 6.5
+    return new Pose2d(oculousPositionCompensated, Rotation2d.fromDegrees(getOculusYaw())).plus(offsetPose);
   }
-  private Transform2d offset = new Transform2d();
-
-  public Pose2d getRobotCentric(){
-    Pose2d currentpose = getPose();
-    //hasFirstPose = true;
-    return new Pose2d(
-      -currentpose.getX()-offset.getX(),
-      -currentpose.getY()-offset.getY(),
-      currentpose.getRotation().times(-1).plus(offset.getRotation())
-    ).plus(new Transform2d(new Translation2d(centerOffset.get(),0),new Rotation2d()));
-    //return currentpose.plus(offset);
-  }
-
-  public Pose2d getPoseWOffset(){
-    Pose2d currentpose = getPose();
-    //hasFirstPose = true;
-    return new Pose2d(
-      currentpose.getX()-zeroPose.getX(),
-      currentpose.getY()-zeroPose.getY(),
-      currentpose.getRotation().plus(zeroPose.getRotation())
-    );
-    //return currentpose.plus(offset);
-  }
-
-  //private static void 
 }

@@ -82,7 +82,7 @@ public class GlobalCamera {
                 this.timestampSeconds = questNav.timestamp();
                 return;
             }
-            Pose2d pose = questNav.getRobotCentric();//questNav.getPose();
+            Pose2d pose = questNav.getPose();//questNav.getPose();
             this.estimatedPose = pose;
             this.tagArea = Double.POSITIVE_INFINITY;
             this.timestampSeconds = questNav.timestamp();
@@ -135,7 +135,7 @@ public class GlobalCamera {
         } else if (cameraType == CameraType.PHOTON) {
             return photonPoseEstimator.getFPS();
         } else if (cameraType == CameraType.QUESTNAV) {
-            return questNav.getFPS();
+            //return questNav.getFPS();
         }
         return 0;
     }
