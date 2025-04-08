@@ -1,32 +1,19 @@
 package com.team1678.frc2024.subsystems;
 
-import java.io.ObjectInputFilter.Config;
-
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.team1678.frc2024.Constants1678.ClimberConstants;
 import com.team1678.frc2024.loops.ILooper;
 import com.team1678.frc2024.loops.Loop;
 import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystem;
-import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystemWithCancoder;
-import com.team1678.lib.requests.Request;
 import com.team1678.lib.util.Stopwatch;
-import com.team254.lib.util.Util;
-import com.team6647.frc2025.Constants;
 import com.team6647.frc2025.Constants.CoralPivotConstants;
-import com.team6647.frc2025.subsystems.Superstructure;
-import com.team6647.frc2025.subsystems.Superstructure.Levels;
 import com.team6647.frc2025.Ports;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends ServoMotorSubsystem {
 	private static Climber mInstance;
 	private boolean mHoming = false;
 	private Stopwatch mHomingStart = new Stopwatch();
-	public static final double kPreparing = -300.0-50, kVertical = 340.0-50, kIdle = 0.0;
+	public static final double kPreparing = -300.0, kVertical = 225, kIdle = 0.0;
 
 	public static Climber getInstance() {
 

@@ -7,20 +7,16 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.team1678.frc2024.loops.ILooper;
 import com.team1678.frc2024.loops.Loop;
 import com.team1678.frc2024.subsystems.servo.ServoMotorSubsystem;
-
 import com.team1678.lib.util.Stopwatch;
-
 import com.team6647.frc2025.Constants.AlgaeTConstants;
 import com.team6647.frc2025.Constants.CoralPivotConstants;
-
-import com.team6647.frc2025.Ports;
 
 
 public class AlgaeT extends ServoMotorSubsystem {
 	private static AlgaeT mInstance;
 	private boolean mHoming = false;
 	private Stopwatch mHomingStart = new Stopwatch();
-	public static final double kIdleAngle = 0.0, kIntakingAngle = 65.0, kHoldingAngle = 25.0;
+	public static final double kIdleAngle = 0.0, kIntakingAngle = 73.0, kHoldingAngle = 25.0;
 
 	public static AlgaeT getInstance() {
 		if (mInstance == null) {

@@ -84,6 +84,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import java.io.IOException;
 import java.util.function.Supplier;
 
+import com.team6647.frc2025.auto.modes.configuredQuals.TunePP;
+
 public class Robot extends LoggedRobot {
 
 	// util instances
@@ -202,6 +204,7 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("S3RightPP", new S3RightPP());
 		autoChooser.addOption("L4", new L4AutoPP());
 		autoChooser.addOption("Panteras", new Panteras());
+		autoChooser.addOption("Tuning", new TunePP());
 
 		if (isReal()) {
 			RobotState state = RobotState.getInstance();
