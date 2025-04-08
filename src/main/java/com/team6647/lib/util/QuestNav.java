@@ -1,14 +1,18 @@
 package com.team6647.lib.util;
 
 import org.littletonrobotics.frc2025.util.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 import com.team6647.frc2025.subsystems.vision.VisionSubsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
@@ -66,9 +70,21 @@ public class QuestNav {
 		return mInstance;
 	}
 
+  Transform2d offsetPose;
+
   public QuestNav() {
-    centerOffsetForward.initDefault(0.33);
-    centerOffsetRight.initDefault(0.33);
+    centerOffsetForward.initDefault(-0.04705165);
+    centerOffsetRight.initDefault(0.28129601);
+    zeroPosition();
+
+
+  }
+
+  public void debugPeriodic(){
+    offsetPose = new Transform2d(
+    new Translation2d(centerOffsetForward.get(), centerOffsetRight.get()),
+    new Rotation2d());
+    Logger.recordOutput("ConeT",new Pose3d(new Translation3d(offsetPose.getTranslation()),new Rotation3d(-90.0,-90.0,-90.0)));
   }
   
 
@@ -91,7 +107,7 @@ public class QuestNav {
         qnP.getRotation().plus(robotOffset.getRotation()));
     // return new Pose2d(getQuestNavPose().minus(resetPosition).getTranslation(),
     // Rotation2d.fromDegrees(getOculusYaw()));
-    return finalpose;
+    return qnP;
   }
 
   // Gets the battery percent of the Quest.
@@ -177,14 +193,14 @@ public class QuestNav {
   }
 
   private Pose2d getQuestNavPose() {
-    Transform2d offsetPose = new Transform2d(
-        new Translation2d(centerOffsetForward.get(), centerOffsetRight.get()).unaryMinus(),
-        new Rotation2d());
+    
         Translation2d qnTranslation = getQuestNavTranslation();
-    var oculousPositionCompensated = new Translation2d(
+        
+    Translation2d oculousPositionCompensated = 
+    new Translation2d(
       -qnTranslation.getY(),
       qnTranslation.getX()
-          ).rotateAround(offsetPose.getTranslation(), offsetPose.getRotation()); // 6.5
-    return new Pose2d(oculousPositionCompensated, Rotation2d.fromDegrees(getOculusYaw())).plus(offsetPose);
+          ); // .rotateAround(offsetPose.getTranslation(), offsetPose.getRotation())
+    return new Pose2d(oculousPositionCompensated, Rotation2d.fromDegrees(getOculusYaw())).plus(offsetPose.inverse());
   }
 }

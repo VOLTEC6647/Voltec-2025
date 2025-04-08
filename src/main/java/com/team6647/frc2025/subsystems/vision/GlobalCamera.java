@@ -76,6 +76,7 @@ public class GlobalCamera {
                 this.tagArea = 0;  
             }
         } else if (cameraType == CameraType.QUESTNAV) {
+            questNav.debugPeriodic();
             if (!isConnected()){
                 this.estimatedPose = null;
                 this.tagArea = 0;
