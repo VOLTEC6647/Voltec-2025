@@ -24,7 +24,7 @@ public class VisionSubsystem extends SubsystemBase{
     private String[] photons = new String[] {};//"corall", "coralr"
     private Transform3d photonTransform[] = new Transform3d[] {VisionPhotonConstants.CAMERA_CORALL_TRANSFORM, VisionPhotonConstants.CAMERA_CORALR_TRANSFORM};
     private ArrayList<GlobalCamera> cameras = new ArrayList<GlobalCamera>();
-    @Getter private Pose2d bestPose = null;
+    @Getter public Pose2d bestPose = null;
     private boolean questNavEnabled = true;
     private GlobalCamera questNavCamera;
     QuestNav questNav = null;
@@ -65,6 +65,7 @@ public class VisionSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
+        Logger.recordOutput("/Cameras/bestPose", bestPose);
         for(int i = 0; i < cameras.size(); i++) {
             GlobalCamera camera = cameras.get(i);
             camera.updateEstimatedPose();

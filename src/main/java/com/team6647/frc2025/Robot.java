@@ -215,7 +215,7 @@ public class Robot extends LoggedRobot {
 						DriverStation.getAlliance().get() == Alliance.Red);
 				//state.resetGyro(autoPose.getRotation());
 				//state.resetPose(autoPose);
-				//VisionSubsystem.getInstance().setQuestPose(autoPose);
+				//QuestNav.getInstance().setPosition(autoPose);
 			} catch (FileVersionException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -481,18 +481,19 @@ public class Robot extends LoggedRobot {
 		// Rotation2d(RobotState6328.getInstance().getHeading()),is_red_alliance).toLegacy()
 		);
 		mDrive.setDefaultCommand(joystickDriveCommandFactory.get());
-		/*
-		 * new ParallelRaceGroup(
-		 * new RepeatCommand(new SequentialCommandGroup(
-		 * new InstantCommand(()->{
-		 * RobotState.getInstance().resetGyro(mVision.getBestPose().getRotation());
-		 * mVision.setQuestPose(mVision.getBestPose());
-		 * }),
-		 * new WaitCommand(5)
-		 * )),
-		 * new WaitUntilCommand(()->DriverStation.isEnabled())
-		 * );
-		 */
+		
+		 //new ParallelRaceGroup(
+		 new RepeatCommand(new SequentialCommandGroup(
+		 new InstantCommand(()->{System.out.println("AAAAAAAAAAAA");
+		 RobotState.getInstance().resetGyro(mVision.bestPose.getRotation());
+		 RobotState.getInstance().resetPose(mVision.bestPose);
+		 mVision.setQuestPose(mVision.getBestPose());
+		 }),
+		 new WaitCommand(5)
+		 )).schedule();//,
+		 //new WaitUntilCommand(()->DriverStation.isEnabled())
+		 //).schedule();
+		 
 
 	}
 }
