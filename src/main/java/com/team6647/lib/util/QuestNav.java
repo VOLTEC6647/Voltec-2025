@@ -3,8 +3,6 @@ package com.team6647.lib.util;
 import org.littletonrobotics.frc2025.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
-import com.team6647.frc2025.subsystems.vision.VisionSubsystem;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Quaternion;
@@ -57,7 +55,7 @@ public class QuestNav {
   private double lastProcessedHeartbeatId = 0;
 
   // Local heading helper variables
-  private float yaw_offset = -90.0f;
+  private float yaw_offset = 0.0f;
   private Pose2d resetPosition = new Pose2d();
   private Pose2d robotOffset = new Pose2d();
 
@@ -156,7 +154,11 @@ public class QuestNav {
   // Zero the absolute 3D position of the robot (similar to long-pressing the
   // quest logo)
   public void zeroPosition() {
-    resetPosition = getPose();
+    //resetPosition = getPose();
+    if (questMiso.get() != 99) {
+      questMosi.set(1);
+    }
+
   }
 
   public void setPosition(Pose2d pose) {
@@ -201,6 +203,6 @@ public class QuestNav {
       -qnTranslation.getY(),
       qnTranslation.getX()
           ); // .rotateAround(offsetPose.getTranslation(), offsetPose.getRotation())
-    return new Pose2d(oculousPositionCompensated, Rotation2d.fromDegrees(getOculusYaw())).plus(offsetPose.inverse());
+    return new Pose2d(oculousPositionCompensated, Rotation2d.fromDegrees(-getOculusYaw())).plus(offsetPose.inverse());
   }
 }
