@@ -40,6 +40,7 @@ import com.team6647.frc2025.subsystems.algae_roller.AlgaeRoller;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 import com.team6647.frc2025.subsystems.leds.LEDSubsystem;
 import com.team6647.frc2025.subsystems.vision.VisionSubsystem;
+import com.team6647.lib.util.QuestNav;
 
 import choreo.auto.AutoFactory;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -290,6 +291,8 @@ public class Robot extends LoggedRobot {
 		mEnabledLooper.outputToSmartDashboard();
 		mSubsystemManager.outputLoopTimes();
 		CommandScheduler.getInstance().run();
+		QuestNav.getInstance().processHeartbeat();
+		QuestNav.getInstance().cleanUpQuestNavMessages();
 	}
 
 	private final SendableChooser<AutoModeBase> autoChooser = new SendableChooser<AutoModeBase>();

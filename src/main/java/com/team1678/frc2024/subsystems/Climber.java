@@ -26,7 +26,7 @@ public class Climber extends ServoMotorSubsystem {
 	private static Climber mInstance;
 	private boolean mHoming = false;
 	private Stopwatch mHomingStart = new Stopwatch();
-	public static final double kPreparing = -149.0, kVertical = 280.0, kIdle = 100.0;
+	public static final double kPreparing = -300.0-50, kVertical = 340.0-50, kIdle = 0.0;
 
 	public static Climber getInstance() {
 

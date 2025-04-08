@@ -57,7 +57,7 @@ public class VisionSubsystem extends SubsystemBase{
         }
 
         if(questNavEnabled) {
-            questNav = new QuestNav();
+            questNav = QuestNav.getInstance();
             questNavCamera = new GlobalCamera("QuestNav", questNav);
             cameras.add(questNavCamera);
         }

@@ -2,6 +2,8 @@ package com.team6647.lib.util;
 
 import org.littletonrobotics.frc2025.util.LoggedTunableNumber;
 
+import com.team6647.frc2025.subsystems.vision.VisionSubsystem;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -55,10 +57,20 @@ public class QuestNav {
   private Pose2d resetPosition = new Pose2d();
   private Pose2d robotOffset = new Pose2d();
 
+  private static QuestNav mInstance;
+    
+    public static QuestNav getInstance() {
+		if (mInstance == null) {
+			mInstance = new QuestNav();//, CoralPivotConstants.kHoodEncoderConstants
+		}
+		return mInstance;
+	}
+
   public QuestNav() {
     centerOffsetForward.initDefault(0.33);
     centerOffsetRight.initDefault(0.33);
   }
+  
 
   /** Process heartbeat requests from Quest and respond with the same ID */
   public void processHeartbeat() {
@@ -138,7 +150,7 @@ public class QuestNav {
     robotOffset = new Pose2d(
       pose.getX()-currentPose.getX(),
       pose.getY()-currentPose.getY(),
-        currentPose.getRotation().minus(pose.getRotation()));
+        currentPose.getRotation().plus(pose.getRotation()));
   }
 
   // Clean up questnav subroutine messages after processing on the headset
@@ -168,7 +180,11 @@ public class QuestNav {
     Transform2d offsetPose = new Transform2d(
         new Translation2d(centerOffsetForward.get(), centerOffsetRight.get()).unaryMinus(),
         new Rotation2d());
-    var oculousPositionCompensated = getQuestNavTranslation(); // 6.5
+        Translation2d qnTranslation = getQuestNavTranslation();
+    var oculousPositionCompensated = new Translation2d(
+      -qnTranslation.getY(),
+      qnTranslation.getX()
+          ).rotateAround(offsetPose.getTranslation(), offsetPose.getRotation()); // 6.5
     return new Pose2d(oculousPositionCompensated, Rotation2d.fromDegrees(getOculusYaw())).plus(offsetPose);
   }
 }
