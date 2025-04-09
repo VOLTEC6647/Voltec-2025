@@ -106,7 +106,7 @@ public class QuestNav {
         qnP.getRotation().plus(robotOffset.getRotation()));
     // return new Pose2d(getQuestNavPose().minus(resetPosition).getTranslation(),
     // Rotation2d.fromDegrees(getOculusYaw()));
-    return qnP;
+    return finalpose;
   }
 
   // Gets the battery percent of the Quest.
@@ -166,10 +166,13 @@ public class QuestNav {
     //resetPosition = getPose();
     Pose2d currentPose = getQuestNavPose();
     
+    
     robotOffset = new Pose2d(
       pose.getX()-currentPose.getX(),
       pose.getY()-currentPose.getY(),
         currentPose.getRotation().plus(pose.getRotation()));
+
+        Logger.recordOutput("Cameras/offset", robotOffset);
   }
 
   // Clean up questnav subroutine messages after processing on the headset

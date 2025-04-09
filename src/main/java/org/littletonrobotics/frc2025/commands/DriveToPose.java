@@ -1,293 +1,193 @@
-// Copyright (c) 2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file at
-// the root directory of this project.
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
 
 package org.littletonrobotics.frc2025.commands;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-import lombok.Getter;
-import org.littletonrobotics.frc2025.Constants6328;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
+import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
+
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import org.littletonrobotics.frc2025.RobotState;
 import org.littletonrobotics.frc2025.subsystems.drive.Drive;
-import org.littletonrobotics.frc2025.subsystems.drive.DriveConstants;
-import org.littletonrobotics.frc2025.util.GeomUtil;
-import org.littletonrobotics.frc2025.util.LoggedTunableNumber;
-import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 public class DriveToPose extends Command {
-  private static final LoggedTunableNumber drivekP = new LoggedTunableNumber("DriveToPose/DrivekP");
-  private static final LoggedTunableNumber drivekD = new LoggedTunableNumber("DriveToPose/DrivekD");
-  private static final LoggedTunableNumber thetakP = new LoggedTunableNumber("DriveToPose/ThetakP");
-  private static final LoggedTunableNumber thetakD = new LoggedTunableNumber("DriveToPose/ThetakD");
-  private static final LoggedTunableNumber driveMaxVelocity =
-      new LoggedTunableNumber("DriveToPose/DriveMaxVelocity");
-  private static final LoggedTunableNumber driveMaxAcceleration =
-      new LoggedTunableNumber("DriveToPose/DriveMaxAcceleration");
-  private static final LoggedTunableNumber driveMaxVelocityAuto =
-      new LoggedTunableNumber("DriveToPose/DriveMaxVelocityAuto");
-  private static final LoggedTunableNumber driveMaxAccelerationAuto =
-      new LoggedTunableNumber("DriveToPose/DriveMaxAccelerationAuto");
-  private static final LoggedTunableNumber thetaMaxVelocity =
-      new LoggedTunableNumber("DriveToPose/ThetaMaxVelocity");
-  private static final LoggedTunableNumber thetaMaxAcceleration =
-      new LoggedTunableNumber("DriveToPose/ThetaMaxAcceleration");
-  private static final LoggedTunableNumber thetaMaxVelocityAuto =
-      new LoggedTunableNumber("DriveToPose/ThetaMaxVelocityAuto");
-  private static final LoggedTunableNumber thetaMaxAccelerationAuto =
-      new LoggedTunableNumber("DriveToPose/ThetaMaxAccelerationAuto");
-  private static final LoggedTunableNumber driveTolerance =
-      new LoggedTunableNumber("DriveToPose/DriveTolerance");
-  private static final LoggedTunableNumber thetaTolerance =
-      new LoggedTunableNumber("DriveToPose/ThetaTolerance");
-  private static final LoggedTunableNumber ffMinRadius =
-      new LoggedTunableNumber("DriveToPose/FFMinRadius");
-  private static final LoggedTunableNumber ffMaxRadius =
-      new LoggedTunableNumber("DriveToPose/FFMaxRadius");
+  private final Drive m_swerve;
+  private final Pose2d m_targetPose;
+  
+  // PID controllers for X, Y, and Rotation
+  private final PhoenixPIDController m_xController = new PhoenixPIDController(0.04, 0, 0.001);
+  private final PhoenixPIDController m_yController = new PhoenixPIDController(0.036, 0, 0.002);
+  private final PhoenixPIDController m_rotationController = new PhoenixPIDController(7.1, 0, 0.15);
+  
+  // Motion values
+  private double m_xSpeed = 0.0;
+  private double m_ySpeed = 0.0;
+  private double m_rotationSpeed = 0.0;
+  
+  // Alignment state tracking
+  private boolean m_isDone = false;
+  private final Debouncer m_alignmentDone = new Debouncer(0.1);
+  
+  // Speed limits
+  private final double m_maxSpeed;
+  private final double m_maxAngularRate;
+  
+  // Drive requests
+  private final SwerveRequest.RobotCentric m_driveRequest = new SwerveRequest.RobotCentric()
+    .withDriveRequestType(DriveRequestType.Velocity)
+    .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
-  static {
-    drivekP.initDefault(1.0);
-    drivekD.initDefault(0.0);
-    thetakP.initDefault(4.0);
-    thetakD.initDefault(0.0);
-    driveMaxVelocity.initDefault(3.8);
-    driveMaxAcceleration.initDefault(3.0);
-    driveMaxVelocityAuto.initDefault(3.8);
-    driveMaxAccelerationAuto.initDefault(3.0);
-    thetaMaxVelocity.initDefault(Units.degreesToRadians(360.0));
-    thetaMaxAcceleration.initDefault(8.0);
-    thetaMaxVelocityAuto.initDefault(Units.degreesToRadians(360.0));
-    thetaMaxAccelerationAuto.initDefault(8.0);
-    driveTolerance.initDefault(0.01);
-    thetaTolerance.initDefault(Units.degreesToRadians(1.0));
-    ffMinRadius.initDefault(0.01);
-    ffMaxRadius.initDefault(0.05);
+  /**
+   * Creates a command that aligns the robot to a specified Pose2d.
+   * 
+   * @param swerve The swerve drive subsystem
+   * @param targetPose The target pose to align to
+   * @param maxSpeed Maximum linear speed in meters per second
+   * @param maxAngularRate Maximum angular rate in rotations per second
+   */
+  public DriveToPose(Drive swerve, Pose2d targetPose, double maxSpeed, double maxAngularRate) {
+    m_swerve = swerve;
+    m_targetPose = targetPose;
+    m_maxSpeed = maxSpeed;
+    m_maxAngularRate = RotationsPerSecond.of(maxAngularRate).in(RadiansPerSecond);
+    
+    // Configure the rotation controller for continuous input
+    m_rotationController.enableContinuousInput(-Math.PI, Math.PI);
+    
+    // Set tolerances for alignment
+    m_xController.setTolerance(2.5); // 2.5 cm tolerance
+    m_yController.setTolerance(2.5); // 2.5 cm tolerance
+    m_rotationController.setTolerance(Math.toRadians(2.5)); // 2.5 degrees tolerance
+    
+    addRequirements(swerve);
   }
 
-  private final Drive drive;
-  private final Supplier<Pose2d> target;
-
-  private final ProfiledPIDController driveController =
-      new ProfiledPIDController(
-          0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(0.0, 0.0), Constants6328.loopPeriodSecs);
-  private final ProfiledPIDController thetaController =
-      new ProfiledPIDController(
-          0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(0.0, 0.0), Constants6328.loopPeriodSecs);
-
-  private Translation2d lastSetpointTranslation = Translation2d.kZero;
-  private Rotation2d lastSetpointRotation = Rotation2d.kZero;
-  private double lastTime = 0.0;
-  private double driveErrorAbs = 0.0;
-  private double thetaErrorAbs = 0.0;
-  @Getter private boolean running = false;
-  private Supplier<Pose2d> robot = RobotState.getInstance()::getEstimatedPose;
-
-  private Supplier<Translation2d> linearFF = () -> Translation2d.kZero;
-  private DoubleSupplier omegaFF = () -> 0.0;
-
-  public DriveToPose(Drive drive, Supplier<Pose2d> target) {
-    this.drive = drive;
-    this.target = target;
-
-    // Enable continuous input for theta controller
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-    addRequirements(drive);
-  }
-
-  public DriveToPose(Drive drive, Supplier<Pose2d> target, Supplier<Pose2d> robot) {
-    this(drive, target);
-    this.robot = robot;
-  }
-
-  public DriveToPose(
-      Drive drive,
-      Supplier<Pose2d> target,
-      Supplier<Pose2d> robot,
-      Supplier<Translation2d> linearFF,
-      DoubleSupplier omegaFF) {
-    this(drive, target, robot);
-    this.linearFF = linearFF;
-    this.omegaFF = omegaFF;
+  /**
+   * Creates a command that aligns the robot to a specified Pose2d with default speed limits.
+   * 
+   * @param swerve The swerve drive subsystem
+   * @param targetPose The target pose to align to
+   */
+  public DriveToPose(Drive swerve, Pose2d targetPose) {
+    this(swerve, targetPose, MetersPerSecond.of(4.572).magnitude(), 0.75); // Default to 2.5 m/s max speed and 0.75 rotations per second
   }
 
   @Override
   public void initialize() {
-    Pose2d currentPose = robot.get();
-    ChassisSpeeds fieldVelocity = RobotState.getInstance().getFieldVelocity();
-    Translation2d linearFieldVelocity =
-        new Translation2d(fieldVelocity.vxMetersPerSecond, fieldVelocity.vyMetersPerSecond);
-    driveController.reset(
-        currentPose.getTranslation().getDistance(target.get().getTranslation()),
-        Math.min(
-            0.0,
-            -linearFieldVelocity
-                .rotateBy(
-                    target
-                        .get()
-                        .getTranslation()
-                        .minus(currentPose.getTranslation())
-                        .getAngle()
-                        .unaryMinus())
-                .getX()));
-    thetaController.reset(
-        currentPose.getRotation().getRadians(), fieldVelocity.omegaRadiansPerSecond);
-    lastSetpointTranslation = currentPose.getTranslation();
-    lastSetpointRotation = target.get().getRotation();
-    lastTime = Timer.getTimestamp();
+    m_isDone = false;
+    m_alignmentDone.calculate(false);
+    
+    // Reset PID controllers
+    m_xController.reset();
+    m_yController.reset();
+    m_rotationController.reset();
+    
+    // Initialize PID values with adaptive gains
+    m_xController.setP(0.041);
+    m_yController.setP(0.048);
+    
+    // Signal that we're auto aligning
+    m_swerve.setIsAutoAligning(true);
   }
 
   @Override
   public void execute() {
-    running = true;
-
-    // Update from tunable numbers
-    if (driveMaxVelocity.hasChanged(hashCode())
-        || driveMaxAcceleration.hasChanged(hashCode())
-        || driveTolerance.hasChanged(hashCode())
-        || thetaMaxVelocity.hasChanged(hashCode())
-        || thetaMaxAcceleration.hasChanged(hashCode())
-        || thetaTolerance.hasChanged(hashCode())
-        || drivekP.hasChanged(hashCode())
-        || drivekD.hasChanged(hashCode())
-        || thetakP.hasChanged(hashCode())
-        || thetakD.hasChanged(hashCode())) {
-      driveController.setP(drivekP.get());
-      driveController.setD(drivekD.get());
-      driveController.setTolerance(driveTolerance.get());
-      thetaController.setP(thetakP.get());
-      thetaController.setD(thetakD.get());
-      thetaController.setTolerance(thetaTolerance.get());
+    // Get current pose
+    Pose2d currentPose = RobotState.getInstance().getEstimatedPose();
+    
+    // Calculate position errors
+    double xError = m_targetPose.getX() * 100 - currentPose.getX() * 100; // Convert to cm for PID
+    double yError = m_targetPose.getY() * 100 - currentPose.getY() * 100; // Convert to cm for PID
+    double rotationError = m_targetPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
+    
+    // Adjust PID gains based on error magnitude (fine tuning when close)
+    if (Math.abs(xError) < 8) {
+      m_xController.setP(0.057);
+    } else {
+      m_xController.setP(0.041);
     }
-
-    // Update constraints
-    driveController.setConstraints(
-        new TrapezoidProfile.Constraints(
-            DriverStation.isAutonomous() ? driveMaxVelocityAuto.get() : driveMaxVelocity.get(),
-            DriverStation.isAutonomous()
-                ? driveMaxAccelerationAuto.get()
-                : driveMaxAcceleration.get()));
-    thetaController.setConstraints(
-        new TrapezoidProfile.Constraints(
-            DriverStation.isAutonomous() ? thetaMaxVelocityAuto.get() : thetaMaxVelocity.get(),
-            DriverStation.isAutonomous()
-                ? thetaMaxAccelerationAuto.get()
-                : thetaMaxAcceleration.get()));
-
-    // Get current pose and target pose
-    Pose2d currentPose = robot.get();
-    Pose2d targetPose = target.get();
-
-    // Calculate drive speed
-    double currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
-    double ffScaler =
-        MathUtil.clamp(
-            (currentDistance - ffMinRadius.get()) / (ffMaxRadius.get() - ffMinRadius.get()),
-            0.0,
-            1.0);
-    driveErrorAbs = currentDistance;
-    driveController.reset(
-        lastSetpointTranslation.getDistance(targetPose.getTranslation()),
-        driveController.getSetpoint().velocity);
-    double driveVelocityScalar =
-        driveController.calculate(driveErrorAbs, 0.0)
-            + driveController.getSetpoint().velocity * ffScaler;
-    if (currentDistance < driveController.getPositionTolerance()) driveVelocityScalar = 0.0;
-    lastSetpointTranslation =
-        new Pose2d(
-                targetPose.getTranslation(),
-                new Rotation2d(
-                    Math.atan2(
-                        currentPose.getTranslation().getY() - targetPose.getTranslation().getY(),
-                        currentPose.getTranslation().getX() - targetPose.getTranslation().getX())))
-            .transformBy(GeomUtil.toTransform2d(driveController.getSetpoint().position, 0.0))
-            .getTranslation();
-
-    // Calculate theta speed
-    double thetaVelocity =
-        thetaController.calculate(
-                currentPose.getRotation().getRadians(),
-                new TrapezoidProfile.State(
-                    targetPose.getRotation().getRadians(),
-                    (targetPose.getRotation().minus(lastSetpointRotation)).getRadians()
-                        / (Timer.getTimestamp() - lastTime)))
-            + thetaController.getSetpoint().velocity * ffScaler;
-    thetaErrorAbs =
-        Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getRadians());
-    if (thetaErrorAbs < thetaController.getPositionTolerance()) thetaVelocity = 0.0;
-    lastSetpointRotation = targetPose.getRotation();
-    Translation2d driveVelocity =
-        new Pose2d(
-                Translation2d.kZero,
-                new Rotation2d(
-                    Math.atan2(
-                        currentPose.getTranslation().getY() - targetPose.getTranslation().getY(),
-                        currentPose.getTranslation().getX() - targetPose.getTranslation().getX())))
-            .transformBy(GeomUtil.toTransform2d(driveVelocityScalar, 0.0))
-            .getTranslation();
-    lastTime = Timer.getTimestamp();
-
-    // Scale feedback velocities by input ff
-    final double linearS = linearFF.get().getNorm() * 3.0;
-    final double thetaS = Math.abs(omegaFF.getAsDouble()) * 3.0;
-    driveVelocity =
-        driveVelocity.interpolate(linearFF.get().times(DriveConstants.maxLinearSpeed), linearS);
-    thetaVelocity =
-        MathUtil.interpolate(
-            thetaVelocity, omegaFF.getAsDouble() * DriveConstants.maxAngularSpeed, thetaS);
-
-    // Command speeds
-    drive.runVelocity(
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-            driveVelocity.getX(), driveVelocity.getY(), thetaVelocity, currentPose.getRotation()));
-
-    // Log data
-    Logger.recordOutput("DriveToPose/DistanceMeasured", currentDistance);
-    Logger.recordOutput("DriveToPose/DistanceSetpoint", driveController.getSetpoint().position);
-    Logger.recordOutput("DriveToPose/ThetaMeasured", currentPose.getRotation().getRadians());
-    Logger.recordOutput("DriveToPose/ThetaSetpoint", thetaController.getSetpoint().position);
-    Logger.recordOutput(
-        "DriveToPose/Setpoint",
-        new Pose2d[] {
-          new Pose2d(
-              lastSetpointTranslation,
-              Rotation2d.fromRadians(thetaController.getSetpoint().position))
-        });
-    Logger.recordOutput("DriveToPose/Goal", new Pose2d[] {targetPose});
+    
+    if (Math.abs(yError) < 10) {
+      m_yController.setP(0.057);
+    } else {
+      m_yController.setP(0.048);
+    }
+    
+    // Calculate control outputs
+    m_xSpeed = m_xController.calculate(currentPose.getX() * 100, m_targetPose.getX() * 100, Timer.getFPGATimestamp());
+    m_ySpeed = m_yController.calculate(currentPose.getY() * 100, m_targetPose.getY() * 100, Timer.getFPGATimestamp());
+    m_rotationSpeed = m_rotationController.calculate(
+        currentPose.getRotation().getRadians(), 
+        m_targetPose.getRotation().getRadians(), 
+        Timer.getFPGATimestamp());
+    
+    // Add feedforward to improve response
+    if (m_xSpeed < 0) {
+      m_xSpeed -= 0.08;
+    } else {
+      m_xSpeed += 0.08;
+    }
+    
+    if (m_ySpeed < 0) {
+      m_ySpeed -= 0.1;
+    } else {
+      m_ySpeed += 0.1;
+    }
+    
+    // Clamp speeds to maximum values
+    m_xSpeed = Math.max(-m_maxSpeed, Math.min(m_maxSpeed, m_xSpeed));
+    m_ySpeed = Math.max(-m_maxSpeed, Math.min(m_maxSpeed, m_ySpeed));
+    m_rotationSpeed = Math.max(-m_maxAngularRate, Math.min(m_maxAngularRate, m_rotationSpeed));
+    
+    // Log values to SmartDashboard
+    SmartDashboard.putNumber("AutoAlign/X Speed", m_xSpeed);
+    SmartDashboard.putNumber("AutoAlign/Y Speed", m_ySpeed);
+    SmartDashboard.putNumber("AutoAlign/Rotation Speed", m_rotationSpeed);
+    SmartDashboard.putNumber("AutoAlign/X Error", xError);
+    SmartDashboard.putNumber("AutoAlign/Y Error", yError);
+    SmartDashboard.putNumber("AutoAlign/Rotation Error", rotationError);
+    SmartDashboard.putBoolean("AutoAlign/X At Setpoint", m_xController.atSetpoint());
+    SmartDashboard.putBoolean("AutoAlign/Y At Setpoint", m_yController.atSetpoint());
+    SmartDashboard.putBoolean("AutoAlign/Rotation At Setpoint", m_rotationController.atSetpoint());
+    
+    m_swerve.set
+    // Apply control to swerve drive
+    m_swerve.setControl(
+      m_driveRequest.withVelocityX(-m_ySpeed)
+          .withVelocityY(m_xSpeed)
+          .withRotationalRate(m_rotationSpeed)
+    );
+    
+    // Check if alignment is complete
+    m_isDone = m_alignmentDone.calculate(
+      m_xController.atSetpoint() && 
+      m_yController.atSetpoint() && 
+      m_rotationController.atSetpoint()
+    );
+    
+    SmartDashboard.putBoolean("AutoAlign/IsDone", m_isDone);
   }
 
   @Override
   public void end(boolean interrupted) {
-    drive.stop();
-    running = false;
-    // Clear logs
-    Logger.recordOutput("DriveToPose/Setpoint", new Pose2d[] {});
-    Logger.recordOutput("DriveToPose/Goal", new Pose2d[] {});
+    m_swerve.setIsAutoAligning(false);
   }
 
-  /** Checks if the robot is stopped at the final pose. */
-  public boolean atGoal() {
-    return running && driveController.atGoal() && thetaController.atGoal();
-  }
-
-  /** Checks if the robot pose is within the allowed drive and theta tolerances. */
-  public boolean withinTolerance(double driveTolerance, Rotation2d thetaTolerance) {
-    return running
-        && Math.abs(driveErrorAbs) < driveTolerance
-        && Math.abs(thetaErrorAbs) < thetaTolerance.getRadians();
+  @Override
+  public boolean isFinished() {
+    return m_isDone;
   }
 }

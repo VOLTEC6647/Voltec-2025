@@ -51,7 +51,7 @@ public class GlobalCamera {
         this.cameraType = CameraType.QUESTNAV;
         this.cameraName = name;
         this.questNav = questNav;
-        this.stdevsXY = 0.002;
+        this.stdevsXY = 0.02;
         this.consideringAmbiguity = false;
     }
 

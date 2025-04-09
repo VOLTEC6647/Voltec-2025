@@ -135,12 +135,12 @@ public class FieldLayout {
 		coral1 = handleCoralFlip(coral1.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
 		coral2 = handleCoralFlip(coral2.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
 
-		realAlgae = handleCoralFlip(realAlgae.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
-		realCoral1 = handleCoralFlip(realCoral1.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
-		realCoral2 = handleCoralFlip(realCoral2.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
+		realAlgae = handleCoralFlip(realAlgae.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
+		realCoral1 = handleCoralFlip(realCoral1.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
+		realCoral2 = handleCoralFlip(realCoral2.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
 
-		realCoral41 = handleCoralFlip(realCoral41.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
-		realCoral42 = handleCoralFlip(realCoral42.rotateBy(Rotation2d.fromDegrees(0)),Robot.is_red_alliance);
+		realCoral41 = handleCoralFlip(realCoral41.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
+		realCoral42 = handleCoralFlip(realCoral42.rotateBy(Rotation2d.fromDegrees(180)),Robot.is_red_alliance);
 
 		Pose2d[] corals = {coral1, coral2};
 		Pose2d[] realCorals = {realCoral1, realCoral2};

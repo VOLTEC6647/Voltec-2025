@@ -18,17 +18,18 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class VisionSubsystem extends SubsystemBase{
     private String[] limelights = new String[] {"limelight-coral"};//, "limelight-source"
     private String[] photons = new String[] {};//"corall", "coralr"
     private Transform3d photonTransform[] = new Transform3d[] {VisionPhotonConstants.CAMERA_CORALL_TRANSFORM, VisionPhotonConstants.CAMERA_CORALR_TRANSFORM};
     private ArrayList<GlobalCamera> cameras = new ArrayList<GlobalCamera>();
-    @Getter public Pose2d bestPose = null;
-    private boolean questNavEnabled = true;
+    @Getter public Pose2d bestPose = new Pose2d();
+    private boolean questNavEnabled = false;
     private GlobalCamera questNavCamera;
     QuestNav questNav = null;
-    private GlobalCamera coralLimelight;
+    public GlobalCamera coralLimelight;
     public boolean hasFirstPose = false;
 
     private static VisionSubsystem mInstance;
@@ -88,6 +89,7 @@ public class VisionSubsystem extends SubsystemBase{
 
         for(int i = 0; i < cameras.size(); i++) {
             if(cameras.get(i).getTagArea() > bestCameraArea) {
+                if(DriverStation.isDisabled()&&cameras.get(i).getName()=="QuestNav") continue;
                 bestCameraIndex = i;
                 bestCameraArea = cameras.get(i).getTagArea();
             }
@@ -95,7 +97,10 @@ public class VisionSubsystem extends SubsystemBase{
 
         if(bestCameraIndex != -1) {
             GlobalCamera bestCamera = cameras.get(bestCameraIndex);
-            bestPose = bestCamera.getEstimatedPose();
+            Logger.recordOutput("/Cameras/bestCamera", bestCamera.getName());
+            if (bestCamera != null && bestCamera!= questNavCamera){
+                bestPose = bestCamera.getEstimatedPose();
+            }
             //RobotContainer.instance.drivetrain.addVisionMeasurement(bestPose.pose, bestPose.timestampSeconds);
             RobotState.getInstance().addVisionObservation(
                 new VisionObservation(

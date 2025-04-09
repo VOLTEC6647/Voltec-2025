@@ -1,16 +1,18 @@
 package com.team1678.frc2024.auto.actions;
 
+import org.littletonrobotics.frc2025.commands.DriveToPose;
+
 import com.team1678.lib.requests.Request;
 import com.team6647.frc2025.subsystems.Superstructure;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class CommandAction implements Action {
-	private final Command command;
+public class DriveToPoseAction implements Action {
+	private final DriveToPose command;
 	private boolean requestAdded = false;
 
-	public CommandAction(Command command){
-		this.command = command;
+	public DriveToPoseAction(){
+		this.command = new DriveToPose(null, null);
 	}
 
 	@Override
@@ -27,7 +29,7 @@ public class CommandAction implements Action {
 
 	@Override
 	public boolean isFinished() {
-		return command.isFinished();
+		return command.isFinished() && requestAdded;
 	}
 
 	@Override

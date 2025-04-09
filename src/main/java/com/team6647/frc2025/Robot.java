@@ -213,9 +213,9 @@ public class Robot extends LoggedRobot {
 				autoPose = FieldLayout.handleAllianceFlip(
 						PathPlannerPath.fromPathFile("SF").getStartingHolonomicPose().get(),
 						DriverStation.getAlliance().get() == Alliance.Red);
-				//state.resetGyro(autoPose.getRotation());
-				//state.resetPose(autoPose);
-				//QuestNav.getInstance().setPosition(autoPose);
+				// state.resetGyro(autoPose.getRotation());
+				// state.resetPose(autoPose);
+				 QuestNav.getInstance().setPosition(autoPose);
 			} catch (FileVersionException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -285,7 +285,7 @@ public class Robot extends LoggedRobot {
 			CrashTracker.logThrowableCrash(t);
 			throw t;
 		}
-		// CommandScheduler.getInstance().enable();
+		 CommandScheduler.getInstance().enable();
 		confugureButtonBindings();
 	}
 
@@ -336,6 +336,12 @@ public class Robot extends LoggedRobot {
 			// }
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
+
+			if(VisionSubsystem.getInstance().coralLimelight.getTagArea()!=0){
+				RobotState.getInstance().resetPose(mVision.bestPose);
+			QuestNav.getInstance().setPosition(mVision.getBestPose());
+			}
+			
 
 			// mLimelight.setPipeline(Pipeline.TELEOP);
 			// mCoralPivot.zeroSensors();
@@ -476,24 +482,16 @@ public class Robot extends LoggedRobot {
 				() -> -mControlBoard.driver.getLeftY(),
 				() -> -mControlBoard.driver.getLeftX(),
 				() -> -mControlBoard.driver.getRightX(),
-				() -> is_red_alliance
+				() -> false
 		// Util.robotToFieldRelative(new
 		// Rotation2d(RobotState6328.getInstance().getHeading()),is_red_alliance).toLegacy()
 		);
 		mDrive.setDefaultCommand(joystickDriveCommandFactory.get());
-		
-		 //new ParallelRaceGroup(
-		 new RepeatCommand(new SequentialCommandGroup(
-		 new InstantCommand(()->{System.out.println("AAAAAAAAAAAA");
-		 RobotState.getInstance().resetGyro(mVision.bestPose.getRotation());
-		 RobotState.getInstance().resetPose(mVision.bestPose);
-		 mVision.setQuestPose(mVision.getBestPose());
-		 }),
-		 new WaitCommand(5)
-		 )).schedule();//,
-		 //new WaitUntilCommand(()->DriverStation.isEnabled())
-		 //).schedule();
-		 
+
+		// new ParallelRaceGroup(
+
+		// new WaitUntilCommand(()->DriverStation.isEnabled())
+		// ).schedule();
 
 	}
 }

@@ -110,6 +110,8 @@ public class Drive extends SubsystemBase {
   private PIDController choreoY;
   private PIDController choreoRotation;
   public int acceptingHeading;
+  
+  public boolean isAutoAligning = false;
 
   public Drive(
       GyroIO gyroIO,
@@ -463,6 +465,10 @@ public class Drive extends SubsystemBase {
 	  currentPose.getRotation()
 	);
 	runVelocity(speeds);
+  }
+
+  public void setIsAutoAligning(boolean isAutoAligning) {
+    this.isAutoAligning = isAutoAligning;
   }
 
 }
