@@ -11,6 +11,7 @@ import org.littletonrobotics.frc2025.RobotState.VisionObservation;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
+import com.team4678.CommandSwerveDrivetrain;
 import com.team6647.frc2025.Constants.VisionPhotonConstants;
 import com.team6647.lib.util.QuestNav;
 
@@ -102,12 +103,10 @@ public class VisionSubsystem extends SubsystemBase{
                 bestPose = bestCamera.getEstimatedPose();
             }
             //RobotContainer.instance.drivetrain.addVisionMeasurement(bestPose.pose, bestPose.timestampSeconds);
-            RobotState.getInstance().addVisionObservation(
-                new VisionObservation(
+            CommandSwerveDrivetrain.getInstance().addVisionMeasurement(
                     bestCamera.getEstimatedPose(),
                     bestCamera.getTimestampSeconds(),
                     VecBuilder.fill(bestCamera.getStdevsXY(), bestCamera.getStdevsXY(), bestCamera.getStdevsRot())
-                )
             );
         }
     }

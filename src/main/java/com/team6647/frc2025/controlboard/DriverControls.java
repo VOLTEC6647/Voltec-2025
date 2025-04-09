@@ -41,7 +41,7 @@ public class DriverControls {
 	Superstructure s = mSuperstructure;
 
 	CommandSwerveDrivetrain mDrive = CommandSwerveDrivetrain.getInstance();
-	RobotState state = RobotState.getInstance();
+	CommandSwerveDrivetrain drive = CommandSwerveDrivetrain.getInstance();
 	LEDSubsystem mleds = LEDSubsystem.getInstance();
 	VisionSubsystem mVision = VisionSubsystem.getInstance();
 
@@ -213,7 +213,7 @@ public class DriverControls {
 		
 
 		if (mControlBoard.driver.backButton.wasActivated()) {
-			state.resetGyro(edu.wpi.first.math.geometry.Rotation2d.fromDegrees(0));
+			drive.resetRotation(edu.wpi.first.math.geometry.Rotation2d.fromDegrees(0));
 		}
 		/*
 		if(mControlBoard.operator.bButton.wasActivated()){
@@ -307,7 +307,7 @@ public class DriverControls {
 		//}
 
 		if(mControlBoard.driver.startButton.wasActivated()){
-			state.resetGyro(mVision.getBestPose().getRotation());
+			drive.resetRotation(mVision.getBestPose().getRotation());
 			mVision.setQuestPose(mVision.getBestPose());
 		}
 		if(mControlBoard.driver.startButton.wasReleased()){
@@ -321,7 +321,7 @@ public class DriverControls {
 			if(Robot.is_red_alliance){
 				joystickDifference = 180;
 			}
-			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, state.getHeading().plus(Rotation2d.fromDegrees(joystickDifference).toLegacy()).getDegrees()));
+			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, drive.getState().Pose.getRotation().plus(Rotation2d.fromDegrees(joystickDifference).toLegacy()).getDegrees()));
 			s.coralId = 4;
 			
 			startAssist(new PreparePutCoral());
@@ -336,7 +336,7 @@ public class DriverControls {
 			if(Robot.is_red_alliance){
 				joystickDifference = 180;
 			}
-			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, state.getHeading().plus(Rotation2d.fromDegrees(joystickDifference).toLegacy()).getDegrees()));
+			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, drive.getState().Pose.getRotation().plus(Rotation2d.fromDegrees(joystickDifference).toLegacy()).getDegrees()));
 			s.coralId = 4;
 			
 			startAssist(new PreparePutCoral());

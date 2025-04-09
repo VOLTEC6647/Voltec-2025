@@ -5,6 +5,7 @@ import org.json.simple.parser.ParseException;
 import org.littletonrobotics.frc2025.RobotState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
+import com.team4678.CommandSwerveDrivetrain;
 import com.team6647.lib.util.QuestNav;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -38,7 +39,7 @@ public class ResetOdometryAction implements Action {
 	@Override
 	public void start() {
 		Pose2d targetPose = pathPlannerPath.getStartingHolonomicPose().get();
-		RobotState.getInstance().resetPose(targetPose);
+		CommandSwerveDrivetrain.getInstance().resetPose(targetPose);
 		QuestNav.getInstance().setPosition(targetPose);
 	}
 

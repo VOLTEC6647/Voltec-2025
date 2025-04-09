@@ -551,5 +551,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return this.getPigeon2().isConnected();
        // return (Math.abs(getgyroValue()) > 0);
     }
+    public Rotation2d getHeading() {
+        return this.getState().Pose.getRotation();
+    }
 
 }

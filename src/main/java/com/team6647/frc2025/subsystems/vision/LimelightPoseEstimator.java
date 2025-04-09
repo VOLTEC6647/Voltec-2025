@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.HashMap;
 import org.littletonrobotics.frc2025.RobotState;
+
+import com.team4678.CommandSwerveDrivetrain;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.subsystems.vision.LimelightHelpers.PoseEstimate;
 import com.team6647.frc2025.subsystems.vision.LimelightHelpers.RawFiducial;
@@ -91,7 +93,7 @@ public class LimelightPoseEstimator{
 
         
         if (megatag2Enabled) {
-            double megatagDegrees = RobotState.getInstance().getHeading().getDegrees();
+            double megatagDegrees = CommandSwerveDrivetrain.getInstance().getHeading().getDegrees();
             if (Robot.is_red_alliance) megatagDegrees = MathUtil.inputModulus(megatagDegrees + 180, -180, 180);
             LimelightHelpers.SetRobotOrientation(cameraName, megatagDegrees, 0, 0, 0, 0, 0);
             estimatedPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);

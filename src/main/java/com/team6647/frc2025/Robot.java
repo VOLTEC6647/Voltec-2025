@@ -190,7 +190,6 @@ public class Robot extends LoggedRobot {
 		autoChooser.addOption("Tuning", new TunePP());
 
 		if (isReal()) {
-			RobotState state = RobotState.getInstance();
 			Pose2d autoPose;
 			try {
 				autoPose = FieldLayout.handleAllianceFlip(
@@ -321,7 +320,7 @@ public class Robot extends LoggedRobot {
 			mEnabledLooper.start();
 
 			if(VisionSubsystem.getInstance().coralLimelight.getTagArea()!=0){
-				RobotState.getInstance().resetPose(mVision.bestPose);
+				mDrive.resetPose(mVision.bestPose);
 			QuestNav.getInstance().setPosition(mVision.getBestPose());
 			}
 			
@@ -409,26 +408,7 @@ public class Robot extends LoggedRobot {
 			if (alliance_changed) {
 				System.out.println("Alliance changed! But that doesn't matter :/");
 			}
-
-			// mAutoModeSelector.updateModeCreator(alliance_changed);
-
-			// if (autoMode.isPresent() && (autoMode.get() !=
-			// mAutoModeExecutor.getAutoMode())) {
-			// mAutoModeExecutor.setAutoMode(autoMode.get());
-			// }
-
-			// List<Trajectory<TimedState<Pose2dWithMotion>>> paths =
-			// autoMode.get().getPaths();
-			// for (int i = 0; i < paths.size(); i++) {
-			// LogUtil.recordTrajectory(String.format("Paths/Path %d", i), paths.get(i));
-			// }
-
-			// if (mControlBoard.driver.getBButton()) {
-			// RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
-			// }
-			// Logger.recordOutput("Vision Heading/Average",
-			// mVisionDevices.getMovingAverageRead());
-
+			
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);
 			throw t;

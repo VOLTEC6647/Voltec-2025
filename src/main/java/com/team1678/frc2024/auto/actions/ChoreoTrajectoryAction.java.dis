@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.Timer;
 public class ChoreoTrajectoryAction implements Action {
 
 	private CommandSwerveDrivetrain mDrive = null;
-	private RobotState state = null;
 
 	Optional<Trajectory<SwerveSample>> trajectory;
 	private final boolean mResetGyro;
@@ -34,7 +33,6 @@ public class ChoreoTrajectoryAction implements Action {
 	public ChoreoTrajectoryAction(String trajectoryName, boolean resetPose) {
 		trajectory = Choreo.loadTrajectory(trajectoryName);
 		mDrive = CommandSwerveDrivetrain.getInstance();
-		state = RobotState.getInstance();
 		mResetGyro = resetPose;
 	}
 
