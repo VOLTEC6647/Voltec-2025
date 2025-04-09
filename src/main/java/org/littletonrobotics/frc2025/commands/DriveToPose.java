@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import lombok.Getter;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
@@ -45,6 +47,8 @@ public class DriveToPose extends Command {
     .withDriveRequestType(DriveRequestType.Velocity)
     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
+    @Getter private static DriveToPose lastInstance;
+
   /**
    * Creates a command that aligns the robot to a specified Pose2d.
    * 
@@ -54,6 +58,7 @@ public class DriveToPose extends Command {
    * @param maxAngularRate Maximum angular rate in rotations per second
    */
   public DriveToPose(CommandSwerveDrivetrain swerve, Pose2d targetPose, double maxSpeed, double maxAngularRate) {
+    lastInstance = this;
     m_swerve = swerve;
     m_targetPose = targetPose;
     m_maxSpeed = maxSpeed;
@@ -69,6 +74,7 @@ public class DriveToPose extends Command {
     
     addRequirements(swerve);
   }
+
 
   /**
    * Creates a command that aligns the robot to a specified Pose2d with default speed limits.

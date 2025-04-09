@@ -23,6 +23,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.team4678.TunerConstants.TunerSwerveDrivetrain;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -553,6 +554,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
     public Rotation2d getHeading() {
         return this.getState().Pose.getRotation();
+    }
+
+    public Pose2d getPose() {
+        return this.getState().Pose;
     }
 
 }

@@ -449,8 +449,4 @@ public class Drive extends SubsystemBase {
 	runVelocity(speeds);
   }
 
-  public void setIsAutoAligning(boolean isAutoAligning) {
-    this.isAutoAligning = isAutoAligning;
-  }
-
 }

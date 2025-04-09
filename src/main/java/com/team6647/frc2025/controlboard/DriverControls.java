@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
 import org.littletonrobotics.frc2025.RobotState;
+import org.littletonrobotics.frc2025.commands.DriveToPose;
 import org.littletonrobotics.frc2025.subsystems.drive.Drive;
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.controlboard.ControlBoard;
@@ -467,6 +468,10 @@ public class DriverControls {
 		if(mAssistedActionsExecutor != null){
 			mAssistedActionsExecutor.stop();
 			mAssistedActionsExecutor = null;
+			DriveToPose currentDriveToPose = DriveToPose.getLastInstance();
+			if(currentDriveToPose != null){
+				currentDriveToPose.cancel();
+			}
 			//coralPlacer = null;
 			//coralPlacer = null;
 		}

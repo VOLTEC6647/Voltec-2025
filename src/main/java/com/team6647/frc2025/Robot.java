@@ -195,8 +195,8 @@ public class Robot extends LoggedRobot {
 				autoPose = FieldLayout.handleAllianceFlip(
 						PathPlannerPath.fromPathFile("SF").getStartingHolonomicPose().get(),
 						DriverStation.getAlliance().get() == Alliance.Red);
-				// state.resetGyro(autoPose.getRotation());
-				// state.resetPose(autoPose);
+				 CommandSwerveDrivetrain.getInstance().resetRotation(autoPose.getRotation());
+				 CommandSwerveDrivetrain.getInstance().resetPose(autoPose);
 				 QuestNav.getInstance().setPosition(autoPose);
 			} catch (FileVersionException e) {
 				e.printStackTrace();
