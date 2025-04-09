@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package org.littletonrobotics.frc2025.commands;
 
 import edu.wpi.first.math.filter.Debouncer;
@@ -13,18 +9,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
+import com.team4678.CommandSwerveDrivetrain;
+import com.team4678.TunerConstants;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import org.littletonrobotics.frc2025.RobotState;
-import org.littletonrobotics.frc2025.subsystems.drive.Drive;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 public class DriveToPose extends Command {
-  private final Drive m_swerve;
+  private final CommandSwerveDrivetrain m_swerve;
   private final Pose2d m_targetPose;
   
   // PID controllers for X, Y, and Rotation
@@ -58,7 +53,7 @@ public class DriveToPose extends Command {
    * @param maxSpeed Maximum linear speed in meters per second
    * @param maxAngularRate Maximum angular rate in rotations per second
    */
-  public DriveToPose(Drive swerve, Pose2d targetPose, double maxSpeed, double maxAngularRate) {
+  public DriveToPose(CommandSwerveDrivetrain swerve, Pose2d targetPose, double maxSpeed, double maxAngularRate) {
     m_swerve = swerve;
     m_targetPose = targetPose;
     m_maxSpeed = maxSpeed;
@@ -81,8 +76,8 @@ public class DriveToPose extends Command {
    * @param swerve The swerve drive subsystem
    * @param targetPose The target pose to align to
    */
-  public DriveToPose(Drive swerve, Pose2d targetPose) {
-    this(swerve, targetPose, MetersPerSecond.of(4.572).magnitude(), 0.75); // Default to 2.5 m/s max speed and 0.75 rotations per second
+  public DriveToPose(CommandSwerveDrivetrain swerve, Pose2d targetPose) {
+    this(swerve, targetPose, TunerConstants.kSpeedAt12Volts.in(MetersPerSecond), RotationsPerSecond.of(0.75).in(RadiansPerSecond)); // Default to 2.5 m/s max speed and 0.75 rotations per second
   }
 
   @Override
@@ -106,7 +101,7 @@ public class DriveToPose extends Command {
   @Override
   public void execute() {
     // Get current pose
-    Pose2d currentPose = RobotState.getInstance().getEstimatedPose();
+    Pose2d currentPose = m_swerve.getState().Pose;
     
     // Calculate position errors
     double xError = m_targetPose.getX() * 100 - currentPose.getX() * 100; // Convert to cm for PID
@@ -163,7 +158,6 @@ public class DriveToPose extends Command {
     SmartDashboard.putBoolean("AutoAlign/Y At Setpoint", m_yController.atSetpoint());
     SmartDashboard.putBoolean("AutoAlign/Rotation At Setpoint", m_rotationController.atSetpoint());
     
-    m_swerve.set
     // Apply control to swerve drive
     m_swerve.setControl(
       m_driveRequest.withVelocityX(-m_ySpeed)

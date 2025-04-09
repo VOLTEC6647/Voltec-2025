@@ -2,7 +2,6 @@ package com.team6647.frc2025.auto.modes.configuredQuals;
 
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeEndedException;
-import com.team1678.frc2024.auto.actions.ChoreoTrajectoryAction;
 import com.team1678.frc2024.auto.actions.PathplannerPathAction;
 import com.team1678.frc2024.auto.actions.WaitAction;
 import com.team6647.frc2025.subsystems.Elevator;

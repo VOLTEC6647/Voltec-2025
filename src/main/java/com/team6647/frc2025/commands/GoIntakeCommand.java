@@ -10,6 +10,7 @@ package com.team6647.frc2025.commands;
 import org.littletonrobotics.frc2025.commands.DriveToPose;
 import org.littletonrobotics.frc2025.subsystems.drive.Drive;
 
+import com.team4678.CommandSwerveDrivetrain;
 import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
@@ -25,7 +26,7 @@ public class GoIntakeCommand extends SequentialCommandGroup {
     Pose2d endpose = s.sourcePose.toLegacy();
     
     addCommands(
-      new DriveToPose(Drive.getInstance(), (()->endpose))
+      new DriveToPose(CommandSwerveDrivetrain.getInstance(), endpose)
     );
   }
 

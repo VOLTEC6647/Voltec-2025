@@ -4,6 +4,7 @@
 
 package com.team6647.frc2025;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
@@ -13,17 +14,8 @@ import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeExecutor;
 import com.team6647.frc2025.auto.AutoModeSelector;
 
-import com.team6647.frc2025.auto.modes.configuredQuals.CTest;
-import com.team6647.frc2025.auto.modes.configuredQuals.L1Attempt;
 import com.team6647.frc2025.auto.modes.configuredQuals.L4AutoPP;
-import com.team6647.frc2025.auto.modes.configuredQuals.LAlgae2;
-import com.team6647.frc2025.auto.modes.configuredQuals.Left1;
-import com.team6647.frc2025.auto.modes.configuredQuals.Left2;
-import com.team6647.frc2025.auto.modes.configuredQuals.Panteras;
-import com.team6647.frc2025.auto.modes.configuredQuals.S3Right;
-import com.team6647.frc2025.auto.modes.configuredQuals.S3RightA;
 import com.team6647.frc2025.auto.modes.configuredQuals.S3RightPP;
-import com.team6647.frc2025.auto.modes.configuredQuals.simpleForwardC;
 import com.team6647.frc2025.auto.modes.configuredQuals.simpleForwardD;
 import com.team1678.frc2024.controlboard.ControlBoard;
 import com.team6647.frc2025.controlboard.DriverControls;
@@ -33,6 +25,8 @@ import com.team1678.frc2024.subsystems.AlgaeT;
 import com.team1678.frc2024.subsystems.Climber;
 import com.team1678.frc2024.subsystems.CoralPivot;
 import com.team1678.frc2024.subsystems.SubsystemV;
+import com.team4678.CommandSwerveDrivetrain;
+import com.team4678.TunerConstants;
 import com.team6647.frc2025.subsystems.Elevator;
 import com.team6647.frc2025.subsystems.MotorTest;
 import com.team6647.frc2025.subsystems.Superstructure;
@@ -81,6 +75,10 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import java.io.IOException;
 import java.util.function.Supplier;
 
@@ -98,7 +96,8 @@ public class Robot extends LoggedRobot {
 	private final Superstructure mSuperstructure = Superstructure.getInstance();
 
 	// subsystem instances
-	private Drive mDrive;
+	private CommandSwerveDrivetrain mDrive;
+	private final SwerveRequest.FieldCentric driveC = new SwerveRequest.FieldCentric();
 	private LEDSubsystem leds;
 
 	private MotorTest mMotorTest;
@@ -131,6 +130,9 @@ public class Robot extends LoggedRobot {
 	public static boolean is_event = false;
 	public static String serial;
 
+	private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+
 	double disable_enter_time = 0.0;
 
 	static {
@@ -158,26 +160,16 @@ public class Robot extends LoggedRobot {
 	public Robot() {
 		CrashTracker.logRobotConstruction();
 
+		mDrive = TunerConstants.createDrivetrain();
+
 		switch (Constants6328.getRobot()) {
 			case COMPBOT -> {
-				mDrive = Drive.getInstance(
-						new GyroIOPigeon2(),
-						new ModuleIOComp(DriveConstants.moduleConfigsComp[0]),
-						new ModuleIOComp(DriveConstants.moduleConfigsComp[1]),
-						new ModuleIOComp(DriveConstants.moduleConfigsComp[2]),
-						new ModuleIOComp(DriveConstants.moduleConfigsComp[3]));
 			}
 			case DEVBOT -> {
 
 			}
 			case SIMBOT -> {
-				mDrive = Drive.getInstance(
-						new GyroIO() {
-						},
-						new ModuleIOSim(),
-						new ModuleIOSim(),
-						new ModuleIOSim(),
-						new ModuleIOSim());
+			
 			}
 		}
 
@@ -193,17 +185,8 @@ public class Robot extends LoggedRobot {
 		mVision = VisionSubsystem.getInstance();
 
 		autoChooser.addOption("Just Forward", new simpleForwardD());
-		autoChooser.addOption("S3RightA", new S3RightA());
-		autoChooser.addOption("SimpleForwardC", new simpleForwardC());
-		autoChooser.addOption("L1Attempt", new L1Attempt());
-		autoChooser.addOption("Left1", new Left1());
-		autoChooser.addOption("Left2", new Left2());
-		autoChooser.addOption("LAlgae2", new LAlgae2());
-		autoChooser.addOption("CTest", new CTest());
-		autoChooser.addOption("S3Right", new S3Right());
 		autoChooser.addOption("S3RightPP", new S3RightPP());
 		autoChooser.addOption("L4", new L4AutoPP());
-		autoChooser.addOption("Panteras", new Panteras());
 		autoChooser.addOption("Tuning", new TunePP());
 
 		if (isReal()) {
@@ -250,7 +233,7 @@ public class Robot extends LoggedRobot {
 				SmartDashboard.putString("Serial Number", serial);
 			}
 
-			mDrive.resetHeadings();
+			//mDrive.resetHeadings();
 
 			// mSubsystems = new SubsystemV[]{
 			// mDrive
@@ -323,13 +306,13 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void autonomousExit() {
-		mDrive.stop();
+		mDrive.stopDrive();
 	}
 
 	@Override
 	public void teleopInit() {
 		try {
-			mDrive.stop();
+			mDrive.stopDrive();
 			// VisionDeviceManager.setDisableVision(false);
 			// for (SubsystemV s:mSubsystems){
 			// s.onStart(Timer.getFPGATimestamp());
@@ -478,15 +461,15 @@ public class Robot extends LoggedRobot {
 	}
 
 	private void confugureButtonBindings() {
-		Supplier<Command> joystickDriveCommandFactory = () -> DriveCommands.joystickDrive(mDrive,
-				() -> -mControlBoard.driver.getLeftY(),
-				() -> -mControlBoard.driver.getLeftX(),
-				() -> -mControlBoard.driver.getRightX(),
-				() -> false
-		// Util.robotToFieldRelative(new
-		// Rotation2d(RobotState6328.getInstance().getHeading()),is_red_alliance).toLegacy()
-		);
-		mDrive.setDefaultCommand(joystickDriveCommandFactory.get());
+
+		mDrive.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            mDrive.applyRequest(() ->
+				driveC.withVelocityX(-mControlBoard.driver.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-mControlBoard.driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-mControlBoard.driver.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+            )
+        );
 
 		// new ParallelRaceGroup(
 

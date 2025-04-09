@@ -5,6 +5,7 @@ import org.littletonrobotics.frc2025.subsystems.drive.Drive;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import com.pathplanner.lib.path.PathConstraints;
+import com.team4678.CommandSwerveDrivetrain;
 import com.team6647.frc2025.subsystems.Superstructure;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -13,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class PathplannerIntakeAction implements Action {
 
-	private org.littletonrobotics.frc2025.subsystems.drive.Drive mDrive = null;
+	private CommandSwerveDrivetrain mDrive = null;
 
 	private Timer autoTimer = new Timer();
 	private double correctionDelay = 1.5;
@@ -25,7 +26,7 @@ public class PathplannerIntakeAction implements Action {
 
 	@Override
 	public void start() {
-		mDrive = Drive.getInstance();
+		mDrive = CommandSwerveDrivetrain.getInstance();
 
 		Pose2d endpose = Superstructure.getInstance().sourcePose.toLegacy();
 
@@ -48,6 +49,6 @@ public class PathplannerIntakeAction implements Action {
 
 	@Override
 	public void done() {
-		mDrive.stop();
+		mDrive.stopDrive();
 	}
 }

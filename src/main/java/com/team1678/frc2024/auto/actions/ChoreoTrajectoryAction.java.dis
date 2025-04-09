@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.littletonrobotics.frc2025.RobotState;
 import org.littletonrobotics.frc2025.subsystems.drive.Drive;
+
+import com.team4678.CommandSwerveDrivetrain;
 import com.team6647.frc2025.Robot;
 import choreo.Choreo;
 import choreo.trajectory.EventMarker;
@@ -14,7 +16,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class ChoreoTrajectoryAction implements Action {
 
-	private Drive mDrive = null;
+	private CommandSwerveDrivetrain mDrive = null;
 	private RobotState state = null;
 
 	Optional<Trajectory<SwerveSample>> trajectory;
@@ -31,21 +33,20 @@ public class ChoreoTrajectoryAction implements Action {
 
 	public ChoreoTrajectoryAction(String trajectoryName, boolean resetPose) {
 		trajectory = Choreo.loadTrajectory(trajectoryName);
-		mDrive = Drive.getInstance();
+		mDrive = CommandSwerveDrivetrain.getInstance();
 		state = RobotState.getInstance();
 		mResetGyro = resetPose;
 	}
 
 	public ChoreoTrajectoryAction(String trajectoryName, boolean resetPose, double correctionTime) {
 		trajectory = Choreo.loadTrajectory(trajectoryName);
-		mDrive = Drive.getInstance();
+		mDrive = CommandSwerveDrivetrain.getInstance();
 		mResetGyro = resetPose;
 		this.correctionDelay = correctionTime;
 	}
 
 	@Override
 	public void start() {
-		mDrive.acceptingHeading = 1;
 		//events = trajectory.get().events();
 		autoTimer.reset();
 		if (mResetGyro) {
@@ -64,9 +65,7 @@ public class ChoreoTrajectoryAction implements Action {
 		}else{
 			System.out.println("Sample not present");
 		}
-		if(trajectory.get().getTotalTime() < autoTimer.get()){
-			mDrive.acceptingHeading = 1;
-		}
+
 		/*
 		events.forEach(event -> {
 			if (event.timestamp < autoTimer.get()) {

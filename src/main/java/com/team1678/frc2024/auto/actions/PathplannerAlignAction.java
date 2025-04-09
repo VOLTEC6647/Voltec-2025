@@ -19,6 +19,7 @@ import com.team254.lib.trajectory.TimedView;
 import com.team254.lib.trajectory.Trajectory254;
 import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
+import com.team4678.CommandSwerveDrivetrain;
 import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.subsystems.Superstructure;
@@ -36,7 +37,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class PathplannerAlignAction implements Action {
 
-	private Drive mDrive = null;
+	private CommandSwerveDrivetrain mDrive = null;
 
 	private Timer autoTimer = new Timer();
 	private double correctionDelay = 1.5;
@@ -70,7 +71,7 @@ public class PathplannerAlignAction implements Action {
 
 	@Override
 	public void start() {
-		mDrive = Drive.getInstance();
+		mDrive = CommandSwerveDrivetrain.getInstance();
 		Superstructure s = Superstructure.getInstance();
 		Pose2d endpose;
 		if(s.level<4){
@@ -103,6 +104,6 @@ public class PathplannerAlignAction implements Action {
 
 	@Override
 	public void done() {
-		mDrive.stop();
+		mDrive.stopDrive();
 	}
 }

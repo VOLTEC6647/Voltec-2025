@@ -23,6 +23,7 @@ import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 
 import com.team254.lib.util.TimeDelayedBoolean;
+import com.team4678.CommandSwerveDrivetrain;
 import com.team6647.frc2025.FieldLayout;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.FieldLayout.CoralTarget;
@@ -69,7 +70,7 @@ public class Superstructure extends Subsystem {
 	private TimedLEDState mHeldState = TimedLEDState.NOTE_HELD_SHOT;
 
 	// Target tracking
-	private Drive mDrive = Drive.getInstance();
+	private CommandSwerveDrivetrain mDrive = CommandSwerveDrivetrain.getInstance();
 	private Elevator mElevator = Elevator.getInstance();
 	private CoralPivot mCoralPivot = CoralPivot.getInstance();
 	private double mDistanceToTarget = 0.0;

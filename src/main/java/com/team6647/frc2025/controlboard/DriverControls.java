@@ -17,6 +17,7 @@ import com.team1678.lib.requests.WaitForPrereqRequest;
 import com.team1678.lib.requests.WaitRequest;
 import com.team1678.lib.util.NearestCoralFinder;
 import com.team254.lib.geometry.Rotation2d;
+import com.team4678.CommandSwerveDrivetrain;
 import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.auto.actions.AssistModeExecutor;
 import com.team6647.frc2025.auto.modes.configuredQuals.intakeAuto;
@@ -39,7 +40,7 @@ public class DriverControls {
 	Superstructure mSuperstructure = Superstructure.getInstance();
 	Superstructure s = mSuperstructure;
 
-	Drive mDrive = Drive.getInstance();
+	CommandSwerveDrivetrain mDrive = CommandSwerveDrivetrain.getInstance();
 	RobotState state = RobotState.getInstance();
 	LEDSubsystem mleds = LEDSubsystem.getInstance();
 	VisionSubsystem mVision = VisionSubsystem.getInstance();

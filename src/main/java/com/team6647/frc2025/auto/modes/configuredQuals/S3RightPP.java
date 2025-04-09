@@ -4,7 +4,6 @@ import org.littletonrobotics.frc2025.subsystems.drive.Drive;
 
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeEndedException;
-import com.team1678.frc2024.auto.actions.ChoreoTrajectoryAction;
 import com.team1678.frc2024.auto.actions.LambdaAction;
 import com.team1678.frc2024.auto.actions.PathplannerTrajectoryAction;
 import com.team1678.frc2024.auto.actions.WaitAction;

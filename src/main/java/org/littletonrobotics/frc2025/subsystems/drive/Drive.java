@@ -86,24 +86,6 @@ public class Drive extends SubsystemBase {
           });
   private final SwerveSetpointGenerator swerveSetpointGenerator;
 
-  private static Drive mInstance;
-
-  public static Drive getInstance(
-      GyroIO gyroIO,
-      ModuleIO flModuleIO,
-      ModuleIO frModuleIO,
-      ModuleIO blModuleIO,
-      ModuleIO brModuleIO) {
-		if (mInstance == null) {
-			mInstance = new Drive(gyroIO,flModuleIO,frModuleIO,blModuleIO,brModuleIO);
-		}
-		return mInstance;
-	}
-
-  public static Drive getInstance(){
-    return mInstance;
-  }
-
   private double kPathFollowDriveP;
   private double kPathFollowTurnP;
   private PIDController choreoX;
