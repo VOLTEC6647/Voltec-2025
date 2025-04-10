@@ -184,10 +184,10 @@ public class Robot extends LoggedRobot {
 		mClimber = Climber.getInstance();
 		mVision = VisionSubsystem.getInstance();
 
-		autoChooser.addOption("Just Forward", new simpleForwardD());
-		autoChooser.addOption("S3RightPP", new S3RightPP());
-		autoChooser.addOption("L4", new L4AutoPP());
-		autoChooser.addOption("Tuning", new TunePP());
+		//autoChooser.addOption("Just Forward", new simpleForwardD());
+		//autoChooser.addOption("S3RightPP", new S3RightPP());
+		//autoChooser.addOption("L4", new L4AutoPP());
+		//autoChooser.addOption("Tuning", new TunePP());
 
 		if (isReal()) {
 			Pose2d autoPose;

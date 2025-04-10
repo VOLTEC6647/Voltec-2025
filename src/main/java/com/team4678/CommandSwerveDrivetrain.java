@@ -5,12 +5,6 @@ import static edu.wpi.first.units.Units.*;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.littletonrobotics.frc2025.subsystems.drive.Drive;
-import org.littletonrobotics.frc2025.subsystems.drive.GyroIO;
-import org.littletonrobotics.frc2025.subsystems.drive.ModuleIO;
-import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonPipelineResult;
-
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -57,29 +51,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
-    private List<PhotonPipelineResult> rpiCoralScoreResult;
-    private PhotonCamera rpi;
-    private PhotonCamera driverCam;
     private double bestAprilTagTargetX;
     private double bestAprilTagTargetY;
-    private double bestAprilTagTargetSize = 0;
     private int bestAprilTagTargetID;
-    private int checkRPICount = 0;    
-    private boolean isRPIOkay = false;
+
     private double[] dashPIDS = new double[11];
-    private double distanceLaserAvg = 0;
     private double bestAprilTagXMeters = 0.0;
     private double bestAprilTagYMeters = 0.0;
-    private DutyCycle distanceLaser;
-    private DutyCycle rearLidar;
-    private DutyCycle chuteLidar;
+
     private Transform3d cameraToTag;
     private boolean hasAprilTagTarget = false;
-    private int aprilTagTargetRequest = 7;
     private boolean isAutoAligning = false;
-    private double distanceLaserSum = 0;
-    private int distanceLaserSumSize = 10;
-    double[] distanceLidarReadings = new double[10];
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
@@ -174,13 +156,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, modules);
+        mInstance = this;
         if (Utils.isSimulation()) {
             startSimThread();
         }
         
-        for (int i = 0; i < distanceLaserSumSize; i++) {
-            distanceLidarReadings[i] = 0;
-        }
         configureAutoBuilder();
     }
 
@@ -206,9 +186,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        distanceLaser = new DutyCycle(new DigitalInput(0));
-        rearLidar = new DutyCycle(new DigitalInput(1));
-        chuteLidar = new DutyCycle(new DigitalInput(2));
+        
         configureAutoBuilder();
         mInstance = this;
     }
@@ -252,9 +230,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        distanceLaser = new DutyCycle(new DigitalInput(0));
-        rearLidar = new DutyCycle(new DigitalInput(1));
-        chuteLidar = new DutyCycle(new DigitalInput(2));
+        
         configureAutoBuilder();
     }
     private void configureAutoBuilder() {
@@ -338,79 +314,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-        rpiCoralScoreResult = rpi.getAllUnreadResults();        
-       // PhotonTargetSortMode test;
-       // test = PhotonTargetSortMode.Largest;
-       // rpiCoralScoreResult.sort(new Comparator<T>() {
        
-        
-        if (!rpiCoralScoreResult.isEmpty()) {
-            var res = rpiCoralScoreResult.get(rpiCoralScoreResult.size() - 1);
-            if (res.hasTargets()) {
-                bestAprilTagTargetSize = 0;
-                hasAprilTagTarget = true;
-                //SmartDashboard.putNumber("April tag target #", res.getTargets().size());
-                //var bestTarget = res.getBestTarget();
-                for (int i = 0; i < (res.getTargets().size()); i++) {
-                    var currentTag = res.getTargets().get(i);
-                    if (currentTag.area > bestAprilTagTargetSize) {
-                        bestAprilTagTargetX = currentTag.yaw;
-                        bestAprilTagTargetY = currentTag.pitch;
-                        bestAprilTagTargetID = currentTag.fiducialId;
-                        bestAprilTagTargetSize = currentTag.area;
-                        bestAprilTagXMeters = currentTag.bestCameraToTarget.getTranslation().getY();
-                        bestAprilTagYMeters = currentTag.bestCameraToTarget.getTranslation().getX();
-                    }
-                    //SmartDashboard.putNumber("April targets list size", res.getTargets().size());
-                    // if (res.getTargets().get(i).getFiducialId() == (aprilTagTargetRequest)) {
-                    //     bestAprilTagTargetX = res.getTargets().get(i).yaw;
-                    //     bestAprilTagTargetY = res.getTargets().get(i).pitch;
-                    //     bestAprilTagTargetID = res.getTargets().get(i).fiducialId;
-                    //     i = res.getTargets().size(); //TODO kinda jank, maybe change later
-                    // }
-                }
-               
-               // cameraToTag = bestTarget.getBestCameraToTarget();
-            }
-            else {
-                hasAprilTagTarget = false;
-               bestAprilTagTargetX =0;
-               bestAprilTagTargetY = 0;
-               bestAprilTagTargetID = 0;
-               bestAprilTagXMeters = 0;
-               bestAprilTagYMeters = 0;
-            }
-        }
-        else {
-            hasAprilTagTarget = false;
-           // bestAprilTagTargetX =0;
-           // bestAprilTagTargetY = 0;
-            //bestAprilTagTargetID = 0;
-        }
-        // for (int i =  0; i < distanceLaserSumSize - 1; i++) {
-        //     distanceLidarReadings[i] = distanceLidarReadings[i + 1];
-        // }
-        // distanceLidarReadings[distanceLaserSumSize - 1] = getDistanceLaser();
-        // for (int i = 0; i < distanceLaserSumSize; i++) {
-        //     distanceLaserSum += distanceLidarReadings[i];
-        // }
-        // distanceLaserAvg = distanceLaserSum / 10.0;
-        // distanceLaserSum = 0;
         SmartDashboard.putNumber("April Tag Best ID", bestAprilTagTargetID);
         SmartDashboard.putNumber("April Tag X", bestAprilTagTargetX);
         SmartDashboard.putNumber("April Tag Y", bestAprilTagTargetY);
         SmartDashboard.putNumber("Gyro", getgyroValue());
       //  SmartDashboard.putString("2D pose X", this.getState().Pose.getMeasureX().toString());
        // SmartDashboard.putString("2D pose Y", this.getState().Pose.getMeasureY().toString());
-        SmartDashboard.putNumber("Distance Laser", this.getDistanceLaser());
-        SmartDashboard.putNumber("Distance Laser Average", distanceLaserAvg);
-        SmartDashboard.putNumber("Rear Lidar", getRearLidar());
-        SmartDashboard.putNumber("Chute Lidar", getChuteLidar());
+    
+        
          SmartDashboard.putNumber("Robot Speed Y", getRobotSpeeds().vxMetersPerSecond);
          SmartDashboard.putNumber("Robot speeds X", getRobotSpeeds().vyMetersPerSecond);
          SmartDashboard.putNumber("April Tag X meters", bestAprilTagXMeters);
          SmartDashboard.putNumber("April Tag Y meters", bestAprilTagYMeters);
-         SmartDashboard.putBoolean("Is RPI camera sending data", rpi.isConnected());
         // SmartDashboard.putNumber("Robot Module Speed", this.getState().ModuleStates[0].speedMetersPerSecond);
         // SmartDashboard.putNumber("Module 0 RPS", this.getModule(0).getDriveMotor().getRotorVelocity().getValueAsDouble());
         // SmartDashboard.putNumber("Module 1 RPS", this.getModule(1).getDriveMotor().getRotorVelocity().getValueAsDouble());
@@ -442,14 +358,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
      }
-    public boolean isAprilTagCameraReady() {
-        //checkRPICount ++;
-        //if (checkRPICount > 100) {
-        //  checkRPICount = 0;
-          isRPIOkay = rpi.isConnected();
-        //}
-        return isRPIOkay;
-    }
+    
      public double bestAprilTagXMeters() {
         return bestAprilTagXMeters;
      }
@@ -497,30 +406,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      public double[] getDashPIDS() {
         return dashPIDS;
      }
-     public double getDistanceLaser() {
-        return distanceLaser.getOutput() * 400;
-    }
-    // Is it getting a reading at all? May be a better way.
-    public boolean isFrontLidarReady() {
-        return (distanceLaser.getOutput() > 0.0);
-    }
-    public double getRearLidar(){
-        return rearLidar.getOutput() * 400; 
-    }
-    // Is it getting a reading at all? May be a better way.
-    public boolean isRearLidarReady() {
-        return (rearLidar.getOutput() > 0.0);
-    }
-    public double getChuteLidar() {
-        return chuteLidar.getOutput() * 800; //20 is the lowest consistent reading
-    }
-    // Is it getting a reading at all? May be a better way.
-    public boolean isChuteLidarReady() {
-        return (chuteLidar.getOutput() > 0.0);
-    }
-    public void setAprilTagTargetRequest(int tagID) {
-        aprilTagTargetRequest = tagID;
-    }
+
+    
+
     public ChassisSpeeds getRobotSpeeds() {
         double fieldYSpeed = this.getState().Speeds.vxMetersPerSecond;
         double fieldXSpeed = this.getState().Speeds.vyMetersPerSecond;
@@ -534,9 +422,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
     public void setIsAutoAligning(boolean setVal) {
         isAutoAligning = setVal;
-    }
-    public double getDistanceLaserAverage() {
-        return distanceLaserAvg;
     }
     public boolean isModuleReady(int module) {
         var mod = this.getModule(module);       
