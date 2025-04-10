@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.*;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -156,7 +158,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, modules);
-        mInstance = this;
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -188,7 +189,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
         
         configureAutoBuilder();
-        mInstance = this;
     }
 
     private static CommandSwerveDrivetrain mInstance;
@@ -234,6 +234,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         configureAutoBuilder();
     }
     private void configureAutoBuilder() {
+        mInstance = this;
         try {
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
@@ -341,6 +342,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         //SmartDashboard.putNumber("Path Coral Align Estimated Y", cameraToTag.getX());
         //SmartDashboard.putNumber("Path Coral Align Estimated X", cameraToTag.getY());
         //SmartDashboard.putString("cameraToTag", cameraToTag.toString());
+        Logger.recordOutput("Drive/Pose", getPose());
 
     }
 

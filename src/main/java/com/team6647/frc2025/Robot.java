@@ -447,7 +447,7 @@ public class Robot extends LoggedRobot {
             mDrive.applyRequest(() ->
 				driveC.withVelocityX(-mControlBoard.driver.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-mControlBoard.driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-mControlBoard.driver.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                    .withRotationalRate(-mControlBoard.driver.getRightX() * MaxAngularRate*2) // Drive counterclockwise with negative X (left)
             )
         );
 
