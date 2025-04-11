@@ -74,7 +74,7 @@ public class QuestNav {
     centerOffsetForward.initDefault(-0.04705165);
     centerOffsetRight.initDefault(0.28129601);
     debugPeriodic();
-    zeroPosition();
+    //zeroPosition();
 
 
   }
