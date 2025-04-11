@@ -23,6 +23,7 @@ import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.auto.actions.AssistModeExecutor;
 import com.team6647.frc2025.auto.modes.configuredQuals.intakeAuto;
 import com.team6647.frc2025.auto.modes.configuredQuals.PreparePutCoral;
+import com.team6647.frc2025.auto.modes.configuredQuals.PutCoral;
 import com.team6647.frc2025.subsystems.Elevator;
 import com.team6647.frc2025.subsystems.MotorTest;
 import com.team6647.frc2025.subsystems.Superstructure;
@@ -91,7 +92,7 @@ public class DriverControls {
 		if(mControlBoard.operator.aButton.wasActivated()){
 			if(assisting){
 				//new PathplannerAlignAction(null);
-				startAssist(new PreparePutCoral());
+				startAssist(new PutCoral());
 
 			}else{
 				mSuperstructure.request(
@@ -215,7 +216,7 @@ public class DriverControls {
 
 		if (mControlBoard.driver.backButton.wasActivated()) {
 			CommandSwerveDrivetrain.getInstance().resetRotation(edu.wpi.first.math.geometry.Rotation2d.fromDegrees(0));
-			QuestNav.getInstance().zeroPosition();
+			//QuestNav.getInstance().zeroPosition();
 		}
 		/*
 		if(mControlBoard.operator.bButton.wasActivated()){
@@ -282,31 +283,6 @@ public class DriverControls {
 			}
 			//coralPlacer.stop();
 		}
-		if(mControlBoard.operator.POV90.wasActivated()){
-			//s.coralStationPosition++;
-			if (s.coralStationPosition>1){
-				s.coralStationPosition = 1;
-			}
-			//coralPlacer.stop();
-			s.showSource();
-		}
-		if(mControlBoard.operator.POV270.wasActivated()){
-			//s.coralStationPosition--;
-			if (s.coralStationPosition<0){
-				s.coralStationPosition = 0;
-			}
-			//coralPlacer.stop();
-			s.showSource();
-		}
-		//if(mControlBoard.operator.leftTrigger.wasActivated()){
-		//	mAlgaeRollers.setState(AlgaeRollers.State.INTAKING);
-		//}
-		//if(mControlBoard.operator.rightTrigger.wasActivated()){
-		//	mAlgaeRollers.setState(AlgaeRollers.State.EXHAUST);
-		//}
-		//if(mControlBoard.operator.leftTrigger.wasReleased()||mControlBoard.operator.rightTrigger.wasReleased()){
-		//	mAlgaeRollers.setState(AlgaeRollers.State.IDLE);
-		//}
 
 		if(mControlBoard.driver.startButton.wasActivated()){
 			drive.resetRotation(mVision.getBestPose().getRotation());
@@ -320,13 +296,14 @@ public class DriverControls {
 		if(mControlBoard.driver.POV270.wasActivated()){
 			s.subCoralId = 1;
 			double joystickDifference = 0;
-			if(Robot.is_red_alliance){
-				joystickDifference = 180;
-			}
+			//if(Robot.is_red_alliance){
+			//	joystickDifference = 180;
+			//}
 			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, drive.getState().Pose.getRotation().plus(Rotation2d.fromDegrees(joystickDifference).toLegacy()).getDegrees()));
 			s.coralId = 4;
+			s.setSource(1);
 			
-			startAssist(new PreparePutCoral());
+			startAssist(new PutCoral());
 		}
 		if(mControlBoard.driver.POV270.wasReleased()){
 			stopAssist();
@@ -334,42 +311,19 @@ public class DriverControls {
 
 		if(mControlBoard.driver.POV90.wasActivated()){
 			s.subCoralId = 0;
+			s.setSource(0);
 			double joystickDifference = 0;
-			if(Robot.is_red_alliance){
-				joystickDifference = 180;
-			}
-			s.coralId = NearestCoralFinder.getCoralIdFromTarget( NearestCoralFinder.findNearestCoral(s.angles, drive.getState().Pose.getRotation().plus(Rotation2d.fromDegrees(joystickDifference).toLegacy()).getDegrees()));
+			//if(Robot.is_red_alliance){
+			//	joystickDifference = 180;
+			//}
+			s.coralId = NearestCoralFinder.getCoralIdFromTarget(NearestCoralFinder.findNearestCoral(s.angles, drive.getState().Pose.getRotation().plus(Rotation2d.fromDegrees(joystickDifference).toLegacy()).getDegrees()));
 			s.coralId = 4;
 			
-			startAssist(new PreparePutCoral());
+			startAssist(new PutCoral());
 		}
 		if(mControlBoard.driver.POV90.wasReleased()){
 			stopAssist();
 		}
-			 
-
-		/*
-		if(mControlBoard.driver.POV0.wasActivated()){
-			s.sourcePose = s.sourcePose1;
-			s.showSource();
-			startAssist(new intakePP());
-		}
-		if(mControlBoard.driver.POV0.wasReleased()){
-			mDrive.setControlState(DriveControlState.OPEN_LOOP);
-			stopAssist();
-		}
-
-		if(mControlBoard.driver.POV180.wasActivated()){
-			s.sourcePose = s.sourcePose2;
-			s.showSource();
-			startAssist(new intakePP());
-		}
-		if(mControlBoard.driver.POV180.wasReleased()){
-			mDrive.setControlState(DriveControlState.OPEN_LOOP);
-			stopAssist();
-		}
-
-		*/
 
 		if(mControlBoard.driver.leftTrigger.wasActivated()){
 		}

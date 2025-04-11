@@ -27,7 +27,7 @@ public class PreparePutCoral extends AutoModeBase {
 		CoralRoller.getInstance().setState(CoralRoller.State.CONSTANT);
 		CoralPivot.getInstance().setSetpointMotionMagic(s.currentLevel.coralAngle);
 		runAction(new CommandAction(new GoCoralCommand()));
-		s.addRequestToQueue(s.prepareLevel(s.currentLevel));
+		//s.addRequestToQueue(s.prepareLevel(s.currentLevel));
 		System.out.println("Finished auto!");
 	}
 	// spotless:on

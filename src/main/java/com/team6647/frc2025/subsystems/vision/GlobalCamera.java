@@ -7,6 +7,7 @@ import com.team6647.frc2025.Robot;
 import com.team6647.frc2025.subsystems.vision.LimelightHelpers.PoseEstimate;
 import com.team6647.frc2025.subsystems.vision.PhotonPoseEstimator.EstimatedPose2d;
 import com.team6647.lib.util.QuestNav;
+import com.team6647.lib.util.QuestNav.QuestNavData;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -77,17 +78,17 @@ public class GlobalCamera {
                 this.tagArea = 0;  
             }
         } else if (cameraType == CameraType.QUESTNAV) {
-            questNav.debugPeriodic();
             if (!isConnected()){
                 this.estimatedPose = null;
                 this.tagArea = 0;
-                this.timestampSeconds = questNav.timestamp();
+                this.timestampSeconds = 0;
                 return;
             }
-            Pose2d pose = questNav.getPose();//questNav.getPose();
+            QuestNavData questNavData = questNav.getQuestNavData();
+            Pose2d pose = questNavData.pose();//questNav.getPose();
             this.estimatedPose = pose;
             this.tagArea = Double.POSITIVE_INFINITY;
-            this.timestampSeconds = questNav.timestampSeconds();
+            this.timestampSeconds = questNavData.timestamp();
         }
     }
 
@@ -160,24 +161,14 @@ public class GlobalCamera {
         if (cameraType == CameraType.QUESTNAV) {
             return questNav.getTrackingLostCounter();
         }
-        return 0L;
+        throw new UnsupportedOperationException("Not implemented yet"); 
     }
 
-    public void setPosition(Pose2d pose) {
-        questNav.setPosition(pose);
-        /*
+    public void setPosition(Pose2d pose) {        
         if (cameraType == CameraType.QUESTNAV) {
-            if(questNav.hasFirstPose){
-                questNav.setPosition(pose);
-            }else{
-                new SequentialCommandGroup(
-                   new WaitUntilCommand(()->questNav.hasFirstPose),
-                    new InstantCommand(()->{questNav.setPosition(pose);})
-                ).schedule();
-                
-            }
-            //questNav.zeroPosition();
+            questNav.resetPose(pose);
+            return;
         }
-             */
+        throw new UnsupportedOperationException("Not implemented yet");             
     }
 }

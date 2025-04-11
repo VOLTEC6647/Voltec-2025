@@ -29,7 +29,7 @@ public class DriveToPoseAction implements Action {
 
 	@Override
 	public boolean isFinished() {
-		return command.isFinished() && requestAdded;
+		return command.isFinished();
 	}
 
 	@Override

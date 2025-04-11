@@ -197,7 +197,7 @@ public class Robot extends LoggedRobot {
 						DriverStation.getAlliance().get() == Alliance.Red);
 				 CommandSwerveDrivetrain.getInstance().resetRotation(autoPose.getRotation());
 				 CommandSwerveDrivetrain.getInstance().resetPose(autoPose);
-				 QuestNav.getInstance().setPosition(autoPose);
+				 QuestNav.getInstance().resetPose(autoPose);
 			} catch (FileVersionException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -277,7 +277,7 @@ public class Robot extends LoggedRobot {
 		mSubsystemManager.outputLoopTimes();
 		CommandScheduler.getInstance().run();
 		QuestNav.getInstance().processHeartbeat();
-		QuestNav.getInstance().cleanUpQuestNavMessages();
+		//QuestNav.getInstance().cleanUpQuestNavMessages();//???
 	}
 
 	private final SendableChooser<AutoModeBase> autoChooser = new SendableChooser<AutoModeBase>();
@@ -324,7 +324,7 @@ public class Robot extends LoggedRobot {
 			if(VisionSubsystem.getInstance().coralLimelight.getTagArea()!=0){
 				VisionSubsystem.getInstance().positionreset = true;
 				mDrive.resetPose(mVision.coralLimelight.getEstimatedPose());
-				QuestNav.getInstance().setPosition(mVision.coralLimelight.getEstimatedPose());
+				QuestNav.getInstance().resetPose(mVision.coralLimelight.getEstimatedPose());
 			}
 			
 
@@ -351,6 +351,7 @@ public class Robot extends LoggedRobot {
 			// coralTab.add("Slot", 3);
 			mSuperstructure.showAngle();
 			mSuperstructure.showLevel();
+			mSuperstructure.showSource();
 
 		} catch (Throwable t) {
 			CrashTracker.logThrowableCrash(t);

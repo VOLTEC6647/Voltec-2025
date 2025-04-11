@@ -1,40 +1,16 @@
 package com.team6647.frc2025.auto.modes.configuredQuals;
 
+import org.littletonrobotics.frc2025.commands.DriveToPose;
+
 import com.team1678.frc2024.auto.AutoModeBase;
 import com.team1678.frc2024.auto.AutoModeEndedException;
 import com.team1678.frc2024.auto.actions.CommandAction;
-import com.team1678.frc2024.auto.actions.LambdaAction;
-import com.team1678.frc2024.auto.actions.ParallelAction;
-import com.team1678.frc2024.auto.actions.RequestAction;
-import com.team1678.frc2024.auto.actions.SeriesAction;
-
-import com.team1678.frc2024.auto.actions.WaitAction;
-import com.team1678.frc2024.auto.actions.WaitForSuperstructureAction;
-import com.team1678.frc2024.auto.actions.WaitToPassXCoordinateAction;
-import com.team1678.frc2024.auto.actions.WaitToPassYCoordinateAction;
 import com.team1678.frc2024.subsystems.CoralPivot;
 
 import com.team1678.lib.requests.IntakeCoralRequest;
-import com.team1678.lib.requests.LambdaRequest;
-import com.team1678.lib.requests.SequentialRequest;
-import com.team1678.lib.requests.WaitForPrereqRequest;
-import com.team1678.lib.requests.WaitRequest;
-import com.team254.lib.geometry.Pose2dWithMotion;
-import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.trajectory.Trajectory254;
-import com.team254.lib.trajectory.timing.TimedState;
-import com.team6647.frc2025.FieldLayout;
-import com.team6647.frc2025.auto.actions.GenAction;
-import com.team6647.frc2025.auto.actions.WaitForEnterPathGeneratedAction;
-
-import com.team6647.frc2025.commands.GoIntakeCommand;
-import com.team6647.frc2025.subsystems.Elevator;
+import com.team4678.CommandSwerveDrivetrain;
 import com.team6647.frc2025.subsystems.Superstructure;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
-
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-
-import java.util.List;
 
 public class intakeAuto extends AutoModeBase {
 	private Superstructure s = Superstructure.getInstance();
@@ -50,9 +26,8 @@ public class intakeAuto extends AutoModeBase {
 		CoralRoller mCoralRoller = CoralRoller.getInstance();
 		s.request(
 			IntakeCoralRequest.get()
-			);
-
-		runAction(new CommandAction(new GoIntakeCommand()));
+		);
+		runAction(new CommandAction(new DriveToPose(CommandSwerveDrivetrain.getInstance(), s.sourcePose.toLegacy())));
 
 		System.out.println("Finished auto!");
 	}

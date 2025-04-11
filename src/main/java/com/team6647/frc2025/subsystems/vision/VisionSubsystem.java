@@ -39,7 +39,7 @@ public class VisionSubsystem extends SubsystemBase{
     
     public static VisionSubsystem getInstance() {
 		if (mInstance == null) {
-			mInstance = new VisionSubsystem();//, CoralPivotConstants.kHoodEncoderConstants
+			mInstance = new VisionSubsystem();
 		}
 		return mInstance;
 	}
@@ -102,18 +102,15 @@ public class VisionSubsystem extends SubsystemBase{
         if(bestCameraIndex != -1) {
             GlobalCamera bestCamera = cameras.get(bestCameraIndex);
             Logger.recordOutput("/Cameras/bestCamera", bestCamera.getName());
-            //if (bestCamera != null && bestCamera.getName()!="QuestNav"){
-            //    bestPose = bestCamera.getEstimatedPose();
-            //}
-            //RobotContainer.instance.drivetrain.addVisionMeasurement(bestPose.pose, bestPose.timestampSeconds);
+ 
             CommandSwerveDrivetrain.getInstance().addVisionMeasurement(
                     new Pose2d(
                         bestCamera.getEstimatedPose().getX(),
                         bestCamera.getEstimatedPose().getY(),
                         CommandSwerveDrivetrain.getInstance().getHeading()
                     ),
-                    Utils.fpgaToCurrentTime(bestCamera.getTimestampSeconds())//,
-                    //VecBuilder.fill(bestCamera.getStdevsXY(), bestCamera.getStdevsXY(), bestCamera.getStdevsRot())
+                    Utils.fpgaToCurrentTime(bestCamera.getTimestampSeconds()),
+                    VecBuilder.fill(bestCamera.getStdevsXY(), bestCamera.getStdevsXY(), 999999)
             );
         }
     }

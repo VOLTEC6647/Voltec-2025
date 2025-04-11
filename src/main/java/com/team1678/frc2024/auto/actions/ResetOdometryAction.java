@@ -40,7 +40,7 @@ public class ResetOdometryAction implements Action {
 	public void start() {
 		Pose2d targetPose = pathPlannerPath.getStartingHolonomicPose().get();
 		CommandSwerveDrivetrain.getInstance().resetPose(targetPose);
-		QuestNav.getInstance().setPosition(targetPose);
+		QuestNav.getInstance().resetPose(targetPose);
 	}
 
 	@Override

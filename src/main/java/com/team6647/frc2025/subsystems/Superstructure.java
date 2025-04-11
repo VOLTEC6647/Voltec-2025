@@ -125,16 +125,29 @@ public class Superstructure extends Subsystem {
 		}
 	}
 
-	public Pose2d sourcePose1 = new Pose2d(1.13,7.06,Rotation2d.fromDegrees(-53.4));
+	public Pose2d sourcePose1 = FieldLayout.handleAllianceFlip(new Pose2d(1.13,7.06,Rotation2d.fromDegrees(-53.4)), Robot.is_red_alliance);
 	
-	public Pose2d sourcePose2 = new Pose2d(1.2310409545898438,0.873404324054718,Rotation2d.fromDegrees(55));
+	public Pose2d sourcePose2 = FieldLayout.handleAllianceFlip(new Pose2d(1.2310409545898438,0.873404324054718,Rotation2d.fromDegrees(55)),Robot.is_red_alliance);
 
 	public Pose2d sourcePose = sourcePose1;
 
 	public void setSource(int id) {
-		if(id == 1){
-
+		if(Robot.is_red_alliance){
+			if(id == 0){
+				sourcePose = sourcePose1;
+			}
+			if(id == 1){
+				sourcePose = sourcePose2;
+			}
+		}else{
+			if(id == 1){
+				sourcePose = sourcePose1;
+			}
+			if(id == 0){
+				sourcePose = sourcePose2;
+			}
 		}
+		
 	}
 
 	public boolean requestsCompleted() {
@@ -248,7 +261,7 @@ public class Superstructure extends Subsystem {
 	}
 
 	public synchronized void showSource() {
-		Logger.recordOutput("CoralSource", FieldLayout.getCoralStation(true, coralStationPosition).toLegacy());
+		Logger.recordOutput("CoralSource", sourcePose.toLegacy());//FieldLayout.getCoralStation(true, coralStationPosition).toLegacy());
 	}
 
 	private double levelCenter = 8.77400016784668;
