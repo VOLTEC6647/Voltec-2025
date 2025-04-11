@@ -31,6 +31,7 @@ import com.team6647.frc2025.subsystems.algae_roller.AlgaeRoller;
 import com.team6647.frc2025.subsystems.coral_roller.CoralRoller;
 import com.team6647.frc2025.subsystems.leds.LEDSubsystem;
 import com.team6647.frc2025.subsystems.vision.VisionSubsystem;
+import com.team6647.lib.util.QuestNav;
 
 import edu.wpi.first.units.measure.Angle;
 
@@ -41,7 +42,6 @@ public class DriverControls {
 	Superstructure mSuperstructure = Superstructure.getInstance();
 	Superstructure s = mSuperstructure;
 
-	CommandSwerveDrivetrain mDrive = CommandSwerveDrivetrain.getInstance();
 	CommandSwerveDrivetrain drive = CommandSwerveDrivetrain.getInstance();
 	LEDSubsystem mleds = LEDSubsystem.getInstance();
 	VisionSubsystem mVision = VisionSubsystem.getInstance();
@@ -214,7 +214,8 @@ public class DriverControls {
 		
 
 		if (mControlBoard.driver.backButton.wasActivated()) {
-			drive.resetRotation(edu.wpi.first.math.geometry.Rotation2d.fromDegrees(0));
+			CommandSwerveDrivetrain.getInstance().resetRotation(edu.wpi.first.math.geometry.Rotation2d.fromDegrees(0));
+			QuestNav.getInstance().zeroPosition();
 		}
 		/*
 		if(mControlBoard.operator.bButton.wasActivated()){
@@ -444,6 +445,13 @@ public class DriverControls {
 			mClimber.setSetpointMotionMagic(Climber.kVertical);
 			mCoralPivot.setSetpointMotionMagic(CoralPivot.kLevel2Angle);
 			mAlgaeHolder.setSetpointMotionMagic(AlgaeT.kIntakingAngle);
+		}
+
+		if(mControlBoard.driver.leftBumper.wasActivated()){
+			CommandSwerveDrivetrain.getInstance().setTeleopMultiplier(0.5);
+		}
+		if(mControlBoard.driver.rightBumper.wasActivated()){
+			CommandSwerveDrivetrain.getInstance().setTeleopMultiplier(1);
 		}
 
 

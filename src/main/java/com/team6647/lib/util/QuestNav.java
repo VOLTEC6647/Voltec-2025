@@ -20,6 +20,7 @@ import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 
 public class QuestNav {
   // Configure Network Tables topics (questnav/...) to communicate with the Quest
@@ -144,6 +145,10 @@ public class QuestNav {
   // Gets the Quests's timestamp in NT Server Time.
   public double timestamp() {
     return questTimestamp.getAtomic().serverTime;
+  }
+
+  public double timestampSeconds() {
+    return Timer.getFPGATimestamp();
   }
 
   // Zero the relativerobot heading

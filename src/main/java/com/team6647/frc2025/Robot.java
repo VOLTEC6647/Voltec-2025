@@ -319,9 +319,12 @@ public class Robot extends LoggedRobot {
 			mDisabledLooper.stop();
 			mEnabledLooper.start();
 
+			mClimber.setSetpointMotionMagic(0);
+
 			if(VisionSubsystem.getInstance().coralLimelight.getTagArea()!=0){
-				mDrive.resetPose(mVision.bestPose);
-			QuestNav.getInstance().setPosition(mVision.getBestPose());
+				VisionSubsystem.getInstance().positionreset = true;
+				mDrive.resetPose(mVision.coralLimelight.getEstimatedPose());
+				QuestNav.getInstance().setPosition(mVision.coralLimelight.getEstimatedPose());
 			}
 			
 
@@ -445,8 +448,8 @@ public class Robot extends LoggedRobot {
 		mDrive.setDefaultCommand(
             // Drivetrain will execute this command periodically
             mDrive.applyRequest(() ->
-				driveC.withVelocityX(-mControlBoard.driver.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-mControlBoard.driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+				driveC.withVelocityX(-mControlBoard.driver.getLeftY() * MaxSpeed * mDrive.getTeleopMultiplier()) // Drive forward with negative Y (forward)
+                    .withVelocityY(-mControlBoard.driver.getLeftX() * MaxSpeed * mDrive.getTeleopMultiplier()) // Drive left with negative X (left)
                     .withRotationalRate(-mControlBoard.driver.getRightX() * MaxAngularRate*2) // Drive counterclockwise with negative X (left)
             )
         );

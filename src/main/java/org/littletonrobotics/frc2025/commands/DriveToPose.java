@@ -25,8 +25,8 @@ public class DriveToPose extends Command {
   private final Pose2d m_targetPose;
   
   // PID controllers for X, Y, and Rotation
-  private final PhoenixPIDController m_xController = new PhoenixPIDController(0.04, 0, 0.001);
-  private final PhoenixPIDController m_yController = new PhoenixPIDController(0.036, 0, 0.002);
+  private final PhoenixPIDController m_xController = new PhoenixPIDController(3.6, 0, 0.2);
+  private final PhoenixPIDController m_yController = new PhoenixPIDController(3.6, 0, 0.2);
   private final PhoenixPIDController m_rotationController = new PhoenixPIDController(7.1, 0, 0.15);
   
   // Motion values
@@ -43,7 +43,7 @@ public class DriveToPose extends Command {
   private final double m_maxAngularRate;
   
   // Drive requests
-  private final SwerveRequest.RobotCentric m_driveRequest = new SwerveRequest.RobotCentric()
+  private final SwerveRequest.FieldCentric m_driveRequest = new SwerveRequest.FieldCentric()
     .withDriveRequestType(DriveRequestType.Velocity)
     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
@@ -68,8 +68,8 @@ public class DriveToPose extends Command {
     m_rotationController.enableContinuousInput(-Math.PI, Math.PI);
     
     // Set tolerances for alignment
-    m_xController.setTolerance(2.5); // 2.5 cm tolerance
-    m_yController.setTolerance(2.5); // 2.5 cm tolerance
+    m_xController.setTolerance(0.025); // 2.5 cm tolerance
+    m_yController.setTolerance(0.025); // 2.5 cm tolerance
     m_rotationController.setTolerance(Math.toRadians(2.5)); // 2.5 degrees tolerance
     
     addRequirements(swerve);
@@ -97,8 +97,8 @@ public class DriveToPose extends Command {
     m_rotationController.reset();
     
     // Initialize PID values with adaptive gains
-    m_xController.setP(0.041);
-    m_yController.setP(0.048);
+    m_xController.setP(4.1);
+    m_yController.setP(4.8);
     
     // Signal that we're auto aligning
     m_swerve.setIsAutoAligning(true);
@@ -110,43 +110,43 @@ public class DriveToPose extends Command {
     Pose2d currentPose = m_swerve.getState().Pose;
     
     // Calculate position errors
-    double xError = m_targetPose.getX() * 100 - currentPose.getX() * 100; // Convert to cm for PID
-    double yError = m_targetPose.getY() * 100 - currentPose.getY() * 100; // Convert to cm for PID
-    double rotationError = m_targetPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
+    double xError = m_targetPose.getX() - currentPose.getX(); // Convert to cm for PID
+    double yError = m_targetPose.getY() - currentPose.getY(); // Convert to cm for PID
+    double rotationError = m_targetPose.getRotation().getRadians();
     
     // Adjust PID gains based on error magnitude (fine tuning when close)
     if (Math.abs(xError) < 8) {
-      m_xController.setP(0.057);
+      m_xController.setP(5.7);
     } else {
-      m_xController.setP(0.041);
+      m_xController.setP(4.1);
     }
     
     if (Math.abs(yError) < 10) {
-      m_yController.setP(0.057);
+      m_yController.setP(5.7);
     } else {
-      m_yController.setP(0.048);
+      m_yController.setP(4.8);
     }
     
     // Calculate control outputs
-    m_xSpeed = m_xController.calculate(currentPose.getX() * 100, m_targetPose.getX() * 100, Timer.getFPGATimestamp());
-    m_ySpeed = m_yController.calculate(currentPose.getY() * 100, m_targetPose.getY() * 100, Timer.getFPGATimestamp());
+    m_xSpeed = m_xController.calculate(currentPose.getX(), m_targetPose.getX(), Timer.getFPGATimestamp());
+    m_ySpeed = m_yController.calculate(currentPose.getY(), m_targetPose.getY(), Timer.getFPGATimestamp());
     m_rotationSpeed = m_rotationController.calculate(
         currentPose.getRotation().getRadians(), 
         m_targetPose.getRotation().getRadians(), 
         Timer.getFPGATimestamp());
     
     // Add feedforward to improve response
-    if (m_xSpeed < 0) {
-      m_xSpeed -= 0.08;
-    } else {
-      m_xSpeed += 0.08;
-    }
+    //if (m_xSpeed < 0) {
+    //  m_xSpeed -= 0.08;
+   // } else {
+   //   m_xSpeed += 0.08;
+   // }
     
-    if (m_ySpeed < 0) {
-      m_ySpeed -= 0.1;
-    } else {
-      m_ySpeed += 0.1;
-    }
+   // if (m_ySpeed < 0) {
+   //   m_ySpeed -= 0.1;
+  //  } else {
+  //    m_ySpeed += 0.1;
+  //  }
     
     // Clamp speeds to maximum values
     m_xSpeed = Math.max(-m_maxSpeed, Math.min(m_maxSpeed, m_xSpeed));
@@ -166,8 +166,8 @@ public class DriveToPose extends Command {
     
     // Apply control to swerve drive
     m_swerve.setControl(
-      m_driveRequest.withVelocityX(-m_ySpeed)
-          .withVelocityY(m_xSpeed)
+      m_driveRequest.withVelocityX(-m_xSpeed)
+          .withVelocityY(-m_ySpeed)
           .withRotationalRate(m_rotationSpeed)
     );
     

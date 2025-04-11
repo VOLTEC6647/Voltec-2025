@@ -11,6 +11,7 @@ import org.littletonrobotics.frc2025.RobotState.VisionObservation;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
+import com.ctre.phoenix6.Utils;
 import com.team4678.CommandSwerveDrivetrain;
 import com.team6647.frc2025.Constants.VisionPhotonConstants;
 import com.team6647.lib.util.QuestNav;
@@ -32,6 +33,7 @@ public class VisionSubsystem extends SubsystemBase{
     QuestNav questNav = null;
     public GlobalCamera coralLimelight;
     public boolean hasFirstPose = false;
+    public boolean positionreset = true;
 
     private static VisionSubsystem mInstance;
     
@@ -90,23 +92,28 @@ public class VisionSubsystem extends SubsystemBase{
 
         for(int i = 0; i < cameras.size(); i++) {
             if(cameras.get(i).getTagArea() > bestCameraArea) {
-                if(DriverStation.isDisabled()&&cameras.get(i).getName()=="QuestNav") continue;
                 bestCameraIndex = i;
                 bestCameraArea = cameras.get(i).getTagArea();
+                Logger.recordOutput("/Cameras/bestCameraTimestamp", cameras.get(bestCameraIndex).getTimestampSeconds());
             }
         }
+        Logger.recordOutput("/Cameras/bestCameraIndex", bestCameraIndex);
 
         if(bestCameraIndex != -1) {
             GlobalCamera bestCamera = cameras.get(bestCameraIndex);
             Logger.recordOutput("/Cameras/bestCamera", bestCamera.getName());
-            if (bestCamera != null && bestCamera!= questNavCamera){
-                bestPose = bestCamera.getEstimatedPose();
-            }
+            //if (bestCamera != null && bestCamera.getName()!="QuestNav"){
+            //    bestPose = bestCamera.getEstimatedPose();
+            //}
             //RobotContainer.instance.drivetrain.addVisionMeasurement(bestPose.pose, bestPose.timestampSeconds);
             CommandSwerveDrivetrain.getInstance().addVisionMeasurement(
-                    bestCamera.getEstimatedPose(),
-                    bestCamera.getTimestampSeconds(),
-                    VecBuilder.fill(bestCamera.getStdevsXY(), bestCamera.getStdevsXY(), bestCamera.getStdevsRot())
+                    new Pose2d(
+                        bestCamera.getEstimatedPose().getX(),
+                        bestCamera.getEstimatedPose().getY(),
+                        CommandSwerveDrivetrain.getInstance().getHeading()
+                    ),
+                    Utils.fpgaToCurrentTime(bestCamera.getTimestampSeconds())//,
+                    //VecBuilder.fill(bestCamera.getStdevsXY(), bestCamera.getStdevsXY(), bestCamera.getStdevsRot())
             );
         }
     }

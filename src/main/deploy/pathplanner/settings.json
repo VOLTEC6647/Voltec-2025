@@ -2,7 +2,9 @@
   "robotWidth": 0.831342,
   "robotLength": 0.831342,
   "holonomicMode": true,
-  "pathFolders": [],
+  "pathFolders": [
+    "A7"
+  ],
   "autoFolders": [
     "New Folder"
   ],
@@ -18,7 +20,7 @@
   "driveGearing": 6.75,
   "maxDriveSpeed": 10.0,
   "driveMotorType": "krakenX60",
-  "driveCurrentLimit": 120.0,
+  "driveCurrentLimit": 60.0,
   "wheelCOF": 1.2,
   "flModuleX": 0.264,
   "flModuleY": 0.263525,

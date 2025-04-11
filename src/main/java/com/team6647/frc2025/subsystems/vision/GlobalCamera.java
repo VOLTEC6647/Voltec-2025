@@ -26,7 +26,7 @@ public class GlobalCamera {
     private double timestampSeconds;
     private boolean consideringAmbiguity = true;
     @Getter private double stdevsXY;
-    @Getter private double stdevsRot = Double.POSITIVE_INFINITY;
+    @Getter private double stdevsRot = 0;
 
     public enum CameraType {
         LIMELIGHT,
@@ -87,7 +87,7 @@ public class GlobalCamera {
             Pose2d pose = questNav.getPose();//questNav.getPose();
             this.estimatedPose = pose;
             this.tagArea = Double.POSITIVE_INFINITY;
-            this.timestampSeconds = questNav.timestamp();
+            this.timestampSeconds = questNav.timestampSeconds();
         }
     }
 

@@ -38,6 +38,8 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import lombok.Getter;
+import lombok.Setter;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
@@ -60,6 +62,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private double[] dashPIDS = new double[11];
     private double bestAprilTagXMeters = 0.0;
     private double bestAprilTagYMeters = 0.0;
+
+    @Setter @Getter private double teleopMultiplier = 1;
 
     private Transform3d cameraToTag;
     private boolean hasAprilTagTarget = false;
